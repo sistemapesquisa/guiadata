@@ -10,42 +10,38 @@ echo.
 
 set PATH=C:\Users\Lenovo2user\AppData\Local\Programs\Git\cmd;%PATH%
 
-cd /d "%~dp0"
+cd /d "c:\Users\Lenovo2user\.gemini\antigravity\scratch\wv-contabilidade\guiadata"
 
-echo [1/3] Verificando arquivos locais...
-git status
+echo [1/2] Repositorio Alvo:
+echo https://github.com/sistemapesquisa/guiadata.git
 echo.
 
-set /p REPO_URL="Cole a URL do seu repositorio no GitHub (ex: https://github.com/SEU_USUARIO/guiadata.git): "
-
-if "%REPO_URL%"=="" (
-    echo [ERRO] Nenhuma URL foi informada.
-    pause
-    exit /b
-)
-
-echo.
-echo [2/3] Configurando conexao remota...
 git remote remove origin >nul 2>&1
-git remote add origin %REPO_URL%
+git remote add origin https://github.com/sistemapesquisa/guiadata.git
 git branch -M main
 
+echo [2/2] Enviando arquivos para a branch main no GitHub...
+echo (Se uma janela do navegador abrir pedindo login no GitHub, basta autorizar)
 echo.
-echo [3/3] Enviando arquivos para a branch main no GitHub...
-echo (Se uma janela do navegador ou pedido de login abrir, confirme seu acesso ao GitHub)
-echo.
+
 git push -u origin main
 
+echo.
 if %errorlevel% equ 0 (
-    echo.
     echo ========================================================
     echo   🎉 SUCESSO! Repositorio GuiaData publicado no GitHub!
     echo ========================================================
-) else (
     echo.
-    echo [AVISO] Se o push pedir senha, o GitHub exige um Personal Access Token (PAT)
-    echo ou que voce autorize pelo navegador no Git Credential Manager.
+    echo Agora voce ja pode ir no Cloudflare Pages e conectar o
+    echo repositorio sistemapesquisa/guiadata!
+) else (
+    echo ========================================================
+    echo   [AVISO] O envio precisou de autenticacao.
+    echo ========================================================
+    echo Se pediu Token ou senha, utilize o Git Credential Manager
+    echo ou um Personal Access Token (PAT) do GitHub.
 )
 
 echo.
-pause
+echo Pressione qualquer tecla para fechar esta janela...
+pause >nul
