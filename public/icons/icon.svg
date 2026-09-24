@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7" />
+      <stop offset="50%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#4f46e5" />
+    </linearGradient>
+    <linearGradient id="pieGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#0ea5e9" />
+    </linearGradient>
+    <linearGradient id="pieGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#e2e8f0" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#000000" flood-opacity="0.35" />
+    </filter>
+  </defs>
+
+  <!-- Squircle Base -->
+  <rect x="24" y="24" width="464" height="464" rx="108" fill="url(#bgGrad)" filter="url(#shadow)" />
+  <rect x="24" y="24" width="464" height="464" rx="108" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="4" />
+
+  <!-- Shield Shape Background -->
+  <path d="M256 100 L380 148 V268 C380 348 256 412 256 412 C256 412 132 348 132 268 V148 Z" fill="rgba(15, 23, 42, 0.45)" stroke="rgba(255, 255, 255, 0.3)" stroke-width="6" stroke-linejoin="round" />
+
+  <!-- Pie Chart Slices -->
+  <!-- Slice 1: Main Sector -->
+  <path d="M256 244 L256 160 A84 84 0 0 1 340 244 Z" fill="url(#pieGrad1)" />
+  <!-- Slice 2: Secondary Sector -->
+  <path d="M256 244 L340 244 A84 84 0 1 1 230 164 Z" fill="url(#pieGrad2)" />
+
+  <!-- Checkmark Overlay on Bottom of Shield -->
+  <circle cx="340" cy="330" r="44" fill="#10b981" filter="url(#shadow)" />
+  <polyline points="324,330 336,342 358,318" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Subtle Satellite / Signal Wave -->
+  <path d="M180 120 A120 120 0 0 1 332 120" fill="none" stroke="rgba(56, 189, 248, 0.6)" stroke-width="6" stroke-linecap="round" />
+  <path d="M205 138 A85 85 0 0 1 307 138" fill="none" stroke="rgba(56, 189, 248, 0.9)" stroke-width="5" stroke-linecap="round" />
+</svg>

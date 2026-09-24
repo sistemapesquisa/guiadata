@@ -1,0 +1,2167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>GuiaData 3.5 — Plataforma de Pesquisas de Campo, Opinião Pública & Auditoria Antifraude</title>
+  <meta name="description" content="GuiaData 3.5: Plataforma inteligente para gestão de pesquisas eleitorais, opinião pública e auditoria de campo. Operação 100% offline via ODK Collect, geolocalização e gravação de áudio.">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#0284c7">
+  
+  <!-- Canonical & PWA -->
+  <link rel="canonical" href="http://localhost:3000/">
+  <link rel="manifest" href="/manifest.json?v=3.5.0">
+  <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="GuiaData">
+
+  <!-- Open Graph / Social Sharing -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="GuiaData 3.5 — Pesquisas de Campo & Auditoria">
+  <meta property="og:description" content="Plataforma de pesquisa de campo com resiliência 100% offline, validações ODK XLSForm em 1-clique e auditoria antifraude.">
+  <meta property="og:image" content="/icons/icon-512.png">
+  <meta property="og:url" content="http://localhost:3000/">
+
+  <!-- High-Speed Resource Hints (PageSpeed 100/100) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://unpkg.com" crossorigin>
+  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+  <link rel="dns-prefetch" href="https://unpkg.com">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+  <link rel="stylesheet" href="css/styles.css?v=3.5.0">
+
+  <!-- PWA Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(reg => {
+            console.log('GuiaData Service Worker registrado com escopo:', reg.scope);
+          })
+          .catch(err => {
+            console.warn('Registro de Service Worker ignorado:', err.message);
+          });
+      });
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+</head>
+<body>
+
+  <!-- Mobile Header -->
+  <header class="mobile-header" id="mobile-header">
+    <button class="btn-icon" id="sidebar-toggle-mobile" aria-label="Abrir menu de navegação" title="Menu lateral"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
+    <span class="mobile-logo">GuiaData</span>
+  </header>
+
+  <div class="app-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-icon"><i class="fa-solid fa-chart-pie"></i></div>
+        <div class="sidebar-logo">
+          <div>GuiaData</div>
+          <div class="logo-sub">Pesquisa Inteligente</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a class="nav-item" data-target="view-dashboard" id="nav-dashboard"><i class="fa-solid fa-layer-group"></i><span>Projetos</span></a>
+        <a class="nav-item" data-target="view-library" id="nav-library"><i class="fa-solid fa-book-bookmark" style="color:#a855f7;"></i><span>Biblioteca de Modelos</span></a>
+        <a class="nav-item" data-target="view-mobile-sim" id="nav-mobile-sim"><i class="fa-solid fa-mobile-screen"></i><span>Preview (Simulador)</span></a>
+        <div class="nav-divider"></div>
+        <a class="nav-item" data-target="view-team" id="nav-team"><i class="fa-solid fa-users"></i><span>Gerenciar Equipe</span></a>
+        <a class="nav-item" data-target="view-roles" id="nav-roles"><i class="fa-solid fa-user-shield"></i><span>Cargos e Permissões</span></a>
+        <a class="nav-item" data-target="view-logs" id="nav-logs"><i class="fa-solid fa-shield-halved"></i><span>Auditoria de Logs</span></a>
+        <a class="nav-item" data-target="view-cloud-storage" id="nav-cloud-storage"><i class="fa-solid fa-cloud"></i><span>Nuvem & Infra</span></a>
+        <a class="nav-item" data-target="view-executive-suite" id="nav-executive-suite" title="Central de Inteligência Executiva, Estatística e SLA VIP"><i class="fa-solid fa-briefcase" style="color:#38bdf8;"></i><span>Central Executiva (SLA & BI)</span></a>
+        <div class="nav-divider"></div>
+        <a class="nav-item" href="/api/backup/pendrive" id="nav-pendrive-backup" style="color: #38bdf8;" title="Baixar pacote consolidado offline"><i class="fa-solid fa-floppy-disk"></i><span>Modo Pen Drive</span></a>
+        
+        <!-- Hidden target for active state when inside a project -->
+        <a class="nav-item" data-target="view-project-details" id="nav-project-details" style="display:none;"></a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-avatar" id="user-avatar">H</div>
+          <div>
+            <div class="sidebar-user-name" id="current-user-name">Helena Coordenadora</div>
+            <div class="sidebar-user-role" id="current-user-role-label">Coordenador</div>
+          </div>
+        </div>
+        <button class="btn btn-sm" style="width: 100%; justify-content: center; background: rgba(255,255,255,0.1); color: #fff; border: none; margin-top: 0.5rem;" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sair</button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content" id="main-content">
+
+      <!-- ===== VIEW: LOGIN ===== -->
+      <section id="view-login" class="view-panel active">
+        <div class="login-wrapper">
+          <div class="login-glass-card">
+            <div class="login-brand">
+              <div class="brand-avatar-glow"><i class="fa-solid fa-chart-pie"></i></div>
+              <h2>GuiaData <span class="version-tag">2.0</span></h2>
+              <p class="brand-subtitle">Plataforma Inteligente de Pesquisa & Auditoria</p>
+              <div class="server-status-pill">
+                <span class="status-pulse-dot"></span> Servidor Ativo & Conectado
+              </div>
+            </div>
+
+            <!-- Quick Access 1-Click Login Pills -->
+            <div class="quick-access-box">
+              <span class="quick-access-title">Acesso Rápido com 1 Clique:</span>
+              <div class="quick-access-grid">
+                <button type="button" class="quick-login-btn" onclick="quickLogin('Admin')" title="Entrar como Administrador com acesso de gestão">
+                  <i class="fa-solid fa-bolt" style="color: #38bdf8;"></i>
+                  <span>Administrador</span>
+                </button>
+                <button type="button" class="quick-login-btn" onclick="quickLogin('DEV')" title="Entrar como Suporte DEV com acesso irrestrito">
+                  <i class="fa-solid fa-wrench" style="color: #a855f7;"></i>
+                  <span>Suporte DEV</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="login-divider"><span>ou acesse com suas credenciais</span></div>
+
+            <div class="form-group">
+              <label class="form-label"><i class="fa-solid fa-user" style="color:var(--primary); margin-right:4px;"></i> Usuário</label>
+              <input type="text" id="login-username" class="form-input" placeholder="Digite seu usuário" />
+            </div>
+            <div class="form-group">
+              <label class="form-label"><i class="fa-solid fa-lock" style="color:var(--primary); margin-right:4px;"></i> Senha</label>
+              <input type="password" id="login-password" class="form-input" placeholder="••••••••" />
+            </div>
+            <div class="form-group" style="display:none;">
+              <select id="login-role" class="form-select">
+                <option value="DEV">Suporte Técnico (DEV) - Acesso Total</option>
+                <option value="Admin">Administrador (Cliente) - Pode gerir acessos</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem; font-weight:700; letter-spacing:0.5px; margin-top:0.5rem;" id="btn-login" onclick="fazerLogin()">
+              <i class="fa-solid fa-arrow-right-to-bracket"></i> ENTRAR NA PLATAFORMA
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Toast Container -->
+      <div class="toast-container" id="toast-container"></div>
+
+      <!-- Confirmation Modal -->
+      <div class="modal-overlay" id="confirm-modal">
+        <div class="modal-box">
+          <div class="modal-icon warning" id="confirm-modal-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          <h3 class="modal-title" id="confirm-modal-title">Confirmar Ação</h3>
+          <p class="modal-message" id="confirm-modal-message">Tem certeza que deseja continuar?</p>
+          <div class="modal-actions">
+            <button class="btn" id="confirm-modal-cancel">Cancelar</button>
+            <button class="btn btn-danger-solid" id="confirm-modal-confirm">Confirmar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== VIEW: DASHBOARD (PROJECTS) ===== -->
+      <section id="view-dashboard" class="view-panel">
+        <div class="page-header" style="margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <h1 class="page-title"><i class="fa-solid fa-layer-group" style="color:var(--primary);"></i> Projetos de Pesquisa</h1>
+              <p class="page-subtitle">Selecione um projeto para gerenciar coletas, visualizar no mapa ou exportar relatórios.</p>
+            </div>
+            <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+              <a href="/api/backup/pendrive" class="btn btn-outline" style="border-color: var(--primary); color: var(--primary);" title="Baixar pacote total consolidado offline (banco SQLite + XMLs + visualizador)">
+                <i class="fa-solid fa-floppy-disk"></i> Modo Pen Drive
+              </a>
+              <button class="btn btn-primary" onclick="switchTab('view-form-builder'); newForm();">
+                <i class="fa-solid fa-plus"></i> Novo Projeto
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter & Search Toolbar (Multiannual & Categorized) -->
+        <div class="card" style="margin-bottom: 1.5rem; padding: 1.1rem 1.4rem;">
+          <div style="display: flex; flex-direction: column; gap: 0.9rem;">
+            <!-- Top Line: Status + Search -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.8rem;">
+              <div style="display: flex; gap: 0.45rem; align-items: center; flex-wrap: wrap;">
+                <button class="btn btn-sm btn-primary proj-filter-pill active" data-filter="all" onclick="filterProjectsByStatus('all')">Todos</button>
+                <button class="btn btn-sm btn-outline proj-filter-pill" data-filter="published" onclick="filterProjectsByStatus('published')"><span class="status-pulse-dot" style="display:inline-block; margin-right:4px;"></span> Em Coleta (Ativos)</button>
+                <button class="btn btn-sm btn-outline proj-filter-pill" data-filter="draft" onclick="filterProjectsByStatus('draft')">Rascunhos</button>
+                <button class="btn btn-sm btn-outline proj-filter-pill" data-filter="archived" onclick="filterProjectsByStatus('archived')">Arquivados</button>
+              </div>
+
+              <!-- Search Input -->
+              <div style="flex: 1; max-width: 320px; min-width: 220px; position: relative;">
+                <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.85rem;"></i>
+                <input type="text" id="dashboard-search-input" class="form-input" placeholder="Buscar por título ou ID..." style="padding-left: 2.5rem; height: 34px; font-size: 0.82rem;" oninput="filterDashboardProjects(this.value)" />
+              </div>
+            </div>
+
+            <!-- Bottom Line: Multiannual Filters & Categories -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.8rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.75rem;">
+              <!-- Category Filter Dropdown -->
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;"><i class="fa-solid fa-tags" style="color:var(--cyan); margin-right:3px;"></i> Categoria:</span>
+                <select id="dashboard-category-filter" class="form-select" style="width: auto; height: 32px; padding: 2px 24px 2px 10px; font-size: 0.8rem;" onchange="filterProjectsByCategory(this.value)">
+                  <option value="all">Todas as Categorias</option>
+                  <option value="Eleitoral & Opinião Pública">Eleitoral & Opinião Pública</option>
+                  <option value="Avaliação Governamental">Avaliação Governamental</option>
+                  <option value="Pesquisa de Mercado">Pesquisa de Mercado</option>
+                  <option value="Satisfação / NPS">Satisfação / NPS</option>
+                  <option value="Auditoria de Campo">Auditoria de Campo</option>
+                </select>
+              </div>
+
+              <!-- Year Filter Pills -->
+              <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;"><i class="fa-solid fa-calendar" style="color:var(--indigo); margin-right:3px;"></i> Ano:</span>
+                <button class="btn btn-sm btn-outline proj-year-pill active" data-year="all" onclick="filterProjectsByYear('all')" style="padding: 0.22rem 0.65rem; font-size: 0.75rem; border-radius: var(--r-full);">Todos</button>
+                <button class="btn btn-sm btn-outline proj-year-pill" data-year="2026" onclick="filterProjectsByYear(2026)" style="padding: 0.22rem 0.65rem; font-size: 0.75rem; border-radius: var(--r-full);">2026</button>
+                <button class="btn btn-sm btn-outline proj-year-pill" data-year="2025" onclick="filterProjectsByYear(2025)" style="padding: 0.22rem 0.65rem; font-size: 0.75rem; border-radius: var(--r-full);">2025</button>
+                <button class="btn btn-sm btn-outline proj-year-pill" data-year="2024" onclick="filterProjectsByYear(2024)" style="padding: 0.22rem 0.65rem; font-size: 0.75rem; border-radius: var(--r-full);">2024</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Projects Grid -->
+        <div class="sys-projects-grid" id="projects-grid" style="display: flex; flex-direction: column; gap: 1rem;">
+          <!-- Injected via JS -->
+        </div>
+
+        <!-- ODK Collect Connection Guide -->
+        <div class="card" id="odk-guide-section" style="margin-top: 2rem;">
+          <div class="card-header">
+            <h3 class="card-title"><i class="fa-solid fa-mobile-screen-button" style="color:var(--primary);"></i> Como Conectar o Celular Android (ODK Collect)</h3>
+          </div>
+          <p class="text-muted" style="margin-bottom: 1.25rem;">Os pesquisadores em campo utilizam o aplicativo gratuito <b>ODK Collect</b> para responder questionários offline com GPS e áudio.</p>
+          <div class="steps-grid">
+            <div class="step-card">
+              <div class="step-number">1</div>
+              <h4>Instale o Aplicativo</h4>
+              <p>Baixe o <b>ODK Collect</b> gratuitamente na Google Play Store no smartphone do pesquisador.</p>
+            </div>
+            <div class="step-card">
+              <div class="step-number">2</div>
+              <h4>Configure o Servidor</h4>
+              <p>No app, acesse <i>Configurações > Servidor</i> e cole o endereço:<br>
+                <div style="margin-top:0.5rem; display:flex; gap:0.5rem; align-items:center;">
+                  <code id="odk-server-url" style="background: rgba(0,0,0,0.3); border:1px solid var(--glass-border); padding: 4px 8px; border-radius: 4px; color: var(--primary);">http://localhost:3000/api</code>
+                  <button class="btn btn-sm btn-outline" onclick="copyOdkUrl()" title="Copiar endereço"><i class="fa-solid fa-copy"></i></button>
+                </div>
+              </p>
+            </div>
+            <div class="step-card">
+              <div class="step-number">3</div>
+              <h4>Sincronize e Colete</h4>
+              <p>Clique em <b>Obter Formulário em Branco</b>. As entrevistas salvas aparecerão instantaneamente na sua plataforma web!</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== VIEW: TEMPLATES & QUESTION LIBRARY ===== -->
+      <section id="view-library" class="view-panel">
+        <div class="page-header" style="margin-bottom: 1.5rem;">
+          <h1 class="page-title"><i class="fa-solid fa-book-bookmark" style="color:#a855f7;"></i> Biblioteca de Modelos & Banco de Perguntas</h1>
+          <p class="page-subtitle">Modelos padronizados e validados pela indústria para criar projetos completos com 1 clique ou importar blocos prontos.</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+          
+          <!-- Template 1: Demográfico IBGE -->
+          <div class="card" style="border-top: 4px solid var(--primary); display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                <span class="badge" style="background:rgba(56,189,248,0.15); color:var(--primary); font-weight:700;">Amostragem & Cotas</span>
+                <span style="font-size:0.8rem; color:var(--text-muted);"><i class="fa-solid fa-list-check"></i> 4 Perguntas</span>
+              </div>
+              <h3 style="font-size:1.15rem; margin:0 0 0.5rem 0; color:var(--text-primary);"><i class="fa-solid fa-users" style="color:var(--primary); margin-right:6px;"></i> Bloco Demográfico IBGE</h3>
+              <p style="font-size:0.85rem; color:var(--text-muted); line-height:1.5;">Questionário censitário com Gênero, Faixa Etária (16 a 60+ anos), Grau de Instrução e Renda Familiar. Calibrado para cotas amostrais em pesquisas eleitorais e de opinião.</p>
+            </div>
+            <div style="margin-top:1.25rem; display:flex; gap:0.5rem;">
+              <button class="btn btn-primary btn-sm" style="flex:1; justify-content:center;" onclick="createProjectFromTemplate('demografico')"><i class="fa-solid fa-plus"></i> Criar Projeto com este Modelo</button>
+            </div>
+          </div>
+
+          <!-- Template 2: Pesquisa Eleitoral TSE -->
+          <div class="card" style="border-top: 4px solid #10b981; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                <span class="badge" style="background:rgba(16,185,129,0.15); color:#10b981; font-weight:700;">Padrão Resolução TSE</span>
+                <span style="font-size:0.8rem; color:var(--text-muted);"><i class="fa-solid fa-list-check"></i> 5 Perguntas</span>
+              </div>
+              <h3 style="font-size:1.15rem; margin:0 0 0.5rem 0; color:var(--text-primary);"><i class="fa-solid fa-check-to-slot" style="color:#10b981; margin-right:6px;"></i> Pesquisa Eleitoral Completa</h3>
+              <p style="font-size:0.85rem; color:var(--text-muted); line-height:1.5;">Voto Espontâneo, Estimulado em Cartela, Certeza de Voto, Rejeição de Candidatos e Avaliação da Gestão Atual. Pronto para tabulação cruzada e registro eleitoral.</p>
+            </div>
+            <div style="margin-top:1.25rem; display:flex; gap:0.5rem;">
+              <button class="btn btn-primary btn-sm" style="flex:1; justify-content:center; background:#10b981; border-color:#10b981;" onclick="createProjectFromTemplate('eleitoral')"><i class="fa-solid fa-plus"></i> Criar Projeto com este Modelo</button>
+            </div>
+          </div>
+
+          <!-- Template 3: Avaliação Governamental -->
+          <div class="card" style="border-top: 4px solid #f59e0b; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                <span class="badge" style="background:rgba(245,158,11,0.15); color:#f59e0b; font-weight:700;">Gestão Pública</span>
+                <span style="font-size:0.8rem; color:var(--text-muted);"><i class="fa-solid fa-list-check"></i> 5 Perguntas</span>
+              </div>
+              <h3 style="font-size:1.15rem; margin:0 0 0.5rem 0; color:var(--text-primary);"><i class="fa-solid fa-landmark" style="color:#f59e0b; margin-right:6px;"></i> Avaliação de Gestão Pública</h3>
+              <p style="font-size:0.85rem; color:var(--text-muted); line-height:1.5;">Avaliação do Prefeito/Governador (Ótima, Boa, Regular, Ruim, Péssima) e diagnóstico setorial de Saúde, Educação, Segurança e Limpeza Urbana.</p>
+            </div>
+            <div style="margin-top:1.25rem; display:flex; gap:0.5rem;">
+              <button class="btn btn-primary btn-sm" style="flex:1; justify-content:center; background:#f59e0b; border-color:#f59e0b;" onclick="createProjectFromTemplate('governamental')"><i class="fa-solid fa-plus"></i> Criar Projeto com este Modelo</button>
+            </div>
+          </div>
+
+          <!-- Template 4: NPS & Satisfação -->
+          <div class="card" style="border-top: 4px solid #a855f7; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                <span class="badge" style="background:rgba(168,85,247,0.15); color:#a855f7; font-weight:700;">Métrica Global NPS</span>
+                <span style="font-size:0.8rem; color:var(--text-muted);"><i class="fa-solid fa-list-check"></i> 2 Perguntas</span>
+              </div>
+              <h3 style="font-size:1.15rem; margin:0 0 0.5rem 0; color:var(--text-primary);"><i class="fa-solid fa-star" style="color:#a855f7; margin-right:6px;"></i> Satisfação do Cliente (NPS)</h3>
+              <p style="font-size:0.85rem; color:var(--text-muted); line-height:1.5;">Pergunta métrica oficial de recomendação de 0 a 10 com régua visual interativa e pergunta aberta para justificativa de promotores e detratores.</p>
+            </div>
+            <div style="margin-top:1.25rem; display:flex; gap:0.5rem;">
+              <button class="btn btn-primary btn-sm" style="flex:1; justify-content:center; background:#a855f7; border-color:#a855f7;" onclick="createProjectFromTemplate('nps')"><i class="fa-solid fa-plus"></i> Criar Projeto com este Modelo</button>
+            </div>
+          </div>
+
+          <!-- Template 5: Auditoria de Campo -->
+          <div class="card" style="border-top: 4px solid #ef4444; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                <span class="badge" style="background:rgba(239,68,68,0.15); color:#ef4444; font-weight:700;">Auditoria Antifraude</span>
+                <span style="font-size:0.8rem; color:var(--text-muted);"><i class="fa-solid fa-list-check"></i> 3 Perguntas</span>
+              </div>
+              <h3 style="font-size:1.15rem; margin:0 0 0.5rem 0; color:var(--text-primary);"><i class="fa-solid fa-camera" style="color:#ef4444; margin-right:6px;"></i> Check-in & Auditoria de Campo</h3>
+              <p style="font-size:0.85rem; color:var(--text-muted); line-height:1.5;">Ponto GPS de alta precisão via satélite, foto obrigatória da fachada do local e gravação de áudio em segundo plano para certificar a entrevista em campo.</p>
+            </div>
+            <div style="margin-top:1.25rem; display:flex; gap:0.5rem;">
+              <button class="btn btn-primary btn-sm" style="flex:1; justify-content:center; background:#ef4444; border-color:#ef4444;" onclick="createProjectFromTemplate('auditoria_campo')"><i class="fa-solid fa-plus"></i> Criar Projeto com este Modelo</button>
+            </div>
+          </div>
+
+          <!-- Template 6: Termo de Consentimento LGPD -->
+          <div class="card" style="border-top: 4px solid #38bdf8; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                <span class="badge" style="background:rgba(56,189,248,0.15); color:#38bdf8; font-weight:700;">Conformidade Legal</span>
+                <span style="font-size:0.8rem; color:var(--text-muted);"><i class="fa-solid fa-list-check"></i> 2 Perguntas</span>
+              </div>
+              <h3 style="font-size:1.15rem; margin:0 0 0.5rem 0; color:var(--text-primary);"><i class="fa-solid fa-shield-halved" style="color:#38bdf8; margin-right:6px;"></i> Termo de Consentimento LGPD</h3>
+              <p style="font-size:0.85rem; color:var(--text-muted); line-height:1.5;">Texto formal em conformidade com a Lei 13.709/2018 informando a finalidade do estudo, anonimização dos dados e coleta do aceite voluntário do cidadão.</p>
+            </div>
+            <div style="margin-top:1.25rem; display:flex; gap:0.5rem;">
+              <button class="btn btn-primary btn-sm" style="flex:1; justify-content:center;" onclick="createProjectFromTemplate('termo_lgpd')"><i class="fa-solid fa-plus"></i> Criar Projeto com este Modelo</button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+      
+      <!-- ===== VIEW: FORM BUILDER (QUESTIONÁRIO DO PROJETO) ===== -->
+      <section id="view-form-builder" class="view-panel" style="padding: 0;">
+        <div class="builder-workspace" style="padding:0; border:none; display:flex; flex-direction:column; background:var(--bg-surface); height: 100vh;">
+          <!-- Unified Project Breadcrumbs & Status Top Bar -->
+          <div class="sys-top-bar" style="height: 60px; padding: 0 1.5rem; background: rgba(15, 23, 42, 0.95); border-bottom: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; gap: 1rem;">
+            
+            <!-- Left: Back to Project & Breadcrumb -->
+            <div style="display:flex; align-items:center; gap:0.75rem; min-width:0; flex:1;">
+              <button type="button" class="btn btn-sm btn-outline" onclick="closeFormBuilder()" title="Voltar para a página de detalhes do projeto">
+                <i class="fa-solid fa-arrow-left"></i> <span style="margin-left:4px;">Voltar ao Projeto</span>
+              </button>
+              <div style="height: 20px; width: 1px; background: var(--glass-border);"></div>
+              <div style="display:flex; align-items:center; gap:0.5rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                <span style="color:var(--text-muted); font-size:0.85rem;">Projetos /</span>
+                <span id="builder-breadcrumb-title" style="color:var(--text-primary); font-weight:700; font-size:0.95rem; overflow:hidden; text-overflow:ellipsis;">Questionário</span>
+                <span id="builder-version-badge" class="badge" style="background:rgba(56,189,248,0.15); color:var(--primary); font-weight:700; font-size:0.75rem;">V1</span>
+                <span id="builder-status-badge" class="badge badge-warning" style="font-weight:700; font-size:0.75rem;">Rascunho</span>
+              </div>
+            </div>
+
+            <!-- Center: Inline Questionnaire Title -->
+            <div style="flex:1; max-width:400px;">
+              <input type="text" class="sys-title-input" id="form-edit-title" placeholder="Nome do Questionário do Projeto..." style="width:100%; font-size:1rem; font-weight:600; padding:6px 12px; background:rgba(255,255,255,0.05); border:1px solid var(--glass-border); border-radius:6px; color:#fff;" />
+            </div>
+
+            <!-- Right: Lifecycle & Publication Actions -->
+            <div class="sys-actions" style="display:flex; align-items:center; gap:8px;">
+              <button type="button" class="btn btn-sm btn-outline" onclick="document.getElementById('import-xls-input').click()" title="Importar XLSForm">
+                <i class="fa-solid fa-file-import"></i> XLS
+              </button>
+              <input type="file" id="import-xls-input" accept=".xls,.xlsx" style="display:none;" onchange="importXLSForm(event)" />
+              
+              <button type="button" class="btn btn-sm btn-outline" onclick="exportXLSForm()" title="Baixar XLSForm">
+                <i class="fa-solid fa-file-export"></i> Baixar XLS
+              </button>
+              
+              <select id="form-edit-status" onchange="toggleOdkPanel(this.value)" style="display:none;">
+                <option value="draft">Rascunho</option>
+                <option value="published">Publicado</option>
+              </select>
+
+              <button type="button" class="btn btn-sm btn-primary" id="btn-save-form" title="Salvar alterações no rascunho">
+                <i class="fa-solid fa-floppy-disk"></i> Salvar Rascunho
+              </button>
+
+              <button type="button" class="btn btn-sm btn-success" id="btn-publish-version" onclick="publishActiveVersion()" title="Congela a versão atual e disponibiliza oficialmente para coleta de campo no celular">
+                <i class="fa-solid fa-rocket"></i> Publicar em Campo
+              </button>
+            </div>
+          </div>
+            <div class="sys-sub-bar">
+              <div class="sys-sub-left">
+                <button onclick="previewActiveForm()" title="Visualizar (Simulador): Teste a lógica de pulos, restrições numéricas e obrigatoriedade como se estivesse usando o aplicativo móvel."><i class="fa-solid fa-eye"></i></button>
+                <button onclick="toggleCollapseQuestions()" title="Expandir/Recolher: Alterna entre a visualização completa ou resumida das perguntas para facilitar a navegação em formulários longos."><i class="fa-solid fa-list-ul"></i></button>
+                <button onclick="duplicateActiveForm()" title="Duplicar Formulário: Cria uma cópia inteira deste projeto de pesquisa."><i class="fa-solid fa-copy"></i></button>
+                <button onclick="openFormSettings()" title="Configurações Globais: Ative coleta de GPS/Áudio oculta no fundo ou troque o visual do simulador."><i class="fa-solid fa-gear"></i></button>
+                <button onclick="openXmlViewer()" title="Ver Código Fonte (XML): Visualiza o código OpenRosa/XForm bruto gerado nos bastidores por este construtor visual."><i class="fa-solid fa-code"></i></button>
+              </div>
+              <div class="sys-sub-right">
+                <button onclick="document.getElementById('question-library-modal').classList.add('active')"><i class="fa-solid fa-book"></i> Adicionar da Biblioteca</button>
+              </div>
+            </div>
+
+            <!-- Quick Templates Bar -->
+            <div class="quick-templates-bar">
+              <span class="quick-templates-label"><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--cyan);"></i> Modelos Rápidos:</span>
+              <button type="button" class="quick-template-btn" onclick="insertQuickTemplate('demografico')" title="Inserir perguntas padronizadas de Gênero, Faixa Etária, Escolaridade e Renda Familiar"><i class="fa-solid fa-users"></i> Bloco Demográfico</button>
+              <button type="button" class="quick-template-btn" onclick="insertQuickTemplate('nps')" title="Inserir pergunta padronizada de recomendação NPS 0 a 10"><i class="fa-solid fa-chart-line"></i> Escala NPS (0 a 10)</button>
+              <button type="button" class="quick-template-btn" onclick="insertQuickTemplate('auditoria_campo')" title="Inserir Foto da Fachada + Ponto GPS Obrigatório"><i class="fa-solid fa-camera"></i> Foto + GPS Auditoria</button>
+              <button type="button" class="quick-template-btn" onclick="insertQuickTemplate('termo_lgpd')" title="Inserir Termo de Consentimento e Proteção de Dados LGPD"><i class="fa-solid fa-shield-halved"></i> Consentimento LGPD</button>
+            </div>
+            
+            <!-- ODK Status Panel -->
+            <div id="odk-status-panel" style="display:none; background-color:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.3); margin:1rem 1rem 0 1rem; padding:1rem; border-radius:8px;">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                <div>
+                  <h4 style="margin:0 0 0.5rem 0; color:#34d399;"><i class="fa-solid fa-satellite-dish"></i> Status ODK: Publicado</h4>
+                  <p style="margin:0 0 0.5rem 0; font-size:0.9rem; color:#6ee7b7;">Para coletar respostas, configure o aplicativo ODK Collect com o endereço abaixo.</p>
+                  <code style="background:rgba(16,185,129,0.15); padding:4px 8px; border-radius:4px; color:#34d399; font-weight:bold; user-select:all;" id="odk-server-url">http://.../api</code>
+                  <p style="margin:0.5rem 0 0 0; font-size:0.8rem; color:#6ee7b7;"><strong>Instrução no ODK Collect:</strong> Menu > Configurações > Servidor > URL</p>
+                </div>
+                <div>
+                  <button class="btn" style="background:#16a34a; color:white; border:none;" onclick="testOdkConnection()"><i class="fa-solid fa-network-wired"></i> Testar Conexão</button>
+                  <div id="odk-test-result" style="margin-top:0.5rem; font-size:0.85rem; text-align:right;"></div>
+                </div>
+              </div>
+            </div>
+            
+
+            <div id="skip-logic-errors" class="validation-banner" style="margin:1rem;"></div>
+            <div class="sys-workspace-body" style="padding: 1.5rem 2rem; overflow-y:auto; flex:1; background:var(--bg-page);">
+              <div class="builder-helper-banner" id="builder-helper-banner">
+                <div style="display:flex; align-items:center; gap:0.75rem;">
+                  <i class="fa-solid fa-wand-magic-sparkles" style="color:var(--cyan); font-size:1.15rem; flex-shrink:0;"></i>
+                  <div style="font-size:0.82rem; color:var(--t-high); line-height:1.4;">
+                    <b>Construtor Inteligente Ativo:</b> Aplique travas anti-erro (CPF, Idade 16-120, Limites) clicando no botão <b><i class="fa-solid fa-shield-halved" style="color:#34d399;"></i> Regras</b> ou crie saltos condicionais em <b><i class="fa-solid fa-code-branch" style="color:var(--cyan);"></i> Lógica de Pulo</b> sem escrever uma linha de código.
+                  </div>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline" style="border-color:rgba(255,255,255,0.1); color:var(--t-mid); padding:0.2rem 0.5rem; flex-shrink:0;" onclick="document.getElementById('builder-helper-banner').style.display='none'">Dispensar</button>
+              </div>
+              <div id="builder-questions-list" class="sys-questions-container"></div>
+              <div style="text-align:center; margin-top:1rem;">
+                <button class="sys-btn-add-q" id="btn-add-question" title="Adicionar Pergunta: Abre a paleta de opções para adicionar um novo campo ao formulário."><i class="fa-solid fa-plus"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question Library Modal -->
+        <div class="modal-overlay" id="question-library-modal">
+          <div class="modal-box" style="max-width: 600px;">
+            <div class="modal-title"><i class="fa-solid fa-book" style="color:var(--primary);"></i> Biblioteca de Perguntas</div>
+            <p class="modal-message" style="margin-bottom:1.5rem;">Selecione perguntas prontas da nossa biblioteca padronizada para adicionar ao seu formulário.</p>
+            
+            <div style="display:flex; flex-direction:column; gap:0.5rem; max-height:400px; overflow-y:auto; padding-right:0.5rem;">
+              <div class="lib-item"><div><h4>Gênero</h4><span>Seleção Única</span></div><button class="btn btn-primary btn-sm" onclick="addLibraryQuestion('genero')"><i class="fa-solid fa-plus"></i></button></div>
+              <div class="lib-item"><div><h4>Faixa Etária</h4><span>Seleção Única</span></div><button class="btn btn-primary btn-sm" onclick="addLibraryQuestion('faixa_etaria')"><i class="fa-solid fa-plus"></i></button></div>
+              <div class="lib-item"><div><h4>Grau de Instrução</h4><span>Seleção Única</span></div><button class="btn btn-primary btn-sm" onclick="addLibraryQuestion('instrucao')"><i class="fa-solid fa-plus"></i></button></div>
+              <div class="lib-item"><div><h4>Renda Familiar</h4><span>Seleção Única</span></div><button class="btn btn-primary btn-sm" onclick="addLibraryQuestion('renda')"><i class="fa-solid fa-plus"></i></button></div>
+              <div class="lib-item"><div><h4>Avaliação NPS (0 a 10)</h4><span>Seleção Única</span></div><button class="btn btn-primary btn-sm" onclick="addLibraryQuestion('nps')"><i class="fa-solid fa-plus"></i></button></div>
+              <div class="lib-item"><div><h4>Concordância (Escala Likert)</h4><span>Seleção Única</span></div><button class="btn btn-primary btn-sm" onclick="addLibraryQuestion('likert')"><i class="fa-solid fa-plus"></i></button></div>
+              <div class="lib-item"><div><h4>Estado Civil</h4><span>Seleção Única</span></div><button class="btn btn-primary btn-sm" onclick="addLibraryQuestion('estado_civil')"><i class="fa-solid fa-plus"></i></button></div>
+              <div class="lib-item"><div><h4>Região/Estado</h4><span>Seleção Única</span></div><button class="btn btn-primary btn-sm" onclick="addLibraryQuestion('estado')"><i class="fa-solid fa-plus"></i></button></div>
+              <div class="lib-item"><div><h4>Domicílio (Urbano/Rural)</h4><span>Seleção Única</span></div><button class="btn btn-primary btn-sm" onclick="addLibraryQuestion('domicilio')"><i class="fa-solid fa-plus"></i></button></div>
+              <div class="lib-item"><div><h4>Religião</h4><span>Seleção Única</span></div><button class="btn btn-primary btn-sm" onclick="addLibraryQuestion('religiao')"><i class="fa-solid fa-plus"></i></button></div>
+            </div>
+
+            <div class="modal-actions" style="margin-top:1.5rem; justify-content:flex-end;">
+              <button class="btn" onclick="document.getElementById('question-library-modal').classList.remove('active')">Fechar</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Intelligent Rules & Validation Studio Modal -->
+        <div class="modal-overlay" id="question-settings-modal">
+          <div class="modal-box" style="max-width: 640px;">
+            <div class="modal-title" style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="display:flex; align-items:center; gap:0.6rem;">
+                <i id="q-settings-type-icon" class="fa-solid fa-shield-halved" style="color:#34d399;"></i>
+                <span>Regras & Validações Inteligentes</span>
+              </div>
+              <span id="q-settings-type-badge" class="badge badge-info" style="font-size:0.75rem; text-transform:uppercase;">Texto</span>
+            </div>
+            <p class="modal-message" id="q-settings-modal-subtitle" style="margin-bottom:1rem; font-size:0.82rem; color:var(--t-mid);">
+              Configure travas automáticas para impedir respostas erradas no celular do pesquisador.
+            </p>
+            
+            <input type="hidden" id="q-settings-id" />
+            <input type="hidden" id="q-settings-type-hidden" />
+
+            <!-- PRESETS CONTAINER (Tailored to question type) -->
+            <div id="q-rules-presets-section">
+              <label class="form-label" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+                <span><i class="fa-solid fa-bolt" style="color:var(--amber);"></i> Modelos Prontos em 1-Clique:</span>
+                <span style="font-size:0.72rem; color:var(--t-low);">Clique para aplicar instantaneamente</span>
+              </label>
+
+              <!-- Presets for TEXT -->
+              <div id="q-presets-text" class="rules-preset-grid" style="display:none;">
+                <div class="rules-preset-card" onclick="applyRulePreset('cpf')">
+                  <div class="rules-preset-title"><i class="fa-solid fa-id-card" style="color:var(--cyan);"></i> CPF Válido</div>
+                  <div class="rules-preset-desc">Exige 11 dígitos numéricos com mensagem de erro pronta.</div>
+                  <div class="rules-preset-syntax">regex(., '^[0-9]{11}$')</div>
+                </div>
+                <div class="rules-preset-card" onclick="applyRulePreset('phone')">
+                  <div class="rules-preset-title"><i class="fa-brands fa-whatsapp" style="color:#34d399;"></i> WhatsApp / Celular</div>
+                  <div class="rules-preset-desc">Exige 10 ou 11 dígitos com código DDD.</div>
+                  <div class="rules-preset-syntax">regex(., '^[0-9]{10,11}$')</div>
+                </div>
+                <div class="rules-preset-card" onclick="applyRulePreset('email')">
+                  <div class="rules-preset-title"><i class="fa-solid fa-envelope" style="color:#a78bfa;"></i> E-mail Válido</div>
+                  <div class="rules-preset-desc">Valida estrutura padrão de e-mail (nome@provedor.com).</div>
+                  <div class="rules-preset-syntax">regex(., '@...')</div>
+                </div>
+                <div class="rules-preset-card" onclick="applyRulePreset('min_chars', 15)">
+                  <div class="rules-preset-title"><i class="fa-solid fa-align-left" style="color:var(--amber);"></i> Justificativa Mínima</div>
+                  <div class="rules-preset-desc">Exige pelo menos 15 letras para evitar respostas vazias.</div>
+                  <div class="rules-preset-syntax">string-length(.) >= 15</div>
+                </div>
+              </div>
+
+              <!-- Presets for NUMBER / INTEGER / DECIMAL -->
+              <div id="q-presets-number" class="rules-preset-grid" style="display:none;">
+                <div class="rules-preset-card" onclick="applyRulePreset('age_16_120')">
+                  <div class="rules-preset-title"><i class="fa-solid fa-user-check" style="color:var(--cyan);"></i> Idade Eleitoral (16-120)</div>
+                  <div class="rules-preset-desc">Limita a idade permitida para votação e censo estatístico.</div>
+                  <div class="rules-preset-syntax">. >= 16 and . <= 120</div>
+                </div>
+                <div class="rules-preset-card" onclick="applyRulePreset('percent_0_100')">
+                  <div class="rules-preset-title"><i class="fa-solid fa-percent" style="color:#34d399;"></i> Escala 0 a 100%</div>
+                  <div class="rules-preset-desc">Garante percentuais entre 0% e 100%.</div>
+                  <div class="rules-preset-syntax">. >= 0 and . <= 100</div>
+                </div>
+                <div class="rules-preset-card" onclick="applyRulePreset('score_0_10')">
+                  <div class="rules-preset-title"><i class="fa-solid fa-star" style="color:var(--amber);"></i> Escala NPS (0 a 10)</div>
+                  <div class="rules-preset-desc">Notas inteiras ou decimais entre 0 e 10.</div>
+                  <div class="rules-preset-syntax">. >= 0 and . <= 10</div>
+                </div>
+                <div class="rules-preset-card" onclick="applyRulePreset('positive')">
+                  <div class="rules-preset-title"><i class="fa-solid fa-plus-minus" style="color:#a78bfa;"></i> Valor Positivo (> 0)</div>
+                  <div class="rules-preset-desc">Impede que o pesquisador digite valores nulos ou negativos.</div>
+                  <div class="rules-preset-syntax">. > 0</div>
+                </div>
+              </div>
+
+              <!-- Presets for SELECT_MULTIPLE -->
+              <div id="q-presets-mult" class="rules-preset-grid" style="display:none;">
+                <div class="rules-preset-card" onclick="applyRulePreset('mult_exact', 1)">
+                  <div class="rules-preset-title"><i class="fa-solid fa-bullseye" style="color:var(--cyan);"></i> Exatamente 1 Opção</div>
+                  <div class="rules-preset-desc">Obriga o entrevistado a marcar exatamente 1 resposta.</div>
+                  <div class="rules-preset-syntax">count-selected(.) = 1</div>
+                </div>
+                <div class="rules-preset-card" onclick="applyRulePreset('mult_max', 2)">
+                  <div class="rules-preset-title"><i class="fa-solid fa-check-double" style="color:#34d399;"></i> Até 2 Opções</div>
+                  <div class="rules-preset-desc">Permite no máximo 2 escolhas (ex: 2 maiores problemas).</div>
+                  <div class="rules-preset-syntax">count-selected(.) <= 2</div>
+                </div>
+                <div class="rules-preset-card" onclick="applyRulePreset('mult_max', 3)">
+                  <div class="rules-preset-title"><i class="fa-solid fa-list-ol" style="color:var(--amber);"></i> Até 3 Opções</div>
+                  <div class="rules-preset-desc">Ideal para perguntas eleitorais ("Escolha até 3 candidatos").</div>
+                  <div class="rules-preset-syntax">count-selected(.) <= 3</div>
+                </div>
+                <div class="rules-preset-card" onclick="applyRulePreset('clear')">
+                  <div class="rules-preset-title"><i class="fa-solid fa-lock-open" style="color:var(--t-mid);"></i> Seleção Livre</div>
+                  <div class="rules-preset-desc">Sem limites de mínimo ou máximo.</div>
+                  <div class="rules-preset-syntax">Livre</div>
+                </div>
+              </div>
+
+              <!-- Presets for DATE -->
+              <div id="q-presets-date" class="rules-preset-grid" style="display:none;">
+                <div class="rules-preset-card" onclick="applyRulePreset('date_past')">
+                  <div class="rules-preset-title"><i class="fa-solid fa-baby" style="color:var(--cyan);"></i> Nascimento / Histórico</div>
+                  <div class="rules-preset-desc">A data não pode ser futura (. <= today()).</div>
+                  <div class="rules-preset-syntax">. <= today()</div>
+                </div>
+                <div class="rules-preset-card" onclick="applyRulePreset('date_future')">
+                  <div class="rules-preset-title"><i class="fa-solid fa-calendar-plus" style="color:#34d399;"></i> Agendamento Futuro</div>
+                  <div class="rules-preset-desc">Apenas datas de hoje em diante (. >= today()).</div>
+                  <div class="rules-preset-syntax">. >= today()</div>
+                </div>
+              </div>
+
+              <!-- Presets for GEOPOINT (GPS) -->
+              <div id="q-presets-gps" class="rules-preset-grid" style="display:none;">
+                <div class="rules-preset-card" onclick="applyRulePreset('gps_high')">
+                  <div class="rules-preset-title"><i class="fa-solid fa-satellite" style="color:var(--cyan);"></i> Precisão Rigorosa (&lt; 10m)</div>
+                  <div class="rules-preset-desc">Exige sinal de satélite de alta fidelidade para auditoria.</div>
+                  <div class="rules-preset-syntax">precision &lt; 10m</div>
+                </div>
+                <div class="rules-preset-card" onclick="applyRulePreset('gps_standard')">
+                  <div class="rules-preset-title"><i class="fa-solid fa-location-crosshairs" style="color:#34d399;"></i> Precisão Padrão (&lt; 25m)</div>
+                  <div class="rules-preset-desc">Ideal para áreas urbanas e dias nublados.</div>
+                  <div class="rules-preset-syntax">precision &lt; 25m</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FINE TUNING / MANUAL CONTROLS -->
+            <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:var(--r-md); padding:1rem; margin-bottom:1rem;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                <label class="form-label" style="margin:0; font-size:0.82rem; color:var(--t-high);"><i class="fa-solid fa-sliders" style="color:var(--cyan);"></i> Ajuste Fino da Regra</label>
+                <button type="button" class="btn btn-sm btn-outline" onclick="applyRulePreset('clear')" style="padding:0.15rem 0.5rem; font-size:0.72rem; color:var(--red); border-color:rgba(248,113,113,0.3);"><i class="fa-solid fa-trash-can"></i> Limpar Regras</button>
+              </div>
+
+              <!-- Text Length -->
+              <div id="q-settings-text-limits" style="display:none; gap:1rem; margin-bottom:0.75rem;">
+                <div style="flex:1;">
+                  <label style="font-size:0.75rem; color:var(--text-secondary);">Mínimo de caracteres</label>
+                  <input type="number" class="form-input" id="q-settings-text-min" placeholder="Ex: 5" min="0" oninput="syncManualTextRules()" />
+                </div>
+                <div style="flex:1;">
+                  <label style="font-size:0.75rem; color:var(--text-secondary);">Máximo de caracteres</label>
+                  <input type="number" class="form-input" id="q-settings-text-max" placeholder="Ex: 250" min="1" oninput="syncManualTextRules()" />
+                </div>
+              </div>
+
+              <!-- Numeric Range -->
+              <div id="q-settings-num-limits" style="display:none; gap:1rem; margin-bottom:0.75rem;">
+                <div style="flex:1;">
+                  <label style="font-size:0.75rem; color:var(--text-secondary);">Valor Mínimo</label>
+                  <input type="number" class="form-input" id="q-settings-num-min" placeholder="Ex: 16" oninput="syncManualNumRules()" />
+                </div>
+                <div style="flex:1;">
+                  <label style="font-size:0.75rem; color:var(--text-secondary);">Valor Máximo</label>
+                  <input type="number" class="form-input" id="q-settings-num-max" placeholder="Ex: 120" oninput="syncManualNumRules()" />
+                </div>
+              </div>
+
+              <!-- Select Limits -->
+              <div id="q-settings-select-limits" style="display:none; gap:1rem; margin-bottom:0.75rem;">
+                <div style="flex:1;">
+                  <label style="font-size:0.75rem; color:var(--text-secondary);">Mínimo de opções selecionadas</label>
+                  <input type="number" class="form-input" id="q-settings-min-sel" placeholder="Ex: 1" min="1" oninput="syncManualMultRules()" />
+                </div>
+                <div style="flex:1;">
+                  <label style="font-size:0.75rem; color:var(--text-secondary);">Máximo de opções permitidas</label>
+                  <input type="number" class="form-input" id="q-settings-max-sel" placeholder="Ex: 3" min="1" oninput="syncManualMultRules()" />
+                </div>
+              </div>
+
+              <!-- Standard Operator Constraint -->
+              <div id="q-settings-std-constraint" style="display:flex; gap:0.5rem; align-items:center;">
+                <span style="font-size: 0.8rem; color: var(--t-mid); white-space:nowrap;">A resposta deve ser:</span>
+                <select class="form-select" id="q-settings-constraint-op" style="flex:1;" onchange="syncManualConstraintOp()">
+                  <option value="">(Sem validação direta)</option>
+                  <option value="=">Igual a (=)</option>
+                  <option value="!=">Diferente de (!=)</option>
+                  <option value="&gt;">Maior que (&gt;)</option>
+                  <option value="&lt;">Menor que (&lt;)</option>
+                  <option value="&gt;=">Maior ou igual a (&gt;=)</option>
+                  <option value="&lt;=">Menor ou igual a (&lt;=)</option>
+                </select>
+                <input type="text" class="form-input" id="q-settings-constraint-val" placeholder="Valor" style="flex:1;" oninput="syncManualConstraintOp()" />
+              </div>
+
+              <!-- Choice Filter Cascata -->
+              <div id="q-settings-choice-filter" style="display:none; margin-top:0.75rem; padding-top:0.75rem; border-top:1px dashed var(--glass-border);">
+                <label style="font-size:0.75rem; color:var(--cyan); font-weight:600;"><i class="fa-solid fa-filter"></i> Filtro de Escolhas em Cascata (Choice Filter)</label>
+                <input type="text" class="form-input" id="q-settings-cf-formula" placeholder="Ex: estado=${estado_selecionado}" style="margin-top:0.3rem;" />
+              </div>
+
+              <!-- Calculation Formula -->
+              <div id="q-settings-calc-params" style="display:none; margin-top:0.75rem; padding-top:0.75rem; border-top:1px dashed var(--glass-border);">
+                <label style="font-size:0.75rem; color:var(--cyan); font-weight:600;"><i class="fa-solid fa-calculator"></i> Fórmula de Cálculo Automático</label>
+                <input type="text" class="form-input" id="q-settings-calc-formula" placeholder="Ex: ${q_1} + ${q_2}" style="margin-top:0.3rem;" />
+              </div>
+
+              <!-- Range Params -->
+              <div id="q-settings-range-params" style="display:none; margin-top:0.75rem; padding-top:0.75rem; border-top:1px dashed var(--glass-border);">
+                <label style="font-size:0.75rem; color:var(--cyan); font-weight:600;"><i class="fa-solid fa-sliders"></i> Intervalo Numérico (Slider)</label>
+                <div style="display:flex; gap:0.5rem; margin-top:0.3rem;">
+                  <input type="number" class="form-input" id="q-settings-range-start" value="1" placeholder="Início" />
+                  <input type="number" class="form-input" id="q-settings-range-end" value="10" placeholder="Fim" />
+                  <input type="number" class="form-input" id="q-settings-range-step" value="1" placeholder="Passo" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Custom Error Message for Mobile -->
+            <div class="form-group">
+              <label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">
+                <span><i class="fa-solid fa-triangle-exclamation" style="color:var(--amber);"></i> Mensagem de Erro no Aplicativo:</span>
+                <span style="font-size:0.72rem; color:var(--t-low);">Exibida quando o pesquisador digitar errado</span>
+              </label>
+              <input type="text" class="form-input" id="q-settings-constraint-msg" placeholder="Ex: Valor inválido. Por favor, verifique as orientações." />
+            </div>
+
+            <!-- Technical XLSForm Expression (Read-only Preview) -->
+            <div style="background:rgba(0,0,0,0.3); border:1px solid var(--border); border-radius:var(--r-sm); padding:0.5rem 0.75rem; display:flex; justify-content:space-between; align-items:center; font-size:0.72rem;">
+              <span style="color:var(--t-low);">Fórmula ODK XLSForm gerada:</span>
+              <code id="q-settings-formula-preview" style="color:var(--cyan); font-family:var(--mono); font-weight:bold;">(Nenhuma)</code>
+            </div>
+            
+            <div class="modal-actions" style="margin-top:1.5rem; justify-content: space-between;">
+              <button type="button" class="btn" onclick="closeQuestionSettingsModal()">Cancelar</button>
+              <button type="button" class="btn btn-primary" onclick="saveQuestionSettings()"><i class="fa-solid fa-check"></i> Salvar Regras</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Settings Modal -->
+        <div class="modal-overlay" id="form-settings-modal">
+          <div class="modal-box" style="max-width: 500px;">
+            <div class="modal-title"><i class="fa-solid fa-gear" style="color:var(--primary);"></i> Configurações do Formulário</div>
+            <p class="modal-message" style="margin-bottom:1.5rem;">Ajuste o layout e as configurações globais deste questionário.</p>
+            
+            <div class="form-group">
+              <label class="form-label">Estilo Visual (Layout)</label>
+              <select class="form-select" id="form-settings-theme">
+                <option value="sys" selected>Padrão sysToolbox (Elegante/Clean)</option>
+                <option value="grid">Grid / Tabela (Compacto)</option>
+                <option value="pages">Múltiplas Páginas (Wizard)</option>
+              </select>
+            </div>
+            
+            <div class="form-group" style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+              <input type="checkbox" id="form-settings-metadata" style="width:18px;height:18px;" checked />
+              <label for="form-settings-metadata" class="form-label" style="margin-bottom:0; cursor:pointer;">Coletar Metadados Básicos (Dispositivo, Hora)</label>
+            </div>
+            
+            <div class="form-group" style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem; background:rgba(239,68,68,0.08); padding:10px; border-radius:8px; border:1px solid rgba(239,68,68,0.25);">
+              <input type="checkbox" id="form-settings-audit-audio" style="width:18px;height:18px;" />
+              <label for="form-settings-audit-audio" class="form-label" style="margin-bottom:0; cursor:pointer; color:#fca5a5;">Gravar Áudio Oculto (Fundo)</label>
+            </div>
+
+            <div class="form-group" style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1.5rem; background:rgba(56,189,248,0.08); padding:10px; border-radius:8px; border:1px solid rgba(56,189,248,0.2);">
+              <input type="checkbox" id="form-settings-audit-location" style="width:18px;height:18px;" />
+              <label for="form-settings-audit-location" class="form-label" style="margin-bottom:0; cursor:pointer; color:#7dd3fc;">Rastreamento de GPS Oculto (Fundo)</label>
+            </div>
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+              <div class="form-group">
+                <label class="form-label">Categoria do Projeto</label>
+                <select class="form-select" id="form-settings-category">
+                  <option value="Eleitoral & Opinião Pública">Eleitoral & Opinião Pública</option>
+                  <option value="Avaliação Governamental">Avaliação Governamental</option>
+                  <option value="Pesquisa de Mercado">Pesquisa de Mercado</option>
+                  <option value="Satisfação / NPS">Satisfação / NPS</option>
+                  <option value="Auditoria de Campo">Auditoria de Campo</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Ano de Vigência</label>
+                <input type="number" class="form-input" id="form-settings-year" value="2026" min="2020" max="2035" />
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">ID Único do Formulário</label>
+              <input type="text" class="form-input" id="form-settings-id" readonly style="background:rgba(0,0,0,0.3); color:var(--text-muted); cursor:not-allowed;" />
+              <div class="form-hint">O ID não pode ser alterado após a criação.</div>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Nome da Instância (ODK) - `instance_name`</label>
+              <input type="text" class="form-input" id="form-settings-instance-name" placeholder="Ex: concat(${nome}, ' - ', format-date(today(), '%d/%m/%Y'))" />
+              <div class="form-hint">Expressão opcional para dar nome legível a cada entrevista preenchida no aplicativo.</div>
+            </div>
+
+            <div class="modal-actions" style="margin-top:2rem; justify-content: flex-end; gap:0.5rem;">
+              <button class="btn" onclick="document.getElementById('form-settings-modal').classList.remove('active')">Cancelar</button>
+              <button class="btn btn-primary" onclick="saveFormSettings()">Salvar Configurações</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question Type Selection Modal -->
+        <div class="modal-overlay" id="question-type-modal">
+          <div class="modal-box" style="max-width: 700px;">
+            <div class="modal-title"><i class="fa-solid fa-layer-group" style="color:var(--primary);"></i> Selecionar Tipo de Pergunta</div>
+            <p class="modal-message" style="margin-bottom:1rem;">Escolha o tipo de dado que você deseja coletar.</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-bottom: 1.5rem; max-height: 400px; overflow-y:auto; padding-right:10px;">
+              <button class="btn btn-outline" style="flex-direction:column; padding:1rem; gap:0.5rem;" onclick="addNewQuestion('select_one')"><i class="fa-regular fa-circle-dot fa-2x"></i> Sel. Única</button>
+              <button class="btn btn-outline" style="flex-direction:column; padding:1rem; gap:0.5rem;" onclick="addNewQuestion('select_multiple')"><i class="fa-solid fa-list-check fa-2x"></i> Sel. Múltipla</button>
+              <button class="btn btn-outline" style="flex-direction:column; padding:1rem; gap:0.5rem;" onclick="addNewQuestion('text')"><i class="fa-solid fa-font fa-2x"></i> Texto Livre</button>
+              <button class="btn btn-outline" style="flex-direction:column; padding:1rem; gap:0.5rem;" onclick="addNewQuestion('number')"><i class="fa-solid fa-hashtag fa-2x"></i> Número</button>
+              
+              <button class="btn btn-outline" style="flex-direction:column; padding:1rem; gap:0.5rem;" onclick="addNewQuestion('decimal')"><i class="fa-solid fa-square-root-variable fa-2x"></i> Decimal</button>
+              <button class="btn btn-outline" style="flex-direction:column; padding:1rem; gap:0.5rem;" onclick="addNewQuestion('date')"><i class="fa-solid fa-calendar-days fa-2x"></i> Data</button>
+              <button class="btn btn-outline" style="flex-direction:column; padding:1rem; gap:0.5rem;" onclick="addNewQuestion('time')"><i class="fa-regular fa-clock fa-2x"></i> Horário</button>
+              <button class="btn btn-outline" style="flex-direction:column; padding:1rem; gap:0.5rem;" onclick="addNewQuestion('datetime')"><i class="fa-solid fa-calendar-plus fa-2x"></i> Data e Horário</button>
+              
+              <button class="btn btn-outline" style="flex-direction:column; padding:1rem; gap:0.5rem;" onclick="addNewQuestion('geopoint')"><i class="fa-solid fa-location-dot fa-2x"></i> Ponto (GPS)</button>
+              <button class="btn btn-outline" style="flex-direction:column; padding:1rem; gap:0.5rem;" onclick="addNewQuestion('geotrace')"><i class="fa-solid fa-route fa-2x"></i> Linha</button>
+              <button class="btn btn-outline" style="flex-direction:column; padding:1rem; gap:0.5rem;" onclick="addNewQuestion('geoshape')"><i class="fa-solid fa-draw-polygon fa-2x"></i> Área</button>
+              <button class="btn btn-outline" style="flex-direction:column; padding:1rem; gap:0.5rem;" onclick="addNewQuestion('image')"><i class="fa-solid fa-camera fa-2x"></i> Foto</button>
+              
+              <button class="btn btn-outline" style="flex-direction:column; padding:1rem; gap:0.5rem;" onclick="addNewQuestion('audio')"><i class="fa-solid fa-microphone fa-2x"></i> Áudio</button>
+              <button class="btn btn-outline" style="flex-direction:column; padding:1rem; gap:0.5rem;" onclick="addNewQuestion('video')"><i class="fa-solid fa-video fa-2x"></i> Vídeo</button>
+              <button class="btn btn-outline" style="flex-direction:column; padding:1rem; gap:0.5rem;" onclick="addNewQuestion('note')"><i class="fa-solid fa-circle-info fa-2x"></i> Nota</button>
+              <button class="btn btn-outline" style="flex-direction:column; padding:1rem; gap:0.5rem;" onclick="addNewQuestion('barcode')"><i class="fa-solid fa-barcode fa-2x"></i> Cód. Barras</button>
+              
+              <button class="btn btn-outline" style="flex-direction:column; padding:1rem; gap:0.5rem;" onclick="addNewQuestion('acknowledge')"><i class="fa-solid fa-check-double fa-2x"></i> Reconhece</button>
+              <button class="btn btn-outline" style="flex-direction:column; padding:1rem; gap:0.5rem;" onclick="addNewQuestion('rank')"><i class="fa-solid fa-arrow-down-1-9 fa-2x"></i> Classificação</button>
+              <button class="btn btn-outline" style="flex-direction:column; padding:1rem; gap:0.5rem;" onclick="addNewQuestion('calculate')"><i class="fa-solid fa-calculator fa-2x"></i> Calcular</button>
+              <button class="btn btn-outline" style="flex-direction:column; padding:1rem; gap:0.5rem;" onclick="addNewQuestion('hidden')"><i class="fa-regular fa-eye-slash fa-2x"></i> Oculto</button>
+              
+              <button class="btn btn-outline" style="flex-direction:column; padding:1rem; gap:0.5rem;" onclick="addNewQuestion('file')"><i class="fa-solid fa-file-arrow-up fa-2x"></i> Arquivo</button>
+              <button class="btn btn-outline" style="flex-direction:column; padding:1rem; gap:0.5rem;" onclick="addNewQuestion('range')"><i class="fa-solid fa-sliders fa-2x"></i> Intervalo</button>
+
+              <button class="btn btn-outline" style="flex-direction:column; padding:1rem; gap:0.5rem; border-color:var(--primary); color:var(--primary); grid-column: span 2;" onclick="openGroupModal()"><i class="fa-solid fa-layer-group fa-2x"></i> Criar Seção / Grupo</button>
+            </div>
+            
+            <div class="modal-actions" style="justify-content: flex-end;">
+              <button class="btn" onclick="document.getElementById('question-type-modal').classList.remove('active')">Cancelar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Group / Section Modal -->
+        <div class="modal-overlay" id="group-modal">
+          <div class="modal-box" style="max-width: 400px;">
+            <div class="modal-title"><i class="fa-solid fa-layer-group" style="color:var(--primary);"></i> Criar Seção / Grupo</div>
+            <p class="modal-message" style="margin-bottom:1rem;">Agrupe perguntas relacionadas na mesma tela (Grupo) ou permita que o usuário preencha várias vezes (Repetição).</p>
+            
+            <div class="form-group">
+              <label class="form-label">Nome da Seção</label>
+              <input type="text" class="form-input" id="group-modal-name" placeholder="Ex: Dados Demográficos" />
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Tipo de Agrupamento</label>
+              <select class="form-select" id="group-modal-type">
+                <option value="group">Grupo Simples (Mesma Tela)</option>
+                <option value="repeat">Repetição (Adicionar Múltiplos)</option>
+              </select>
+            </div>
+            
+            <div class="modal-actions" style="margin-top:1.5rem; justify-content: flex-end; gap:0.5rem;">
+              <button class="btn" onclick="document.getElementById('group-modal').classList.remove('active')">Cancelar</button>
+              <button class="btn btn-primary" onclick="confirmCreateGroup()">Criar Seção</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Piping Modal -->
+        <div class="modal-overlay" id="piping-modal">
+          <div class="modal-box" style="max-width: 400px;">
+            <div class="modal-title"><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--primary);"></i> Inserir Variável (Piping)</div>
+            <p class="modal-message" style="margin-bottom:1rem;">Escolha uma pergunta anterior para inserir sua resposta no texto atual.</p>
+            <input type="hidden" id="piping-target-idx" />
+            
+            <div class="form-group">
+              <label class="form-label">Pergunta Anterior</label>
+              <select class="form-select" id="piping-source-q"></select>
+            </div>
+            
+            <div class="modal-actions" style="margin-top:1.5rem; justify-content: flex-end; gap:0.5rem;">
+              <button class="btn" onclick="document.getElementById('piping-modal').classList.remove('active')">Cancelar</button>
+              <button class="btn btn-primary" onclick="applyPiping()">Inserir</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conversational Skip Logic Modal -->
+        <div class="modal-overlay" id="advanced-logic-modal">
+          <div class="modal-box" style="max-width: 640px;">
+            <div class="modal-title" style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="display:flex; align-items:center; gap:0.6rem;">
+                <i class="fa-solid fa-code-branch" style="color:var(--cyan);"></i>
+                <span>Lógica de Pulo & Exibição Condicional</span>
+              </div>
+              <button type="button" class="btn-icon" onclick="closeAdvLogicModal()" style="background:transparent; border:none; cursor:pointer; font-size:1.2rem; color:var(--text-muted);"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="modal-message" id="adv-logic-modal-subtitle" style="margin-bottom:1rem; font-size:0.82rem; color:var(--t-mid);"></p>
+            <input type="hidden" id="adv-logic-q-idx" />
+
+            <!-- Quick Presets for Skip Logic -->
+            <div style="margin-bottom:1rem;">
+              <label class="form-label" style="font-size:0.78rem; color:var(--t-mid); margin-bottom:0.4rem;"><i class="fa-solid fa-bolt" style="color:var(--amber);"></i> Atalhos de Pulo em 1-Clique:</label>
+              <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                <button type="button" class="btn btn-sm btn-outline" onclick="applyQuickLogicPreset('sim')" style="border-color:var(--border-cyan); color:var(--cyan); font-size:0.75rem;"><i class="fa-solid fa-check"></i> Só se respondeu 'SIM' na anterior</button>
+                <button type="button" class="btn btn-sm btn-outline" onclick="applyQuickLogicPreset('nao')" style="border-color:rgba(248,113,113,0.3); color:var(--red); font-size:0.75rem;"><i class="fa-solid fa-xmark"></i> Só se respondeu 'NÃO' na anterior</button>
+                <button type="button" class="btn btn-sm btn-outline" onclick="applyQuickLogicPreset('maior_18')" style="border-color:var(--border); color:var(--t-high); font-size:0.75rem;"><i class="fa-solid fa-user"></i> Maior de 18 anos</button>
+                <button type="button" class="btn btn-sm btn-outline" onclick="applyQuickLogicPreset('clear')" style="border-color:var(--border); color:var(--t-low); font-size:0.75rem;"><i class="fa-solid fa-trash-can"></i> Sempre Exibir</button>
+              </div>
+            </div>
+
+            <!-- Conversational Sentence Builder -->
+            <div class="conversational-box">
+              <div style="font-size:0.75rem; color:var(--cyan); font-weight:700; text-transform:uppercase; margin-bottom:0.6rem;">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Construtor de Regra Condicional:
+              </div>
+              <div style="font-size:0.8rem; color:var(--t-high); margin-bottom:0.5rem;">
+                Mostrar esta pergunta <b>SOMENTE SE</b> a pergunta selecionada atender ao critério:
+              </div>
+              <div style="display:grid; grid-template-columns: 80px 1.8fr 1.2fr 1.5fr auto; gap:0.5rem; align-items:center;">
+                <select class="form-select" id="adv-logic-join" style="font-size:0.78rem;" title="Como esta regra se conecta com as outras">
+                  <option value="and">SE / E</option>
+                  <option value="or">OU</option>
+                </select>
+                <select class="form-select" id="adv-logic-target-q" style="font-size:0.78rem;" onchange="window.updateAdvLogicOperatorsAndValues()"></select>
+                <select class="form-select" id="adv-logic-op" style="font-size:0.78rem;">
+                  <option value="=">É igual a</option>
+                  <option value="!=">É diferente de</option>
+                  <option value="&gt;">Maior que (&gt;)</option>
+                  <option value="&lt;">Menor que (&lt;)</option>
+                </select>
+                <div id="adv-logic-val-container">
+                  <input type="text" class="form-input" id="adv-logic-val-text" placeholder="Valor esperado" style="font-size:0.78rem;" />
+                </div>
+                <button type="button" class="btn btn-primary" onclick="addAdvLogicCondition()" title="Adicionar Condição" style="padding:0.4rem 0.8rem;"><i class="fa-solid fa-plus"></i></button>
+              </div>
+            </div>
+
+            <!-- Active Conditions Table -->
+            <div style="margin-bottom:1rem;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                <span class="form-label" style="margin:0; font-size:0.78rem;"><i class="fa-solid fa-list-check" style="color:#34d399;"></i> Regras de Exibição Ativas:</span>
+                <span id="adv-logic-rules-count" style="font-size:0.72rem; color:var(--t-low);">0 regras</span>
+              </div>
+              <div class="table-wrapper" style="border:1px solid var(--border); border-radius:var(--r-sm); max-height:160px; overflow-y:auto;">
+                <table class="data-table" style="margin:0;">
+                  <thead><tr><th>Quando exibir esta pergunta?</th><th style="width:50px; text-align:center;">Remover</th></tr></thead>
+                  <tbody id="adv-logic-list"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="modal-actions" style="margin-top:1.5rem; justify-content:flex-end;">
+              <button type="button" class="btn btn-primary" onclick="closeAdvLogicModal()"><i class="fa-solid fa-check"></i> Concluir Lógica</button>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ===== VIEW: PROJECT DETAILS ===== -->
+      <section id="view-project-details" class="view-panel" style="padding: 0; background: var(--bg-base);">
+        <div style="display: flex; flex-direction: column; height: 100vh; overflow: hidden;">
+          <!-- Project Top Bar -->
+          <div class="sys-project-header" style="background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border); color: #fff; display: flex; align-items: center; padding: 0 1.5rem; height: 60px; flex-shrink: 0; gap: 1rem;">
+            <button class="btn btn-sm btn-outline" style="border-color: var(--glass-border); color: var(--text-primary);" onclick="switchTab('view-dashboard')" title="Voltar para todos os projetos">
+              <i class="fa-solid fa-arrow-left"></i> <span style="margin-left: 4px;">Projetos</span>
+            </button>
+            <div style="height: 24px; width: 1px; background: var(--glass-border);"></div>
+            <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1; min-width: 0;">
+              <i class="fa-solid fa-clipboard-list" style="color: var(--primary); font-size: 1.2rem;"></i>
+              <h1 id="project-details-title-top" style="font-size: 1.15rem; font-weight: 700; margin: 0; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">CARREGANDO PROJETO...</h1>
+              <div id="pd-status-badge-top" style="margin-left: 0.5rem;"></div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.8rem;">
+              <button class="btn btn-sm btn-outline" onclick="openOdkQrModal()" title="Gerar QR Code para conexão instantânea do ODK Collect"><i class="fa-solid fa-qrcode" style="color:var(--cyan);"></i> Conectar Celular (QR Code)</button>
+              <button class="btn btn-sm btn-outline" onclick="exportProjectDataXLSX()" title="Exportar XLSX direto"><i class="fa-solid fa-file-excel" style="color:#10b981;"></i> Exportar Excel</button>
+              <div class="sys-owner-circle" style="background: linear-gradient(135deg, var(--primary), var(--indigo)); border: 2px solid rgba(255,255,255,0.2); font-weight:700;" id="pd-owner-initial-top">C</div>
+            </div>
+          </div>
+          
+          <div style="flex: 1; display: flex; overflow: hidden;">
+            <!-- Sidebar Navigation for Project Workspace -->
+            <div style="width: 240px; background: var(--bg-sidebar); border-right: 1px solid var(--glass-border); display: flex; flex-direction: column; padding: 1.25rem 0.75rem; gap: 0.4rem; flex-shrink: 0;">
+              <button class="sys-list-btn sys-proj-tab active" data-tab="proj-tab-resumo" onclick="sysSwitchTab('proj-tab-resumo')" style="justify-content: flex-start; gap: 0.85rem; padding: 0.75rem 1rem;"><i class="fa-solid fa-chart-line" style="color:var(--primary);"></i> Resumo</button>
+              <button class="sys-list-btn sys-proj-tab" data-tab="proj-tab-form" onclick="sysEditForm()" style="justify-content: flex-start; gap: 0.85rem; padding: 0.75rem 1rem;"><i class="fa-solid fa-clipboard-list" style="color:#a855f7;"></i> Questionário</button>
+              <button class="sys-list-btn sys-proj-tab" data-tab="proj-tab-versoes" onclick="sysSwitchTab('proj-tab-versoes')" style="justify-content: flex-start; gap: 0.85rem; padding: 0.75rem 1rem;"><i class="fa-solid fa-code-branch" style="color:#38bdf8;"></i> Versões & Ciclo</button>
+              <button class="sys-list-btn sys-proj-tab" data-tab="proj-tab-dados" onclick="sysSwitchTab('proj-tab-dados')" style="justify-content: flex-start; gap: 0.85rem; padding: 0.75rem 1rem;"><i class="fa-solid fa-table" style="color:#10b981;"></i> Dados & Auditoria</button>
+              <button class="sys-list-btn sys-proj-tab" data-tab="proj-tab-mapa" onclick="sysSwitchTab('proj-tab-mapa')" style="justify-content: flex-start; gap: 0.85rem; padding: 0.75rem 1rem;"><i class="fa-solid fa-map-location-dot" style="color:#f59e0b;"></i> Mapa de Campo</button>
+              <button class="sys-list-btn sys-proj-tab" data-tab="proj-tab-config" onclick="sysSwitchTab('proj-tab-config')" style="justify-content: flex-start; gap: 0.85rem; padding: 0.75rem 1rem;"><i class="fa-solid fa-user-shield" style="color:#ec4899;"></i> Equipe & Acessos</button>
+              
+              <div style="flex: 1;"></div>
+              <div style="padding-top: 1rem; border-top: 1px solid var(--glass-border);">
+                <button class="btn btn-outline" onclick="sysPreviewForm()" style="width: 100%; border-color: var(--primary); color: var(--primary); justify-content: center; gap: 0.5rem;"><i class="fa-solid fa-mobile-screen"></i> Abrir no Simulador</button>
+              </div>
+            </div>
+
+            <div style="flex: 1; overflow-y: auto; padding: 2rem; background: var(--bg-page);">
+              <div style="max-width: 1100px; margin: 0 auto;">
+              
+              <!-- RESUMO TAB -->
+              <div class="tab-content active" id="proj-tab-resumo">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                  
+                  <div class="card" style="display: flex; align-items: center; gap: 1.5rem; border-left: 4px solid var(--primary);">
+                    <div style="background: var(--primary-light); color: var(--primary); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                      <i class="fa-solid fa-database"></i>
+                    </div>
+                    <div>
+                      <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Total de Envios</div>
+                      <div id="pd-total-submissions" style="font-size: 2rem; font-weight: 700; color: var(--text-primary); line-height: 1;">0</div>
+                    </div>
+                  </div>
+
+                  <div class="card" style="display: flex; align-items: center; gap: 1.5rem; border-left: 4px solid #10b981;">
+                    <div style="background: rgba(16,185,129,0.15); color: #10b981; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                      <i class="fa-solid fa-satellite-dish"></i>
+                    </div>
+                    <div>
+                      <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Status do Projeto</div>
+                      <div id="pd-status-badge" style="margin-top: 0.25rem;"><span class="sys-status-badge">Disponibilizado</span></div>
+                    </div>
+                  </div>
+
+                  <div class="card" style="display: flex; align-items: center; gap: 1.5rem; border-left: 4px solid #f59e0b;">
+                    <div style="background: rgba(245,158,11,0.15); color: #f59e0b; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                      <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                    <div>
+                      <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Última Modificação</div>
+                      <div id="pd-last-mod" style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin-top: 0.25rem;">Hoje</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card">
+                  <h3 class="card-title" style="margin-bottom: 1rem;"><i class="fa-solid fa-circle-info"></i> Detalhes do Formulário</h3>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <div>
+                      <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0 0 0.25rem 0;">Equipe Responsável</p>
+                      <div class="sys-owner-badge" style="margin: 0; display: inline-flex;"><div class="sys-owner-circle" id="pd-owner-initial">U</div> <span id="pd-owner-name">Usuário</span></div>
+                    </div>
+                    <div>
+                      <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0 0 0.25rem 0;">Quantidade de Perguntas</p>
+                      <div id="pd-questions-count" style="font-size: 1.1rem; font-weight: 600; color: var(--text-primary);">0 perguntas cadastradas</div>
+                    </div>
+                    <div>
+                      <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0 0 0.25rem 0;">Data de Criação</p>
+                      <div id="pd-last-pub" style="font-size: 1.1rem; font-weight: 600; color: var(--text-primary);">-</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card" id="quota-progress-card" style="margin-top:1.5rem;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+                    <h3 class="card-title" style="margin:0;"><i class="fa-solid fa-chart-pie" style="color:var(--primary);"></i> Controle de Cotas Amostrais (Demografia & Região)</h3>
+                    <button class="btn btn-sm btn-outline" style="border-color:var(--primary); color:var(--primary);" onclick="openQuotaStudioModal()"><i class="fa-solid fa-sliders"></i> Gerenciar Cotas (Quota Studio)</button>
+                  </div>
+                  <div id="quota-progress-container"></div>
+                </div>
+              </div>
+
+            <!-- DADOS TAB -->
+            <div class="tab-content" id="proj-tab-dados" style="display:none;">
+              <div style="display: flex; gap: 1rem; margin-bottom: 1rem; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                  <button class="btn btn-primary btn-sm" id="btn-export-data" onclick="exportProjectData()"><i class="fa-solid fa-file-csv"></i> Exportar CSV</button>
+                  <button class="btn btn-success btn-sm" id="btn-export-xlsx" onclick="exportProjectDataXLSX()"><i class="fa-solid fa-file-excel"></i> Exportar XLSX</button>
+                  <button class="btn btn-outline btn-sm" onclick="openCodebookWindow()" title="Ver Dicionário de Variáveis Oficial (HTML/PDF)"><i class="fa-solid fa-book-bookmark" style="color:var(--primary);"></i> Codebook</button>
+                  <button class="btn btn-outline btn-sm" onclick="downloadSpssSyntax()" title="Baixar Sintaxe IBM SPSS (.sps)"><i class="fa-solid fa-square-binary" style="color:#a855f7;"></i> Sintaxe SPSS</button>
+                  <button class="btn btn-outline btn-sm" onclick="downloadRScript()" title="Baixar Script de Análise Estatística R (.R)"><i class="fa-solid fa-code" style="color:#0284c7;"></i> Script R</button>
+                  <button class="btn btn-danger btn-sm" id="btn-clear-tests" onclick="clearTestInterviews()"><i class="fa-solid fa-trash"></i> Apagar Selecionados</button>
+                </div>
+                <div style="flex: 1; min-width: 200px; max-width: 300px;">
+                  <input type="text" id="reports-search" class="form-input" placeholder="Pesquisar nos dados..." oninput="renderReportsTable()" />
+                </div>
+              </div>
+
+              <div class="card" style="margin-bottom:2rem;">
+                <h3 class="card-title" style="margin-bottom:1rem;"><i class="fa-solid fa-chart-pie"></i> Relatórios Analíticos</h3>
+                <div id="analytics-charts-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                  <p class="text-muted" style="grid-column: 1 / -1; text-align: center;">Não há dados suficientes para gerar relatórios gráficos.</p>
+                </div>
+              </div>
+
+              <div class="card" style="margin-bottom:2rem;">
+                <h3 class="card-title" style="margin-bottom:1rem;"><i class="fa-solid fa-table"></i> Dados Brutos</h3>
+                <div class="table-wrapper" style="max-height:400px;overflow-y:auto; overflow-x:auto;">
+                  <table class="data-table" id="reports-table" style="white-space: nowrap;">
+                    <thead id="reports-thead">
+                      <!-- Dynamic headers -->
+                    </thead>
+                    <tbody id="reports-tbody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Audio Player & Forensic Review Modal -->
+            <div class="modal-overlay" id="audio-modal" style="z-index: 9999;">
+              <div class="modal-box" style="max-width: 480px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                  <div class="modal-title" style="font-size: 1.05rem; margin:0;"><i class="fa-solid fa-headphones" style="color:var(--primary);"></i> Auditoria Pericial de Áudio</div>
+                  <span id="audio-modal-status-badge" class="badge" style="font-size:0.75rem; background:rgba(255,255,255,0.1); padding:3px 8px; border-radius:4px;">Pendente</span>
+                </div>
+                
+                <div style="margin: 0.5rem 0 1rem 0; font-size:0.85rem; color:var(--text-muted);">
+                  Entrevista ID: <span id="audio-modal-inv-id" style="font-family:monospace; color:var(--text-primary); font-weight:700;">-</span>
+                </div>
+
+                <audio id="audio-player-element" controls style="width: 100%; margin: 0 0 1rem 0; outline: none; border-radius: 8px;"></audio>
+                
+                <!-- Speed Controls -->
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.2rem; background:rgba(255,255,255,0.04); padding:0.5rem 0.8rem; border-radius:6px; border:1px solid var(--glass-border);">
+                  <span style="font-size:0.8rem; color:var(--text-muted);"><i class="fa-solid fa-gauge-high"></i> Velocidade:</span>
+                  <div style="display:flex; gap:0.35rem;">
+                    <button type="button" class="btn btn-xs audio-speed-btn active" onclick="setAudioPlaybackSpeed(1.0)">1.0x</button>
+                    <button type="button" class="btn btn-xs audio-speed-btn" onclick="setAudioPlaybackSpeed(1.25)">1.25x</button>
+                    <button type="button" class="btn btn-xs audio-speed-btn" onclick="setAudioPlaybackSpeed(1.5)">1.5x</button>
+                    <button type="button" class="btn btn-xs audio-speed-btn" onclick="setAudioPlaybackSpeed(2.0)">2.0x</button>
+                  </div>
+                </div>
+
+                <!-- Forensic Action Decision -->
+                <div style="background:var(--bg-page); padding:0.85rem; border-radius:8px; border:1px solid var(--glass-border); margin-bottom:1rem;">
+                  <div style="font-size:0.8rem; font-weight:600; margin-bottom:0.5rem; color:var(--text-secondary);"><i class="fa-solid fa-stamp"></i> Parecer do Auditor / Supervisor:</div>
+                  <div style="display:flex; gap:0.5rem;">
+                    <button class="btn btn-sm btn-success" style="flex:1; justify-content:center; gap:0.4rem;" onclick="submitAudioAuditReview('approved')">
+                      <i class="fa-solid fa-check"></i> Aprovar Coleta
+                    </button>
+                    <button class="btn btn-sm btn-danger" style="flex:1; justify-content:center; gap:0.4rem;" onclick="submitAudioAuditReview('rejected')">
+                      <i class="fa-solid fa-xmark"></i> Rejeitar Coleta
+                    </button>
+                  </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end;">
+                  <button class="btn btn-outline btn-sm" onclick="closeAudioModal()">Fechar</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- MAPA TAB -->
+            <div class="tab-content" id="proj-tab-mapa" style="display:none;">
+              <!-- Spatial Cluster Alert Banner -->
+              <div id="spatial-cluster-alert" class="card" style="display:none; border-left: 4px solid var(--danger); background: rgba(239,68,68,0.08); margin-bottom: 1.25rem; padding: 1rem 1.25rem;">
+                <div style="display:flex; align-items:center; gap:0.75rem;">
+                  <i class="fa-solid fa-triangle-exclamation" style="color:var(--danger); font-size:1.4rem;"></i>
+                  <div>
+                    <div style="font-weight:700; color:var(--danger); font-size:0.95rem;">Alerta Pericial: Agrupamento Espacial Suspeito Detectado</div>
+                    <div id="spatial-cluster-desc" style="font-size:0.85rem; color:var(--text-muted); margin-top:2px;">Foram identificadas entrevistas agrupadas no mesmo ponto físico com raio inferior a 20 metros.</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Spatial Dispersion Metrics KPI Card -->
+              <div class="card" style="margin-bottom: 1.25rem; padding: 1rem 1.4rem;">
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+                  <div>
+                    <span style="font-size:0.75rem; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Pontos Georreferenciados</span>
+                    <div id="geo-total-points" style="font-size:1.35rem; font-weight:700; color:var(--text-primary);">-</div>
+                  </div>
+                  <div>
+                    <span style="font-size:0.75rem; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Raio Máx. de Dispersão</span>
+                    <div id="geo-dispersion-radius" style="font-size:1.35rem; font-weight:700; color:var(--primary);">-</div>
+                  </div>
+                  <div>
+                    <span style="font-size:0.75rem; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Área Estimada Coberta</span>
+                    <div id="geo-coverage-area" style="font-size:1.35rem; font-weight:700; color:#10b981;">-</div>
+                  </div>
+                  <div>
+                    <span style="font-size:0.75rem; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Conformidade Espacial</span>
+                    <div id="geo-quality-badge" style="margin-top:4px;"><span class="badge" style="background:rgba(255,255,255,0.1); padding:3px 8px;">Calculando...</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card" style="margin-bottom:2rem; position: relative;">
+                <h3 class="card-title" style="margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center;">
+                  <span><i class="fa-solid fa-map"></i> Mapa de Coleta Georreferenciada</span>
+                  <button id="btn-map-3d" onclick="toggleMap3D()" class="btn btn-primary btn-sm" style="background:var(--primary); color:white; border-radius:20px; box-shadow:0 4px 6px rgba(0,0,0,0.2);"><i class="fa-solid fa-satellite"></i> Visão Satélite</button>
+                </h3>
+                <div id="map-wrapper" style="background: var(--bg-surface); border-radius:var(--radius-lg); overflow: hidden;">
+                  <div id="map" class="map-container" style="height:600px; border:none; border-radius:var(--radius-lg);"></div>
+                </div>
+              </div>
+
+              <div class="card">
+                <h3 class="card-title" style="margin-bottom:1rem;"><i class="fa-solid fa-microphone"></i> Galeria de Áudio</h3>
+                <div id="audio-review-list"></div>
+              </div>
+            </div>
+
+            <!-- CONFIGURAÇÕES TAB -->
+            <div class="tab-content" id="proj-tab-config" style="display:none;">
+              <div class="card">
+                <div class="card-header"><h3 class="card-title"><i class="fa-solid fa-share-nodes"></i> Compartilhamento e Acessos</h3><button class="btn btn-primary btn-sm" onclick="openRouteModal()"><i class="fa-solid fa-plus"></i> Atribuir Acesso</button></div>
+                <p class="text-muted" style="margin-bottom:1rem;">Apenas os pesquisadores nesta lista poderão baixar e preencher este formulário no ODK Collect.</p>
+                <div class="table-wrapper" style="max-height: 400px; overflow-y: auto;">
+                  <table class="data-table" id="routes-table">
+                    <thead><tr><th>Pesquisador</th><th>Atribuído em</th><th>Ações</th></tr></thead>
+                    <tbody id="routes-tbody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- VERSÕES & CICLO DE VIDA TAB -->
+            <div class="tab-content" id="proj-tab-versoes" style="display:none;">
+              <!-- Header Card: Current Status & Version Summary -->
+              <div class="card" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, rgba(30,41,59,0.7), rgba(15,23,42,0.9)); border: 1px solid var(--glass-border);">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
+                  <div>
+                    <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.5rem;">
+                      <span id="proj-ver-status-badge" class="badge badge-success" style="font-size:0.85rem; padding:6px 12px; font-weight:700;">PUBLICADO</span>
+                      <span id="proj-ver-number-badge" class="badge" style="background:rgba(56,189,248,0.2); color:#38bdf8; font-size:0.85rem; padding:6px 12px; font-weight:700;">VERSÃO 1 (V1)</span>
+                    </div>
+                    <h2 id="proj-ver-title" style="font-size:1.35rem; font-weight:800; color:#fff; margin:0 0 0.5rem 0;">Questionário Oficial do Projeto</h2>
+                    <p id="proj-ver-desc" style="color:var(--text-muted); font-size:0.9rem; margin:0; max-width:650px;">
+                      Esta versão está ativa para coleta de campo. Todas as entrevistas submetidas pelo ODK Collect estão vinculadas a esta versão.
+                    </p>
+                  </div>
+                  
+                  <!-- Quick Actions for Lifecycle -->
+                  <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                    <button type="button" class="btn btn-sm btn-outline" onclick="sysEditForm()" title="Abrir construtor visual para editar perguntas">
+                      <i class="fa-solid fa-pen-to-square"></i> Editar Perguntas
+                    </button>
+                    <button type="button" class="btn btn-sm btn-success" id="btn-tab-publish" onclick="publishActiveVersion()" title="Publicar rascunho para liberar coletas no campo">
+                      <i class="fa-solid fa-rocket"></i> Publicar Versão
+                    </button>
+                    <button type="button" class="btn btn-sm btn-primary" id="btn-tab-new-ver" onclick="createNewFormVersion()" title="Gera uma ramificação V2 como rascunho para não corromper entrevistas já feitas">
+                      <i class="fa-solid fa-code-branch"></i> Criar Nova Versão (Branch)
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline" id="btn-tab-archive" onclick="toggleArchiveActiveProject()" title="Arquiva o projeto encerrando novas submissões">
+                      <i class="fa-solid fa-box-archive"></i> Arquivar Projeto
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 4 Metrics row -->
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid rgba(255,255,255,0.08);">
+                  <div>
+                    <div style="font-size:0.75rem; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Status do Campo</div>
+                    <div id="metric-field-status" style="font-size:1.1rem; font-weight:700; color:#10b981; margin-top:2px;">Aberto & Coletando</div>
+                  </div>
+                  <div>
+                    <div style="font-size:0.75rem; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Perguntas no Formulário</div>
+                    <div id="metric-questions-count" style="font-size:1.1rem; font-weight:700; color:#fff; margin-top:2px;">0 perguntas</div>
+                  </div>
+                  <div>
+                    <div style="font-size:0.75rem; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Entrevistas nesta Versão</div>
+                    <div id="metric-interviews-this-ver" style="font-size:1.1rem; font-weight:700; color:#38bdf8; margin-top:2px;">0 coletas</div>
+                  </div>
+                  <div>
+                    <div style="font-size:0.75rem; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Garantia de Integridade</div>
+                    <div style="font-size:1.1rem; font-weight:700; color:#a855f7; margin-top:2px;"><i class="fa-solid fa-shield-halved"></i> 100% Protegido</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Lifecycle Educational / Architecture Visual Cards -->
+              <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
+                <div class="card" style="border-left:4px solid #f59e0b; padding:1.25rem;">
+                  <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+                    <i class="fa-solid fa-pen-ruler" style="color:#f59e0b; font-size:1.1rem;"></i>
+                    <h4 style="margin:0; font-size:0.95rem; font-weight:700;">1. Rascunho (Draft)</h4>
+                  </div>
+                  <p style="color:var(--text-muted); font-size:0.8rem; margin:0; line-height:1.4;">
+                    Sob construção ou teste interno. Fica <strong>invisível</strong> para os entrevistadores no ODK Collect, prevenindo coletas acidentais com perguntas incompletas.
+                  </p>
+                </div>
+
+                <div class="card" style="border-left:4px solid #10b981; padding:1.25rem;">
+                  <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+                    <i class="fa-solid fa-circle-check" style="color:#10b981; font-size:1.1rem;"></i>
+                    <h4 style="margin:0; font-size:0.95rem; font-weight:700;">2. Publicado (Published)</h4>
+                  </div>
+                  <p style="color:var(--text-muted); font-size:0.8rem; margin:0; line-height:1.4;">
+                    Congelado e ativo em campo. Ao alterar perguntas após a publicação, o sistema cria uma <strong>nova versão (V2)</strong> para não desconfigurar coletas anteriores.
+                  </p>
+                </div>
+
+                <div class="card" style="border-left:4px solid #64748b; padding:1.25rem;">
+                  <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+                    <i class="fa-solid fa-box-archive" style="color:#64748b; font-size:1.1rem;"></i>
+                    <h4 style="margin:0; font-size:0.95rem; font-weight:700;">3. Arquivado (Archived)</h4>
+                  </div>
+                  <p style="color:var(--text-muted); font-size:0.8rem; margin:0; line-height:1.4;">
+                    Pesquisa encerrada. Bloqueia novos envios móveis, mas preserva 100% dos relatórios, dados, auditoria e mapas para consultas futuras. Reativa a qualquer momento.
+                  </p>
+                </div>
+
+                <div class="card" style="border-left:4px solid #a855f7; padding:1.25rem;">
+                  <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+                    <i class="fa-solid fa-book-bookmark" style="color:#a855f7; font-size:1.1rem;"></i>
+                    <h4 style="margin:0; font-size:0.95rem; font-weight:700;">4. Biblioteca de Modelos</h4>
+                  </div>
+                  <p style="color:var(--text-muted); font-size:0.8rem; margin:0; line-height:1.4;">
+                    Templates metodológicos (IBGE, TSE, Governo, NPS) que podem ser reutilizados ou clonados em 1 clique para dar origem a novos projetos.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Version History Table -->
+              <div class="card">
+                <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <h3 class="card-title"><i class="fa-solid fa-timeline"></i> Histórico de Versões & Coletas de Campo</h3>
+                    <p class="text-muted" style="margin:0.25rem 0 0 0; font-size:0.85rem;">Rastreabilidade completa de cada edição publicada e o número de entrevistas coletadas em cada versão.</p>
+                  </div>
+                  <button type="button" class="btn btn-sm btn-outline" onclick="renderProjectVersionsTab(state.activeProjectFormId)"><i class="fa-solid fa-rotate"></i> Atualizar</button>
+                </div>
+                <div class="table-wrapper">
+                  <table class="data-table" id="project-versions-history-table">
+                    <thead>
+                      <tr>
+                        <th>Versão</th>
+                        <th>Status</th>
+                        <th>Perguntas</th>
+                        <th>Entrevistas Coletadas</th>
+                        <th>Última Atualização</th>
+                        <th>Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody id="project-versions-tbody">
+                      <tr><td colspan="6" style="text-align:center; padding:1.5rem; color:var(--text-muted);">Carregando dados da versão...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+        </div> <!-- Closes the inner wrapper -->
+
+        <div class="modal-overlay" id="route-modal">
+          <div class="modal-box">
+            <div class="modal-title">Gerenciar Acesso ao Projeto</div>
+            <p class="modal-message" style="margin-bottom:1rem;">Visualize e atribua pesquisadores que poderão realizar coletas para este projeto.</p>
+            
+            <div id="assigned-researchers-list" style="margin-bottom:1.5rem; background:var(--bg-page); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--glass-border);"></div>
+            
+            <div style="border-top: 1px solid var(--border); margin-bottom: 1rem; padding-top: 1rem;">
+              <h4 style="margin:0 0 1rem 0; font-size:0.9rem;">Adicionar Pesquisador</h4>
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group"><label class="form-label">Pesquisador</label><select class="form-select" id="route-form-researcher"></select></div>
+                <div class="form-group"><label class="form-label">Cidade/Localidade</label><input type="text" class="form-input" id="route-form-city" placeholder="Ex: Manaus/AM" /></div>
+              </div>
+            </div>
+            
+            <div class="modal-actions" style="margin-top:1.5rem;">
+              <button class="btn" onclick="closeRouteModal()">Cancelar</button>
+              <button class="btn btn-primary" onclick="saveRoute()">Confirmar Atribuição</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal: Quota Studio (Gerenciador Visual de Cotas Amostrais) -->
+        <div class="modal-overlay" id="quota-studio-modal" style="z-index: 9999;">
+          <div class="modal-box" style="max-width: 650px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+              <div class="modal-title" style="margin:0; font-size:1.1rem;"><i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Quota Studio — Construtor Visual de Cotas</div>
+              <span class="badge" style="background:rgba(56,189,248,0.15); color:var(--primary); font-size:0.75rem; padding:3px 8px; border-radius:4px;">Controle Amostral</span>
+            </div>
+            <p class="modal-message" style="margin-bottom:1.25rem;">
+              Configure metas numéricas por perfil demográfico ou geográfico. O sistema avisa o pesquisador no campo e trava automaticamente o questionário quando a cota estiver preenchida.
+            </p>
+
+            <!-- Visual Add Quota Form -->
+            <div style="background:var(--bg-page); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--glass-border); margin-bottom:1.25rem;">
+              <h4 style="margin:0 0 0.8rem 0; font-size:0.85rem; text-transform:uppercase; color:var(--text-muted);"><i class="fa-solid fa-plus-circle"></i> Adicionar Nova Cota</h4>
+              <div style="display:grid; grid-template-columns: 1fr 1fr 110px; gap: 0.8rem; align-items:flex-end;">
+                <div class="form-group" style="margin:0;">
+                  <label class="form-label" style="font-size:0.8rem;">Pergunta Demográfica</label>
+                  <select id="qs-select-question" class="form-select" style="font-size:0.85rem;" onchange="onQuotaQuestionSelected()"></select>
+                </div>
+                <div class="form-group" style="margin:0;">
+                  <label class="form-label" style="font-size:0.8rem;">Opção / Categoria</label>
+                  <select id="qs-select-option" class="form-select" style="font-size:0.85rem;"></select>
+                </div>
+                <div class="form-group" style="margin:0;">
+                  <label class="form-label" style="font-size:0.8rem;">Meta Amostral</label>
+                  <input type="number" id="qs-input-target" class="form-input" style="font-size:0.85rem;" placeholder="Ex: 500" min="1" value="100" />
+                </div>
+              </div>
+              <div style="display:flex; justify-content:flex-end; margin-top:0.8rem;">
+                <button type="button" class="btn btn-primary btn-sm" onclick="addQuotaFromStudio()"><i class="fa-solid fa-plus"></i> Inserir Cota</button>
+              </div>
+            </div>
+
+            <!-- Configured Quotas Table -->
+            <div style="margin-bottom:1rem;">
+              <h4 style="margin:0 0 0.6rem 0; font-size:0.85rem; text-transform:uppercase; color:var(--text-muted);"><i class="fa-solid fa-list-check"></i> Cotas Ativas neste Projeto</h4>
+              <div class="table-wrapper" style="max-height: 250px; overflow-y: auto;">
+                <table class="data-table" id="qs-quotas-table" style="font-size:0.85rem;">
+                  <thead>
+                    <tr>
+                      <th>Variável / Pergunta</th>
+                      <th>Categoria</th>
+                      <th style="text-align:center;">Progresso</th>
+                      <th style="text-align:center;">Status</th>
+                      <th style="text-align:center;">Ação</th>
+                    </tr>
+                  </thead>
+                  <tbody id="qs-quotas-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="modal-actions" style="margin-top:1.5rem;">
+              <button class="btn" onclick="closeQuotaStudioModal()">Cancelar</button>
+              <button class="btn btn-primary" onclick="saveQuotasFromStudio()"><i class="fa-solid fa-check"></i> Salvar e Aplicar Cotas</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== VIEW: CUSTOM ROLES ===== -->
+      <section id="view-roles" class="view-panel">
+        <div class="page-header">
+          <h1 class="page-title"><i class="fa-solid fa-user-shield"></i> Cargos e Permissões</h1>
+          <p class="page-subtitle">Crie perfis personalizados e defina o que cada um pode fazer no sistema.</p>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 350px; gap: 1.5rem; align-items: start;">
+          <div class="card">
+            <div class="card-header"><h3 class="card-title">Perfis Existentes</h3></div>
+            <table class="data-table">
+              <thead><tr><th>Cargo</th><th>Permissões Ativas</th><th>Ações</th></tr></thead>
+              <tbody id="roles-tbody"></tbody>
+            </table>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3 class="card-title">Criar Novo Cargo</h3></div>
+            <div class="form-group">
+              <label class="form-label">Nome do Cargo</label>
+              <input type="text" class="form-input" id="role-form-name" placeholder="Ex: Supervisor de Campo">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Permissões (Marque o que for permitido)</label>
+              <div style="display:flex; flex-direction:column; gap:0.5rem; margin-top:0.5rem; padding:1rem; background:var(--bg-page); border-radius:var(--radius-sm); font-size:0.85rem;">
+                <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;"><input type="checkbox" class="role-perm-cb" value="view_projects"> Ver Projetos</label>
+                <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;"><input type="checkbox" class="role-perm-cb" value="view_map"> Ver Mapa e GPS</label>
+                <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;"><input type="checkbox" class="role-perm-cb" value="export_data"> Exportar Base (CSV)</label>
+                <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;"><input type="checkbox" class="role-perm-cb" value="delete_data"> Apagar/Limpar Testes</label>
+                <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;"><input type="checkbox" class="role-perm-cb" value="manage_forms"> Criar Formulários</label>
+                <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;"><input type="checkbox" class="role-perm-cb" value="manage_users"> Gerenciar Equipe</label>
+                <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;"><input type="checkbox" class="role-perm-cb" value="submit_data"> Enviar Pesquisas (Coletor)</label>
+                <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;"><input type="checkbox" class="role-perm-cb" value="all"> Controle Total (Administrador)</label>
+              </div>
+            </div>
+            <button class="btn btn-primary" style="width:100%;" onclick="saveNewRole()">Salvar Cargo</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== VIEW: MOBILE SIMULATOR ===== -->
+      <section id="view-mobile-sim" class="view-panel">
+        <div class="page-header">
+          <h1 class="page-title"><i class="fa-solid fa-mobile-screen"></i> Preview (Simulador)</h1>
+          <p class="page-subtitle">Teste e valide como o questionário se comportará no aplicativo móvel dos pesquisadores.</p>
+        </div>
+        
+        <div style="display: flex; justify-content: center; align-items: flex-start; padding-top: 2rem;">
+          <div class="phone-frame">
+            <div class="phone-wrapper">
+              <div class="phone-notch"></div>
+              <div class="phone-screen">
+                <div class="phone-screen-header" id="phone-header-bar"></div>
+                <div class="phone-screen-body" id="phone-screen-body"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== VIEW: AI ANALYSIS ===== -->
+      <section id="view-ai-analysis" class="view-panel">
+        <div class="page-header"><h1 class="page-title"><i class="fa-solid fa-magnifying-glass-chart"></i> Análise Inteligente</h1><p class="page-subtitle">Verificação automática de qualidade e detecção de anomalias nas pesquisas.</p></div>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title"><i class="fa-solid fa-robot"></i> Verificação de Qualidade</h3>
+              <p class="text-muted" style="margin-top:0.2rem;">Analisa padrões de deslocamento, tempo de resposta e qualidade do áudio.</p>
+            </div>
+            <div class="ai-controls">
+              <span id="ai-status" class="text-muted">Aguardando...</span>
+              <button class="btn btn-primary" onclick="runAiAnalysis()"><i class="fa-solid fa-play"></i> Verificar Agora</button>
+            </div>
+          </div>
+          <div id="ai-results-container">
+            <div class="empty-state"><i class="fa-solid fa-magnifying-glass-chart"></i><h4>Nenhuma verificação realizada</h4><p>Clique em "Verificar Agora" para analisar a qualidade das pesquisas coletadas.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== VIEW: TEAM ===== -->
+      <section id="view-team" class="view-panel">
+        <div class="page-header" style="margin-bottom:1.25rem;">
+          <h1 class="page-title"><i class="fa-solid fa-users"></i> Gestão de Equipe & Campo</h1>
+          <p class="page-subtitle">Acompanhe a produtividade dos pesquisadores em tempo real e gerencie permissões.</p>
+        </div>
+
+        <!-- Subnav bar for Team -->
+        <div class="exec-subnav-bar" style="margin-bottom: 1.5rem;">
+          <button class="exec-nav-btn active" id="btn-subnav-team-users" onclick="switchTeamSubTab('users')">
+            <i class="fa-solid fa-users-gear"></i> Usuários & Contas
+          </button>
+          <button class="exec-nav-btn" id="btn-subnav-team-leaderboard" onclick="switchTeamSubTab('leaderboard')">
+            <i class="fa-solid fa-trophy" style="color:#f59e0b;"></i> Produtividade de Campo (Leaderboard)
+          </button>
+        </div>
+
+        <!-- SUBTAB 1: USERS -->
+        <div id="team-subtab-users">
+          <div class="card">
+            <div class="card-header"><h3 class="card-title"><i class="fa-solid fa-user-plus"></i> Usuários Cadastrados</h3><button class="btn btn-primary btn-sm" onclick="openUserModal()"><i class="fa-solid fa-plus"></i> Novo Usuário</button></div>
+            <div class="table-wrapper" style="max-height: 500px; overflow-y: auto;">
+              <table class="data-table" id="users-table">
+                <thead><tr><th>Nome / E-mail</th><th>Cargo</th><th>Ações</th></tr></thead>
+                <tbody id="users-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUBTAB 2: FIELD TEAM LEADERBOARD -->
+        <div id="team-subtab-leaderboard" style="display:none;">
+          <!-- Team KPI Summary Cards -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+            <div class="card" style="border-left: 4px solid var(--primary); padding: 1.1rem 1.4rem;">
+              <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Pesquisadores Ativos Hoje</div>
+              <div id="kpi-team-active-today" style="font-size: 1.9rem; font-weight: 700; color: var(--text-primary); margin-top: 0.2rem;">0</div>
+            </div>
+            <div class="card" style="border-left: 4px solid #10b981; padding: 1.1rem 1.4rem;">
+              <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Total de Entrevistas Coletadas</div>
+              <div id="kpi-team-total-collected" style="font-size: 1.9rem; font-weight: 700; color: #10b981; margin-top: 0.2rem;">0</div>
+            </div>
+            <div class="card" style="border-left: 4px solid #f59e0b; padding: 1.1rem 1.4rem;">
+              <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Taxa de Aprovação Pericial</div>
+              <div id="kpi-team-approval-rate" style="font-size: 1.9rem; font-weight: 700; color: #f59e0b; margin-top: 0.2rem;">100%</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title"><i class="fa-solid fa-ranking-star" style="color:#f59e0b;"></i> Classificação de Produtividade dos Entrevistadores</h3>
+              <button class="btn btn-outline btn-sm" onclick="loadTeamProductivityLeaderboard()"><i class="fa-solid fa-rotate"></i> Atualizar Dados</button>
+            </div>
+            <div class="table-wrapper" style="max-height: 500px; overflow-y: auto;">
+              <table class="data-table" id="team-leaderboard-table" style="font-size: 0.9rem;">
+                <thead>
+                  <tr>
+                    <th>Pesquisador</th>
+                    <th style="text-align:center;">Hoje</th>
+                    <th style="text-align:center;">Total Coletado</th>
+                    <th style="text-align:center;">Aprovadas</th>
+                    <th style="text-align:center;">Rejeitadas</th>
+                    <th style="text-align:center;">Pendentes</th>
+                    <th style="text-align:center;">Aproveitamento</th>
+                    <th style="text-align:center;">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="team-leaderboard-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-overlay" id="user-modal">
+          <div class="modal-box">
+            <div class="modal-title" id="user-modal-title">Novo Usuário</div>
+            <input type="hidden" id="user-form-id" />
+            <div class="form-group"><label class="form-label">Nome Completo</label><input type="text" class="form-input" id="user-form-name" /></div>
+            <div class="form-group"><label class="form-label">E-mail</label><input type="email" class="form-input" id="user-form-email" /></div>
+            <div class="form-group"><label class="form-label">Cargo</label>
+              <select class="form-select" id="user-form-role">
+                <option value="Researcher">Pesquisador (Aplicativo)</option>
+                <option value="Coordinator">Coordenador</option>
+                <option value="Analyst">Analista</option>
+                <option value="Supervisor">Supervisor</option>
+                <option value="Admin">Administrador</option>
+                <option value="DEV">Suporte (DEV)</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Senha</label><input type="password" class="form-input" id="user-form-password" placeholder="Deixe em branco para não alterar" /></div>
+            <div class="modal-actions" style="margin-top:1.5rem;">
+              <button class="btn" onclick="closeUserModal()">Cancelar</button>
+              <button class="btn btn-primary" onclick="saveUser()">Salvar Usuário</button>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ===== VIEW: LOGS ===== -->
+      <section id="view-logs" class="view-panel">
+        <div class="page-header"><h1 class="page-title"><i class="fa-solid fa-shield-halved"></i> Registros de Segurança</h1><p class="page-subtitle">Logs de auditoria e eventos do sistema.</p></div>
+        <div class="card">
+          <div class="card-header"><h3 class="card-title"><i class="fa-solid fa-list-check"></i> Histórico de Eventos</h3><button class="btn btn-sm" id="btn-refresh-logs"><i class="fa-solid fa-arrows-rotate"></i> Atualizar</button></div>
+          <div id="log-console-container"></div>
+        </div>
+      </section>
+
+      <!-- ===== VIEW: CLOUD & INFRASTRUCTURE ===== -->
+      <section id="view-cloud-storage" class="view-panel">
+        <div class="page-header">
+          <h1 class="page-title"><i class="fa-solid fa-cloud" style="color:var(--cyan);"></i> Nuvem & Infraestrutura Enterprise</h1>
+          <p class="page-subtitle">Arquitetura de Borda (Cloudflare Edge Protection) e Armazenamento Perpétuo em Nuvem (Google Drive Cold Storage).</p>
+        </div>
+        <div class="view-pad">
+          
+          <!-- Cloud Architecture Diagram Summary -->
+          <div class="card" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, rgba(15,26,48,0.9), rgba(6,11,24,0.95)); border-color: rgba(34,211,238,0.25);">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+              <div>
+                <span class="badge badge-info" style="margin-bottom:0.5rem;"><i class="fa-solid fa-shield-halved"></i> Topologia Híbrida 24/7</span>
+                <h3 style="font-size:1.15rem; font-weight:800; color:#fff;">Operação de Campo Híbrida: Borda + Nuvem + Offline</h3>
+                <p style="font-size:0.83rem; color:var(--text-secondary); max-width:650px; margin-top:4px;">
+                  Pesquisadores coletam 100% offline no <b>ODK Collect</b> com GPS de satélite e áudios criptografados. Ao conectar, a requisição passa pelo <b>Cloudflare Shield</b> (DDoS, SSL Estrito e WebSockets permanentes) e dados pesados de mídia são espelhados automaticamente no <b>Google Drive</b>.
+                </p>
+              </div>
+              <button class="btn btn-primary" onclick="syncGoogleDriveNow()" id="btn-sync-drive-manual">
+                <i class="fa-solid fa-arrows-rotate"></i> Sincronizar Google Drive Agora
+              </button>
+            </div>
+          </div>
+
+          <!-- Cards Grid -->
+          <div class="cloud-grid">
+            
+            <!-- Cloudflare Card -->
+            <div class="card">
+              <div class="card-header">
+                <div style="display:flex; align-items:center; gap:0.6rem;">
+                  <div style="width:36px; height:36px; border-radius:var(--r-md); background:rgba(245,158,11,0.15); color:#f59e0b; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
+                    <i class="fa-brands fa-cloudflare"></i>
+                  </div>
+                  <div>
+                    <h3 class="card-title" style="margin:0;">Cloudflare Edge Shield</h3>
+                    <span style="font-size:0.68rem; color:var(--text-muted);">Proteção de Borda & Roteamento Global</span>
+                  </div>
+                </div>
+                <span class="sys-status-badge"><span class="status-pulse-dot"></span> Ativo</span>
+              </div>
+              <div class="cloud-metric-row">
+                <span class="cloud-metric-label"><i class="fa-solid fa-lock" style="color:var(--green);"></i> Certificado SSL/TLS</span>
+                <span class="cloud-metric-val" id="cf-ssl">Full (Strict) TLS 1.3</span>
+              </div>
+              <div class="cloud-metric-row">
+                <span class="cloud-metric-label"><i class="fa-solid fa-shield-virus" style="color:var(--cyan);"></i> Mitigação DDoS & WAF</span>
+                <span class="cloud-metric-val" id="cf-ddos">Automático na Borda</span>
+              </div>
+              <div class="cloud-metric-row">
+                <span class="cloud-metric-label"><i class="fa-solid fa-bolt" style="color:var(--amber);"></i> WebSockets / Live Map</span>
+                <span class="cloud-metric-val" id="cf-ws">Canal Permanente</span>
+              </div>
+              <div class="cloud-metric-row">
+                <span class="cloud-metric-label"><i class="fa-solid fa-gauge-high" style="color:var(--indigo);"></i> Latência Média (Edge POP)</span>
+                <span class="cloud-metric-val" id="cf-latency">8ms (Brasil)</span>
+              </div>
+              <div class="cloud-metric-row">
+                <span class="cloud-metric-label"><i class="fa-solid fa-chart-line" style="color:#ec4899;"></i> Cache Hit Ratio</span>
+                <span class="cloud-metric-val" id="cf-cache">96.4%</span>
+              </div>
+            </div>
+
+            <!-- Google Drive Card -->
+            <div class="card">
+              <div class="card-header">
+                <div style="display:flex; align-items:center; gap:0.6rem;">
+                  <div style="width:36px; height:36px; border-radius:var(--r-md); background:rgba(34,211,238,0.15); color:var(--cyan); display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
+                    <i class="fa-brands fa-google-drive"></i>
+                  </div>
+                  <div>
+                    <h3 class="card-title" style="margin:0;">Google Drive Cold Storage</h3>
+                    <span style="font-size:0.68rem; color:var(--text-muted);">Armazenamento Perpétuo & Backup de Mídias</span>
+                  </div>
+                </div>
+                <span class="sys-status-badge"><span class="status-pulse-dot"></span> Conectado</span>
+              </div>
+              
+              <div>
+                <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted);">
+                  <span>Capacidade em Nuvem Utilizada</span>
+                  <span id="gdrive-quota-text">14.2 GB / 2.0 TB</span>
+                </div>
+                <div class="cloud-storage-bar">
+                  <div class="cloud-storage-fill" id="gdrive-quota-bar" style="width: 8%;"></div>
+                </div>
+              </div>
+
+              <div class="cloud-metric-row" style="margin-top:0.6rem;">
+                <span class="cloud-metric-label"><i class="fa-solid fa-user-check" style="color:var(--cyan);"></i> Conta Corporativa</span>
+                <span class="cloud-metric-val" id="gdrive-account" style="font-size:0.75rem;">nuvem.auditoria@guiadata.corp</span>
+              </div>
+              <div class="cloud-metric-row">
+                <span class="cloud-metric-label"><i class="fa-solid fa-microphone" style="color:var(--indigo);"></i> Áudios Sincronizados</span>
+                <span class="cloud-metric-val" id="gdrive-audios">Carregando...</span>
+              </div>
+              <div class="cloud-metric-row">
+                <span class="cloud-metric-label"><i class="fa-solid fa-file-invoice" style="color:var(--green);"></i> Entrevistas em Nuvem</span>
+                <span class="cloud-metric-val" id="gdrive-interviews">Carregando...</span>
+              </div>
+              <div class="cloud-metric-row">
+                <span class="cloud-metric-label"><i class="fa-solid fa-clock-rotate-left" style="color:var(--amber);"></i> Último Backup</span>
+                <span class="cloud-metric-val" id="gdrive-last-sync">Agora mesmo</span>
+              </div>
+            </div>
+
+            <!-- Field Offline Engine Card -->
+            <div class="card" style="grid-column: 1 / -1;">
+              <div class="card-header">
+                <div style="display:flex; align-items:center; gap:0.6rem;">
+                  <div style="width:36px; height:36px; border-radius:var(--r-md); background:rgba(52,211,153,0.15); color:var(--green); display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
+                    <i class="fa-solid fa-satellite-dish"></i>
+                  </div>
+                  <div>
+                    <h3 class="card-title" style="margin:0;">Motor de Campo & Resiliência Offline</h3>
+                    <span style="font-size:0.68rem; color:var(--text-muted);">Como a coleta opera sem sinal de celular ou internet</span>
+                  </div>
+                </div>
+                <button class="btn btn-sm btn-outline" onclick="openOdkQrModal()"><i class="fa-solid fa-qrcode"></i> Ver QR Code ODK</button>
+              </div>
+
+              <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:1rem; margin-top:0.5rem;">
+                <div style="background:rgba(255,255,255,0.025); border:1px solid var(--border); padding:1rem; border-radius:var(--r-md);">
+                  <div style="color:var(--green); font-weight:700; font-size:0.85rem; margin-bottom:0.3rem;"><i class="fa-solid fa-signal-stream"></i> 1. Pré-Carga na Base</div>
+                  <p style="font-size:0.78rem; color:var(--text-secondary); line-height:1.5;">O pesquisador sincroniza o questionário via Wi-Fi no escritório antes de partir para a rota.</p>
+                </div>
+                <div style="background:rgba(255,255,255,0.025); border:1px solid var(--border); padding:1rem; border-radius:var(--r-md);">
+                  <div style="color:var(--cyan); font-weight:700; font-size:0.85rem; margin-bottom:0.3rem;"><i class="fa-solid fa-location-dot"></i> 2. Coleta 100% Offline</div>
+                  <p style="font-size:0.78rem; color:var(--text-secondary); line-height:1.5;">No campo, fotos, áudios e posições GPS por satélite são gravados no banco local seguro do smartphone.</p>
+                </div>
+                <div style="background:rgba(255,255,255,0.025); border:1px solid var(--border); padding:1rem; border-radius:var(--r-md);">
+                  <div style="color:var(--indigo); font-weight:700; font-size:0.85rem; margin-bottom:0.3rem;"><i class="fa-solid fa-cloud-arrow-up"></i> 3. Despejo e Nuvem</div>
+                  <p style="font-size:0.78rem; color:var(--text-secondary); line-height:1.5;">Ao detectar internet ou via Pen Drive físico, todos os dados são descarregados e arquivados no Google Drive.</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== VIEW: EXECUTIVE SUITE (R$ 10.000/MÊS) ===== -->
+      <section id="view-executive-suite" class="view-panel">
+        <div class="page-header" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
+          <div>
+            <h1 class="page-title"><i class="fa-solid fa-briefcase" style="color:var(--cyan);"></i> Central Executiva de Inteligência & SLA VIP</h1>
+            <p class="page-subtitle">Tabulação Cruzada Multivariada, Auditoria Forense Antifraude, Governança LGPD e Gestão de SLA 99.9%.</p>
+          </div>
+          <div style="display:flex; align-items:center; gap:0.5rem;">
+            <span class="badge" style="background:linear-gradient(135deg, #0284c7, #6366f1); color:#fff; font-size:0.75rem; padding:6px 12px; font-weight:700; border-radius:999px; box-shadow:0 0 12px rgba(56,189,248,0.3);">
+              <i class="fa-solid fa-crown" style="color:#fbbf24;"></i> CONTRATO VIP: R$ 10.000 / MÊS
+            </span>
+          </div>
+        </div>
+
+        <div class="view-pad">
+          <!-- Sub-navigation Pills -->
+          <div class="exec-subnav-bar">
+            <button class="exec-nav-btn active" data-exectab="exec-tab-crosstab" onclick="switchExecTab('exec-tab-crosstab')">
+              <i class="fa-solid fa-table-cells-large"></i> Tabulação Cruzada (Cross-Tab)
+            </button>
+            <button class="exec-nav-btn" data-exectab="exec-tab-forensic" onclick="switchExecTab('exec-tab-forensic')">
+              <i class="fa-solid fa-shield-virus"></i> Laudo Pericial & Antifraude
+            </button>
+            <button class="exec-nav-btn" data-exectab="exec-tab-audit" onclick="switchExecTab('exec-tab-audit')">
+              <i class="fa-solid fa-link"></i> Trilha Criptográfica (SHA-256)
+            </button>
+            <button class="exec-nav-btn" data-exectab="exec-tab-lgpd" onclick="switchExecTab('exec-tab-lgpd')">
+              <i class="fa-solid fa-user-lock"></i> Governança & LGPD
+            </button>
+            <button class="exec-nav-btn" data-exectab="exec-tab-sla" onclick="switchExecTab('exec-tab-sla')">
+              <i class="fa-solid fa-gauge-high"></i> SLA 99.9% & Suporte VIP
+            </button>
+            <button class="exec-nav-btn" data-exectab="exec-tab-whitelabel" onclick="switchExecTab('exec-tab-whitelabel')">
+              <i class="fa-solid fa-palette"></i> Marca & White-Label
+            </button>
+          </div>
+
+          <!-- TAB 1: CROSS-TABULATION -->
+          <div class="exec-tab-content active" id="exec-tab-crosstab">
+            <div class="card" style="margin-bottom: 1.5rem;">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title"><i class="fa-solid fa-sliders"></i> Seleção de Variáveis para Cruzamento</h3>
+                  <span style="font-size:0.75rem; color:var(--text-muted);">Cruze intenção de voto ou satisfação com demografia com cálculo automático de qui-quadrado e margens de erro.</span>
+                </div>
+              </div>
+              <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) 160px; gap:1rem; align-items:flex-end;">
+                <div class="form-group" style="margin:0;">
+                  <label class="form-label">Projeto / Pesquisa</label>
+                  <select class="form-select" id="exec-crosstab-form" onchange="loadFormQuestionsForCrossTab(this.value)"></select>
+                </div>
+                <div class="form-group" style="margin:0;">
+                  <label class="form-label">Variável de Linha (Pergunta Principal)</label>
+                  <select class="form-select" id="exec-crosstab-row"></select>
+                </div>
+                <div class="form-group" style="margin:0;">
+                  <label class="form-label">Variável de Coluna (Demografia / Segmento)</label>
+                  <select class="form-select" id="exec-crosstab-col"></select>
+                </div>
+                <div>
+                  <button class="btn btn-primary" style="width:100%; height:38px; justify-content:center;" onclick="runExecCrossTab()">
+                    <i class="fa-solid fa-calculator"></i> Cruzar
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Statistical KPI Cards -->
+            <div class="stats-grid" id="exec-crosstab-kpis" style="display:none; margin-bottom: 1.5rem;">
+              <div class="stat-card">
+                <div class="stat-label">Amostra Válida (N)</div>
+                <div class="stat-num" id="exec-crosstab-n">0</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Margem de Erro (95% Conf.)</div>
+                <div class="stat-num" id="exec-crosstab-me" style="color:#10b981;">±0.0%</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Teste Qui-Quadrado (χ²)</div>
+                <div class="stat-num" id="exec-crosstab-chi" style="color:var(--cyan);">0.00</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Significância Estatística</div>
+                <div class="stat-num" id="exec-crosstab-sig" style="font-size:1.1rem; color:#f59e0b; margin-top:0.6rem;">p &lt; 0.05</div>
+              </div>
+            </div>
+
+            <!-- Dynamic Contingency Matrix Card -->
+            <div class="card" id="exec-crosstab-result-card" style="display:none;">
+              <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                <h3 class="card-title" id="exec-crosstab-matrix-title">Tabela de Contingência Bivariada</h3>
+                <button class="btn btn-sm btn-outline" onclick="exportCrossTabCsv()"><i class="fa-solid fa-file-csv"></i> Exportar CSV</button>
+              </div>
+              <div class="table-wrapper" style="overflow-x:auto;">
+                <table class="data-table" id="exec-crosstab-table">
+                  <thead id="exec-crosstab-thead"></thead>
+                  <tbody id="exec-crosstab-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: FORENSIC AUDIT & QUALITY -->
+          <div class="exec-tab-content" id="exec-tab-forensic" style="display:none;">
+            <div class="card" style="margin-bottom: 1.5rem;">
+              <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+                <div>
+                  <h3 class="card-title"><i class="fa-solid fa-microscope"></i> Auditoria Forense Antifraude com IA & Heurísticas</h3>
+                  <span style="font-size:0.75rem; color:var(--text-muted);">Detecção de Speeders, Straight-liners (respostas viciadas) e spoofing geográfico.</span>
+                </div>
+                <div style="display:flex; gap:0.5rem; align-items:center;">
+                  <select class="form-select" id="exec-forensic-form" style="width:240px;"></select>
+                  <button class="btn btn-primary" onclick="runExecForensicAudit()"><i class="fa-solid fa-play"></i> Auditar Amostra</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Forensic Summary Grid -->
+            <div id="exec-forensic-results" style="display:none;">
+              <div class="stats-grid" style="margin-bottom: 1.5rem;">
+                <div class="stat-card" style="border-left: 4px solid #10b981;">
+                  <div class="stat-label">Índice de Confiabilidade (Trust Score)</div>
+                  <div class="stat-num" id="exec-forensic-trust-score" style="color:#10b981;">0%</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Total de Questionários</div>
+                  <div class="stat-num" id="exec-forensic-total">0</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Idôneas / Certificadas</div>
+                  <div class="stat-num" id="exec-forensic-certified" style="color:#38bdf8;">0</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Sinalizadas para Expurgo</div>
+                  <div class="stat-num" id="exec-forensic-flagged" style="color:#ef4444;">0</div>
+                </div>
+              </div>
+
+              <!-- Official Formal Certificate Card -->
+              <div class="card" style="background: linear-gradient(135deg, rgba(15,23,42,0.9), rgba(6,11,24,0.98)); border: 1px solid rgba(56,189,248,0.3); margin-bottom: 1.5rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1rem;">
+                  <div style="display:flex; align-items:center; gap:0.75rem;">
+                    <div style="width:42px; height:42px; border-radius:50%; background:rgba(56,189,248,0.15); color:var(--cyan); display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
+                      <i class="fa-solid fa-stamp"></i>
+                    </div>
+                    <div>
+                      <h4 style="margin:0; font-size:1.05rem; font-weight:800; color:#fff;">LAUDO PERICIAL DE AUDITORIA FORENSE AMOSTRAL</h4>
+                      <span style="font-size:0.72rem; color:var(--text-muted);">Em conformidade com a Norma ISO 20252 e Resolução TSE 23.600</span>
+                    </div>
+                  </div>
+                  <div style="text-align:right;">
+                    <span class="badge badge-info" id="exec-forensic-seal" style="font-family:var(--mono); font-size:0.75rem;">DPS-SEAL-PENDING</span>
+                    <div style="font-size:0.7rem; color:var(--text-muted); margin-top:3px;" id="exec-forensic-date">-</div>
+                  </div>
+                </div>
+                <p id="exec-forensic-conclusion" style="font-size:0.85rem; color:var(--text-primary); line-height:1.6; margin-bottom:1rem;"></p>
+                <div style="display:flex; justify-content:flex-end;">
+                  <button class="btn btn-sm btn-outline" onclick="window.print()"><i class="fa-solid fa-print"></i> Imprimir Laudo Pericial Oficial</button>
+                </div>
+              </div>
+
+              <!-- Flagged Interviews Table -->
+              <div class="card">
+                <div class="card-header"><h3 class="card-title"><i class="fa-solid fa-list-check"></i> Detalhamento por Entrevista Auditada</h3></div>
+                <div class="table-wrapper" style="max-height:400px; overflow-y:auto;">
+                  <table class="data-table" id="exec-forensic-table">
+                    <thead><tr><th>ID Coleta</th><th>Pesquisador</th><th>Dispositivo</th><th>Trust Score</th><th>Status</th><th>Ocorrências Forenses</th></tr></thead>
+                    <tbody id="exec-forensic-tbody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 3: IMMUTABLE AUDIT TRAIL (SHA-256) -->
+          <div class="exec-tab-content" id="exec-tab-audit" style="display:none;">
+            <div class="card" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, rgba(15,26,48,0.9), rgba(6,11,24,0.95)); border-color: rgba(56,189,248,0.25);">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+                <div>
+                  <span class="badge badge-info" style="margin-bottom:0.4rem;"><i class="fa-solid fa-shield-halved"></i> Prova Criptográfica Encadeada</span>
+                  <h3 style="font-size:1.15rem; font-weight:800; color:#fff;">Cadeia de Custódia Imutável (SHA-256)</h3>
+                  <p style="font-size:0.82rem; color:var(--text-secondary); max-width:700px; margin-top:4px;">
+                    Cada evento do sistema é criptografado e amarrado matematicamente ao hash do bloco anterior. Qualquer adulteração interna direta no banco SQLite invalida imediatamente a cadeia forense.
+                  </p>
+                </div>
+                <button class="btn btn-primary" onclick="checkAuditTrailIntegrity()"><i class="fa-solid fa-fingerprint"></i> Verificar Integridade Agora</button>
+              </div>
+              <div id="exec-audit-status-banner" style="margin-top:1rem; padding:0.75rem 1rem; border-radius:var(--r-sm); font-size:0.82rem; display:none;"></div>
+            </div>
+
+            <div class="card">
+              <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                <h3 class="card-title"><i class="fa-solid fa-timeline"></i> Registro de Eventos Criptográficos</h3>
+                <button class="btn btn-sm btn-outline" onclick="loadAuditTrailEvents()"><i class="fa-solid fa-arrows-rotate"></i> Atualizar</button>
+              </div>
+              <div class="table-wrapper" style="max-height:450px; overflow-y:auto;">
+                <table class="data-table">
+                  <thead><tr><th>Data / Hora</th><th>Ator (Responsável)</th><th>Ação</th><th>Recurso</th><th>IP</th><th>Hash SHA-256</th></tr></thead>
+                  <tbody id="exec-audit-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 4: LGPD COMPLIANCE -->
+          <div class="exec-tab-content" id="exec-tab-lgpd" style="display:none;">
+            <div class="card" style="margin-bottom: 1.5rem;">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title"><i class="fa-solid fa-user-shield"></i> Governança de Privacidade & Proteção de Dados (LGPD)</h3>
+                  <span style="font-size:0.75rem; color:var(--text-muted);">Lei Geral de Proteção de Dados (Lei 13.709/2018) - Direitos do Titular & Desidentificação Segura.</span>
+                </div>
+              </div>
+              <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:var(--r-md); padding:1.25rem; margin-bottom:1.5rem;">
+                <h4 style="color:#fff; font-size:0.95rem; margin-bottom:0.5rem;"><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--cyan);"></i> Sanitização e Ofuscação em 1-Clique</h4>
+                <p style="font-size:0.83rem; color:var(--text-secondary); line-height:1.6; margin-bottom:1rem;">
+                  Ao fornecer dados brutos para analistas externos, estatísticos ou relatórios públicos, execute a anonimização. O sistema ofusca nomes, CPFs, números de telefone, converte o identificador de dispositivo em anônimo e arredonda coordenadas GPS para uma margem difusa segura (~1.1 km), preservando a distribuição estatística.
+                </p>
+                <div style="display:flex; gap:1rem; align-items:center; flex-wrap:wrap;">
+                  <select class="form-select" id="exec-lgpd-form" style="max-width:320px;"></select>
+                  <button class="btn btn-danger-solid" onclick="executeLgpdAnonymization()"><i class="fa-solid fa-user-lock"></i> Anonimizar Base Deste Projeto</button>
+                </div>
+                <div id="exec-lgpd-result-msg" style="margin-top:1rem; font-size:0.83rem; display:none;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 5: SLA 99.9% & VIP SUPPORT -->
+          <div class="exec-tab-content" id="exec-tab-sla" style="display:none;">
+            <div class="stats-grid" style="margin-bottom: 1.5rem;">
+              <div class="stat-card" style="border-left:4px solid #10b981;">
+                <div class="stat-label">Disponibilidade Apurada (SLA)</div>
+                <div class="stat-num" id="exec-sla-current" style="color:#10b981;">99.98%</div>
+                <span style="font-size:0.7rem; color:var(--text-muted);">Meta Contratual: 99.90%</span>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Uptime Contínuo</div>
+                <div class="stat-num" id="exec-sla-uptime" style="font-size:1.3rem; margin-top:0.4rem;">-</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Latência Média da API</div>
+                <div class="stat-num" id="exec-sla-latency" style="color:var(--cyan);">14ms</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Status dos Serviços</div>
+                <div class="stat-num" id="exec-sla-status" style="font-size:1.1rem; color:#10b981; margin-top:0.6rem;"><i class="fa-solid fa-circle-check"></i> OPERACIONAL</div>
+              </div>
+            </div>
+
+            <!-- VIP Support Desk Card -->
+            <div class="card">
+              <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+                <div>
+                  <h3 class="card-title"><i class="fa-solid fa-headset"></i> Central de Chamados de Suporte VIP</h3>
+                  <span style="font-size:0.75rem; color:var(--text-muted);">Canal direto com engenharia com SLA contratual rígido (P1 Crítico em até 15 minutos).</span>
+                </div>
+                <button class="btn btn-primary" onclick="openVipTicketModal()"><i class="fa-solid fa-ticket"></i> Abrir Chamado VIP</button>
+              </div>
+              <div class="table-wrapper" style="max-height:400px; overflow-y:auto;">
+                <table class="data-table">
+                  <thead><tr><th>Ticket ID</th><th>Severidade</th><th>Título</th><th>Solicitante</th><th>Prazo Máximo SLA</th><th>Status</th><th>Abertura</th></tr></thead>
+                  <tbody id="exec-tickets-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 6: WHITE-LABEL -->
+          <div class="exec-tab-content" id="exec-tab-whitelabel" style="display:none;">
+            <div class="card" style="max-width:700px;">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title"><i class="fa-solid fa-palette"></i> Identidade Visual & White-Label Corporativo</h3>
+                  <span style="font-size:0.75rem; color:var(--text-muted);">Personalize o portal e os relatórios oficiais com a marca da sua empresa.</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Razão Social / Nome da Organização</label>
+                <input type="text" class="form-input" id="wl-org-name" placeholder="Ex: Instituto DataBrasil Inteligência Amostral" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">URL do Logotipo (PNG / SVG com fundo transparente)</label>
+                <input type="text" class="form-input" id="wl-logo-url" placeholder="/icons/icon.svg" />
+              </div>
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+                <div class="form-group">
+                  <label class="form-label">Cor Primária (Hexadecimal)</label>
+                  <input type="color" class="form-input" id="wl-primary-color" value="#38bdf8" style="height:40px; padding:2px;" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Cor de Destaque / Sucesso</label>
+                  <input type="color" class="form-input" id="wl-accent-color" value="#10b981" style="height:40px; padding:2px;" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Texto do Cabeçalho de Relatórios</label>
+                <input type="text" class="form-input" id="wl-report-header" placeholder="Relatório Executivo de Inteligência Amostral e Pesquisa de Campo" />
+              </div>
+              <div style="display:flex; justify-content:flex-end; margin-top:1.5rem;">
+                <button class="btn btn-primary" onclick="saveWhiteLabelSettings()"><i class="fa-solid fa-check"></i> Salvar Identidade da Empresa</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- VIP Support Ticket Creation Modal -->
+      <div class="modal-overlay" id="vip-ticket-modal">
+        <div class="modal-box" style="max-width: 520px;">
+          <div class="modal-title"><i class="fa-solid fa-headset" style="color:var(--cyan);"></i> Abrir Chamado VIP de Engenharia</div>
+          <p class="modal-message" style="margin-bottom:1rem;">Suporte prioritário do Contrato Enterprise (R$ 10.000/mês).</p>
+          
+          <div class="form-group">
+            <label class="form-label">Severidade / Nível de Urgência</label>
+            <select class="form-select" id="ticket-form-severity">
+              <option value="P1">P1 - Crítico (Operação parada / SLA 15 minutos)</option>
+              <option value="P2" selected>P2 - Alto (Impacto em coletas ou relatórios / SLA 1 hora)</option>
+              <option value="P3">P3 - Normal (Dúvidas ou customizações / SLA 4 horas)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Título do Chamado</label>
+            <input type="text" class="form-input" id="ticket-form-title" placeholder="Ex: Lentidão de sincronização em lote no interior" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Descrição Detalhada do Problema</label>
+            <textarea class="form-input" id="ticket-form-desc" rows="4" placeholder="Descreva os dispositivos, projetos e rotas impactadas..."></textarea>
+          </div>
+          <div class="modal-actions" style="margin-top:1.5rem; justify-content:flex-end;">
+            <button class="btn" onclick="document.getElementById('vip-ticket-modal').classList.remove('active')">Cancelar</button>
+            <button class="btn btn-primary" onclick="submitVipTicket()"><i class="fa-solid fa-paper-plane"></i> Enviar com SLA Imediato</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Batch Options Modal -->
+      <div class="modal-overlay" id="batch-options-modal">
+        <div class="modal-box" style="max-width: 500px;">
+          <div class="modal-title"><i class="fa-solid fa-list-check" style="color:var(--cyan);"></i> Colar Lista de Opções em Lote</div>
+          <p class="modal-message" style="margin-bottom:1rem;">Cole múltiplos itens (um por linha). O sistema criará todas as opções de resposta automaticamente.</p>
+          <input type="hidden" id="batch-options-target-idx" />
+          <textarea class="batch-options-area" id="batch-options-textarea" placeholder="Opção 1&#10;Opção 2&#10;Opção 3&#10;..."></textarea>
+          <div style="font-size:0.74rem; color:var(--text-muted); margin-top:0.4rem;">
+            Dica: Linhas em branco serão ignoradas. Os nomes internos serão gerados automaticamente.
+          </div>
+          <div class="modal-actions" style="margin-top:1.2rem;">
+            <button class="btn" onclick="document.getElementById('batch-options-modal').classList.remove('active')">Cancelar</button>
+            <button class="btn btn-primary" onclick="confirmBatchOptions()"><i class="fa-solid fa-plus"></i> Inserir Opções</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ODK QR Code Auto-Config Modal -->
+      <div class="modal-overlay" id="odk-qr-modal">
+        <div class="modal-box" style="max-width: 480px; text-align: center;">
+          <div class="modal-title" style="justify-content: center;"><i class="fa-solid fa-qrcode" style="color:var(--cyan);"></i> Conectar Celular (ODK Collect)</div>
+          <p class="modal-message" style="margin-bottom:0.8rem;">Aponte a câmera do aplicativo <b>ODK Collect</b> para configurar automaticamente o smartphone do pesquisador.</p>
+          
+          <div class="odk-qr-box" id="odk-qr-container">
+            <!-- Rendered via JS -->
+          </div>
+
+          <div style="text-align: left; margin-bottom: 1.2rem;">
+            <div class="odk-step-pill"><div class="odk-step-num">1</div><span>No Android, abra o <b>ODK Collect</b>.</span></div>
+            <div class="odk-step-pill"><div class="odk-step-num">2</div><span>Toque no botão <b>Configurar por QR Code</b>.</span></div>
+            <div class="odk-step-pill"><div class="odk-step-num">3</div><span>Aponte para a imagem acima. Pronto! Coleta <b>100% offline</b> habilitada.</span></div>
+          </div>
+
+          <div style="background:rgba(0,0,0,0.3); border:1px solid var(--border); padding:0.6rem; border-radius:var(--r-md); font-size:0.75rem; display:flex; justify-content:space-between; align-items:center;">
+            <code id="odk-qr-url-text" style="color:var(--cyan); font-family:var(--mono);">http://.../api</code>
+            <button class="btn btn-sm btn-outline" onclick="copyOdkUrl()"><i class="fa-solid fa-copy"></i> Copiar</button>
+          </div>
+
+          <div class="modal-actions" style="margin-top:1.2rem; justify-content: center;">
+            <button class="btn btn-primary" onclick="document.getElementById('odk-qr-modal').classList.remove('active')">Fechar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interview Details Modal -->
+      <div class="modal-overlay" id="interview-modal">
+        <div class="modal-box" style="max-width:700px;width:95%;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;border-bottom:1px solid var(--border);padding-bottom:1rem;">
+            <h3 class="modal-title" style="margin-bottom:0;text-align:left;"><i class="fa-solid fa-file-invoice"></i> Detalhes da Coleta</h3>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;font-size:0.85rem;background:var(--bg-page);padding:1rem;border-radius:var(--radius-sm);">
+            <div><strong style="color:var(--text-muted);">Formulário:</strong> <br><span id="interview-modal-form"></span></div>
+            <div><strong style="color:var(--text-muted);">Pesquisador:</strong> <br><span id="interview-modal-researcher"></span></div>
+            <div><strong style="color:var(--text-muted);">Data/Hora:</strong> <br><span id="interview-modal-date"></span></div>
+            <div><strong style="color:var(--text-muted);">Dispositivo:</strong> <br><span id="interview-modal-device"></span></div>
+            <div style="grid-column: span 2;"><strong style="color:var(--text-muted);">Localização GPS:</strong> <br><span id="interview-modal-gps"></span></div>
+          </div>
+          <h4 style="font-size:0.9rem;margin-bottom:1rem;color:var(--text-secondary);text-transform:uppercase;">Respostas do Questionário</h4>
+          <div id="interview-modal-answers" style="max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;margin-bottom:1.5rem;">
+          </div>
+          <div class="modal-actions" style="justify-content:flex-end;">
+            <button class="btn" onclick="document.getElementById('interview-modal').classList.remove('active')">Fechar</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/app.js?v=3.5.0"></script>
+</body>
+</html>

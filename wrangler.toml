@@ -1,0 +1,15 @@
+name = "guiadata"
+pages_build_output_dir = "public"
+compatibility_date = "2026-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Cloudflare D1 Database Binding (SQLite na Nuvem 100% Gratuito)
+[[d1_databases]]
+binding = "DB"
+database_name = "guiadata-prod"
+database_id = "guiadata-prod-id"
+
+[vars]
+ENVIRONMENT = "production"
+GOOGLE_DRIVE_FOLDER_ID = "1IH2cWAAtNLuUfzeaVpDmv4pn6p3AQozQ"
+GOOGLE_DRIVE_ACCOUNT = "sistemagithub@gmail.com"
