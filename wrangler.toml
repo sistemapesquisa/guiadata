@@ -1,7 +1,9 @@
 name = "guiadata"
-pages_build_output_dir = "public"
+main = "_worker.js"
 compatibility_date = "2026-09-01"
 compatibility_flags = ["nodejs_compat"]
+
+assets = { directory = "./public" }
 
 # Cloudflare D1 Database Binding (SQLite na Nuvem 100% Gratuito)
 [[d1_databases]]
