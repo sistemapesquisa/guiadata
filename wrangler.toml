@@ -7,7 +7,7 @@ compatibility_flags = ["nodejs_compat"]
 [[d1_databases]]
 binding = "DB"
 database_name = "guiadata-prod"
-database_id = "guiadata-prod-id"
+database_id = "d28ea7a8-35d9-4839-b11d-7a50b4dab689"
 
 [vars]
 ENVIRONMENT = "production"
