@@ -221,7 +221,7 @@ async function loadServerData() {
 }
 
 // ===================== NAVIGATION =====================
-function switchTab(targetId) {
+window.switchTab = function switchTab(targetId) {
   document.querySelectorAll('.view-panel').forEach(p => {
     p.classList.remove('active');
     p.style.display = 'none';
@@ -262,7 +262,7 @@ function switchTab(targetId) {
     }
     renderMobileScreen();
   }
-}
+};
 
 // ===================== RBAC =====================
 const NAV_PERMISSIONS = {
@@ -283,23 +283,41 @@ const SECTION_PERMISSIONS = {
   'audio-review-panel': ['DEV','Admin'],
 };
 
+function normalizeRole(r) {
+  if (!r) return 'Admin';
+  const lower = String(r).toLowerCase().trim();
+  if (lower === 'admin' || lower === 'administrador') return 'Admin';
+  if (lower === 'dev' || lower === 'desenvolvedor' || lower === 'suporte') return 'DEV';
+  if (lower === 'pesquisador' || lower === 'researcher') return 'Researcher';
+  if (lower === 'analista' || lower === 'analyst') return 'Analyst';
+  if (lower === 'coordenador' || lower === 'coordinator') return 'Coordinator';
+  if (lower === 'supervisor') return 'Supervisor';
+  return 'Admin';
+}
+
 function applyRoleRestrictions() {
-  const role = state.activeRole || 'Admin';
+  const role = normalizeRole(state.activeRole);
   // Nav items
   Object.entries(NAV_PERMISSIONS).forEach(([navId, roles]) => {
     const el = document.getElementById(navId);
-    if (el) el.style.display = roles.includes(role) ? '' : 'none';
+    if (el) {
+      const isAllowed = roles.some(r => r.toLowerCase() === role.toLowerCase());
+      el.style.display = isAllowed ? '' : 'none';
+    }
   });
   // Dashboard sections
   Object.entries(SECTION_PERMISSIONS).forEach(([secId, roles]) => {
     const el = document.getElementById(secId);
-    if (el) el.style.display = roles.includes(role) ? '' : 'none';
+    if (el) {
+      const isAllowed = roles.some(r => r.toLowerCase() === role.toLowerCase());
+      el.style.display = isAllowed ? '' : 'none';
+    }
   });
   // If current view is hidden, switch to dashboard
   const activePanel = document.querySelector('.view-panel.active');
   if (activePanel) {
     const activeNav = document.querySelector(`.nav-item[data-target="${activePanel.id}"]`);
-    if (activeNav && activeNav.style.display === 'none') switchTab('view-dashboard');
+    if (activeNav && activeNav.style.display === 'none') window.switchTab('view-dashboard');
   }
 }
 

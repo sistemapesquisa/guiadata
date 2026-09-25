@@ -75,19 +75,19 @@
         <div class="logo-icon"><i class="fa-solid fa-chart-pie"></i></div>
         <div class="sidebar-logo">
           <div>GuiaData</div>
-          <div class="logo-sub">Pesquisa Inteligente</div>
+          <div class="logo-sub" style="color:#10b981; font-weight:700;"><i class="fa-solid fa-circle-check"></i> v3.5.2 Online</div>
         </div>
       </div>
       <nav class="sidebar-nav">
-        <a class="nav-item" data-target="view-dashboard" id="nav-dashboard"><i class="fa-solid fa-layer-group"></i><span>Projetos</span></a>
-        <a class="nav-item" data-target="view-library" id="nav-library"><i class="fa-solid fa-book-bookmark" style="color:#a855f7;"></i><span>Biblioteca de Modelos</span></a>
-        <a class="nav-item" data-target="view-mobile-sim" id="nav-mobile-sim"><i class="fa-solid fa-mobile-screen"></i><span>Preview (Simulador)</span></a>
+        <a class="nav-item" onclick="switchTab('view-dashboard')" data-target="view-dashboard" id="nav-dashboard"><i class="fa-solid fa-layer-group"></i><span>Projetos</span></a>
+        <a class="nav-item" onclick="switchTab('view-library')" data-target="view-library" id="nav-library"><i class="fa-solid fa-book-bookmark" style="color:#a855f7;"></i><span>Biblioteca de Modelos</span></a>
+        <a class="nav-item" onclick="switchTab('view-mobile-sim')" data-target="view-mobile-sim" id="nav-mobile-sim"><i class="fa-solid fa-mobile-screen"></i><span>Preview (Simulador)</span></a>
         <div class="nav-divider"></div>
-        <a class="nav-item" data-target="view-team" id="nav-team"><i class="fa-solid fa-users"></i><span>Gerenciar Equipe</span></a>
-        <a class="nav-item" data-target="view-roles" id="nav-roles"><i class="fa-solid fa-user-shield"></i><span>Cargos e Permissões</span></a>
-        <a class="nav-item" data-target="view-logs" id="nav-logs"><i class="fa-solid fa-shield-halved"></i><span>Auditoria de Logs</span></a>
-        <a class="nav-item" data-target="view-cloud-storage" id="nav-cloud-storage"><i class="fa-solid fa-cloud"></i><span>Nuvem & Infra</span></a>
-        <a class="nav-item" data-target="view-executive-suite" id="nav-executive-suite" title="Central de Inteligência Executiva, Estatística e SLA VIP"><i class="fa-solid fa-briefcase" style="color:#38bdf8;"></i><span>Central Executiva (SLA & BI)</span></a>
+        <a class="nav-item" onclick="switchTab('view-team')" data-target="view-team" id="nav-team"><i class="fa-solid fa-users"></i><span>Gerenciar Equipe</span></a>
+        <a class="nav-item" onclick="switchTab('view-roles')" data-target="view-roles" id="nav-roles"><i class="fa-solid fa-user-shield"></i><span>Cargos e Permissões</span></a>
+        <a class="nav-item" onclick="switchTab('view-logs')" data-target="view-logs" id="nav-logs"><i class="fa-solid fa-shield-halved"></i><span>Auditoria de Logs</span></a>
+        <a class="nav-item" onclick="switchTab('view-cloud-storage')" data-target="view-cloud-storage" id="nav-cloud-storage"><i class="fa-solid fa-cloud"></i><span>Nuvem & Infra</span></a>
+        <a class="nav-item" onclick="switchTab('view-executive-suite')" data-target="view-executive-suite" id="nav-executive-suite" title="Central de Inteligência Executiva, Estatística e SLA VIP"><i class="fa-solid fa-briefcase" style="color:#38bdf8;"></i><span>Central Executiva (SLA & BI)</span></a>
         <div class="nav-divider"></div>
         <a class="nav-item" href="/api/backup/pendrive" id="nav-pendrive-backup" style="color: #38bdf8;" title="Baixar pacote consolidado offline"><i class="fa-solid fa-floppy-disk"></i><span>Modo Pen Drive</span></a>
         
@@ -115,10 +115,10 @@
           <div class="login-glass-card">
             <div class="login-brand">
               <div class="brand-avatar-glow"><i class="fa-solid fa-chart-pie"></i></div>
-              <h2>GuiaData <span class="version-tag">2.0</span></h2>
+              <h2>GuiaData <span class="version-tag" style="background:rgba(16,185,129,0.2); color:#10b981; border:1px solid rgba(16,185,129,0.4); padding:2px 8px; border-radius:12px; font-size:0.75rem;">v3.5.2 Cloud</span></h2>
               <p class="brand-subtitle">Plataforma Inteligente de Pesquisa & Auditoria</p>
               <div class="server-status-pill">
-                <span class="status-pulse-dot"></span> Servidor Ativo & Conectado
+                <span class="status-pulse-dot" style="background:#10b981;"></span> Servidor Ativo & Conectado (Build 3.5.2)
               </div>
             </div>
 
@@ -2202,6 +2202,6 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="js/app.js?v=3.5.0"></script>
+  <script src="js/app.js?v=3.5.2_release_clean"></script>
 </body>
 </html>
