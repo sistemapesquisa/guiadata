@@ -239,10 +239,12 @@ function switchTab(targetId) {
   const navItem = document.querySelector(`.nav-item[data-target="${targetId}"]`);
   if (navItem) navItem.classList.add('active');
   // Close mobile sidebar
-  document.getElementById('sidebar').classList.remove('mobile-open');
+  document.getElementById('sidebar')?.classList.remove('mobile-open');
   // Leaflet resize fix
   if (targetId === 'view-map' && state.map) setTimeout(() => state.map.invalidateSize(), 150);
-  // Load logs when switching to logs tab
+  
+  // Specific view loaders
+  if (targetId === 'view-dashboard') renderDashboard();
   if (targetId === 'view-logs') fetchLogs();
   if (targetId === 'view-team') loadTeam();
   if (targetId === 'view-reports') renderReportsTable();
@@ -250,28 +252,30 @@ function switchTab(targetId) {
   if (targetId === 'view-cloud-storage') loadCloudStatus();
   if (targetId === 'view-executive-suite') initExecutiveSuite();
   if (targetId === 'view-mobile-sim') {
-    if (!state.simActiveForm && state.activeForm && state.activeForm.status === 'published') {
-      state.simActiveForm = state.activeForm;
-      state.simAnswers = {};
-      state.simCurrentQuestionIdx = 0;
+    if (!state.simActiveForm && state.forms && state.forms.length > 0) {
+      const pub = state.forms.find(f => f.status === 'published') || state.forms[0];
+      if (pub) {
+        state.simActiveForm = pub;
+        state.simAnswers = {};
+        state.simCurrentQuestionIdx = 0;
+      }
     }
-    if (state.simActiveForm) {
-      renderMobileScreen();
-    } else {
-      document.getElementById('phone-screen-body').innerHTML = '<div style="padding:2rem;text-align:center;color:#64748b;">Nenhum formulário publicado selecionado.<br><br>Vá até a aba de Projetos, publique um formulário e clique em Preview.</div>';
-    }
+    renderMobileScreen();
   }
 }
 
 // ===================== RBAC =====================
 const NAV_PERMISSIONS = {
+  'nav-dashboard': ['DEV','Admin','Analyst','Coordinator','Researcher'],
+  'nav-library': ['DEV','Admin','Analyst','Coordinator'],
+  'nav-mobile-sim': ['DEV','Admin','Analyst','Coordinator','Researcher'],
   'nav-team': ['DEV','Admin'],
   'nav-roles': ['DEV','Admin'],
   'nav-form-builder': ['DEV','Admin'],
   'nav-cloud-storage': ['DEV','Admin','Analyst','Coordinator'],
-  'nav-logs': ['DEV'],
-  'nav-ai': ['DEV','Admin'],
-  'nav-reports': ['DEV','Admin'],
+  'nav-logs': ['DEV','Admin'],
+  'nav-executive-suite': ['DEV','Admin','Analyst','Coordinator'],
+  'nav-pendrive-backup': ['DEV','Admin','Analyst','Coordinator']
 };
 const SECTION_PERMISSIONS = {
   'financial-dashboard-section': ['DEV','Admin'],
@@ -280,16 +284,11 @@ const SECTION_PERMISSIONS = {
 };
 
 function applyRoleRestrictions() {
-  const role = state.activeRole;
+  const role = state.activeRole || 'Admin';
   // Nav items
   Object.entries(NAV_PERMISSIONS).forEach(([navId, roles]) => {
     const el = document.getElementById(navId);
     if (el) el.style.display = roles.includes(role) ? '' : 'none';
-  });
-  // Show all nav items not in permissions map
-  ['nav-dashboard','nav-map','nav-mobile-sim'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = '';
   });
   // Dashboard sections
   Object.entries(SECTION_PERMISSIONS).forEach(([secId, roles]) => {
@@ -618,10 +617,21 @@ window.sysSwitchTab = function(tabId) {
   const target = document.getElementById(tabId);
   if (target) target.style.display = 'block';
   
+  if (tabId === 'proj-tab-resumo') {
+    if (typeof renderQuotasProgress === 'function' && state.activeProjectFormId) {
+      renderQuotasProgress(state.activeProjectFormId);
+    }
+  }
+
   if (tabId === 'proj-tab-versoes') {
     if (typeof renderProjectVersionsTab === 'function') {
       renderProjectVersionsTab(state.activeProjectFormId);
     }
+  }
+
+  if (tabId === 'proj-tab-dados') {
+    if (typeof renderReportsTable === 'function') renderReportsTable();
+    if (typeof renderAudioReviewList === 'function') renderAudioReviewList();
   }
 
   if (tabId === 'proj-tab-mapa') {
@@ -636,6 +646,10 @@ window.sysSwitchTab = function(tabId) {
         renderMapMarkers();
       }, 150);
     }
+  }
+
+  if (tabId === 'proj-tab-config') {
+    if (typeof loadProjectAccess === 'function') loadProjectAccess();
   }
 };
 
@@ -681,10 +695,6 @@ window.sysPreviewForm = function() {
   if (!state.activeProjectFormId) return;
   const form = state.forms.find(f => f.id === state.activeProjectFormId);
   if (form) {
-    if (form.status !== 'published') {
-      showToast('warning', 'O formulário precisa ser publicado para ser pré-visualizado.');
-      return;
-    }
     state.simActiveForm = form;
     state.simAnswers = {};
     state.simCurrentQuestionIdx = 0;
@@ -693,6 +703,7 @@ window.sysPreviewForm = function() {
     
     switchTab('view-mobile-sim');
     renderMobileScreen();
+    showToast('info', `Simulador carregado com "${form.title}".`);
   }
 };
 
@@ -1232,48 +1243,30 @@ window.newForm = function() {
 };
 
 function initFormBuilder() {
-  if (!document.getElementById('btn-new-form')) return;
-  document.getElementById('btn-new-form') && document.getElementById('btn-new-form').addEventListener('click', () => {
-    window.newForm();
-  });
-  document.getElementById('btn-add-question') && document.getElementById('btn-add-question').addEventListener('click', () => {
-    document.getElementById('question-type-modal').classList.add('active');
-  });
-  document.getElementById('btn-save-form') && document.getElementById('btn-save-form').addEventListener('click', saveActiveForm);
+  const btnNew = document.getElementById('btn-new-form');
+  if (btnNew) {
+    btnNew.addEventListener('click', () => {
+      window.newForm();
+    });
+  }
+
+  const btnAdd = document.getElementById('btn-add-question');
+  if (btnAdd) {
+    btnAdd.addEventListener('click', () => {
+      const modal = document.getElementById('question-type-modal');
+      if (modal) modal.classList.add('active');
+    });
+  }
+
+  const btnSave = document.getElementById('btn-save-form');
+  if (btnSave) {
+    btnSave.addEventListener('click', saveActiveForm);
+  }
   
-  const importInput = document.getElementById('import-xlsform-input');
+  const importInput = document.getElementById('import-xlsform-input') || document.getElementById('import-xls-input');
   if (importInput) {
     importInput.addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      
-      const formData = new FormData();
-      formData.append('file', file);
-      
-      showToast('info', 'Processando arquivo XLSForm...');
-      try {
-        const token = localStorage.getItem('auth_token');
-        const headers = {};
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-        if (state.activeRole) headers['x-user-role'] = state.activeRole;
-        
-        const res = await fetch('/api/forms/upload-xlsform', {
-          method: 'POST',
-          headers,
-          body: formData
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Erro na importação.');
-        
-        showToast('success', 'Formulário importado com sucesso!');
-        await loadServerData();
-        renderFormBuilderList();
-        loadFormIntoBuilder(data.form || state.forms.find(f => f.id === data.id) || state.forms[0]);
-      } catch (err) {
-        showToast('error', err.message);
-      } finally {
-        e.target.value = '';
-      }
+      await window.importXLSForm(e);
     });
   }
 
@@ -1303,6 +1296,67 @@ function initFormBuilder() {
     });
   }
 }
+
+window.importXLSForm = async function(e) {
+  const file = e && e.target && e.target.files && e.target.files[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append('file', file);
+  showToast('info', 'Processando arquivo XLSForm...');
+
+  try {
+    const token = localStorage.getItem('auth_token');
+    const headers = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    if (state.activeRole) headers['x-user-role'] = state.activeRole;
+
+    const res = await fetch('/api/forms/upload-xlsform', {
+      method: 'POST',
+      headers,
+      body: formData
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Erro na importação.');
+
+    showToast('success', 'Formulário XLSForm importado com sucesso!');
+    await loadServerData();
+    renderFormBuilderList();
+    if (data.form) {
+      loadFormIntoBuilder(data.form);
+    } else if (data.id) {
+      const created = state.forms.find(f => f.id === data.id);
+      if (created) loadFormIntoBuilder(created);
+    }
+  } catch (err) {
+    showToast('error', 'Falha ao importar XLSForm: ' + err.message);
+  } finally {
+    if (e && e.target) e.target.value = '';
+  }
+};
+
+window.toggleOdkPanel = function(status) {
+  const panel = document.getElementById('odk-status-panel');
+  if (panel) panel.style.display = (status === 'published' || status === 'publicado') ? 'block' : 'none';
+};
+
+window.deleteQuestion = (idx) => window.confirmDeleteQuestion(idx);
+window.moveQuestionUp = (idx) => {
+  if (idx <= 0 || !state.activeForm || !state.activeForm.questions) return;
+  const questions = state.activeForm.questions;
+  const temp = questions[idx];
+  questions[idx] = questions[idx - 1];
+  questions[idx - 1] = temp;
+  renderBuilderQuestions();
+};
+window.moveQuestionDown = (idx) => {
+  if (!state.activeForm || !state.activeForm.questions || idx >= state.activeForm.questions.length - 1) return;
+  const questions = state.activeForm.questions;
+  const temp = questions[idx];
+  questions[idx] = questions[idx + 1];
+  questions[idx + 1] = temp;
+  renderBuilderQuestions();
+};
 
 window.addNewQuestion = function(type) {
   const qId = 'Q' + (state.activeForm.questions.length + 1);
@@ -2262,13 +2316,16 @@ window.closeFormBuilder = () => {
 };
 
 window.previewActiveForm = () => {
-  if (state.activeForm.status !== 'published') {
-    showToast('warning', 'Salve o projeto como Publicado para visualizar no Simulador.');
+  if (!state.activeForm || !state.activeForm.questions || state.activeForm.questions.length === 0) {
+    showToast('warning', 'Adicione pelo menos uma pergunta ao formulário antes de abrir no simulador.');
     return;
   }
-  downloadTemplates();
+  state.simActiveForm = JSON.parse(JSON.stringify(state.activeForm));
+  state.simAnswers = {};
+  state.simCurrentQuestionIdx = 0;
   switchTab('view-mobile-sim');
-  showToast('success', 'Projeto carregado no modo de visualização.');
+  renderMobileScreen();
+  showToast('success', `Questionário carregado no simulador de campo.`);
 };
 
 window.toggleCollapseQuestions = () => {
@@ -2617,8 +2674,11 @@ window.createProjectFromTemplate = function(templateKey) {
 
       showToast('success', `Projeto "${tpl.title}" criado com sucesso! Abrindo o questionário...`);
       await loadServerData();
-      const createdForm = state.forms.find(f => f.id === data.form.id) || data.form;
+      const formId = data.id || (data.form && data.form.id);
+      const createdForm = (state.forms || []).find(f => f.id === formId) || data.form || { id: formId, ...newPrj };
+      state.activeProjectFormId = formId;
       loadFormIntoBuilder(createdForm);
+      renderFormBuilderList();
       switchTab('view-form-builder');
     } catch (err) {
       showToast('error', 'Erro ao instanciar modelo: ' + err.message);
@@ -2687,18 +2747,31 @@ window.saveFormSettings = () => {
 
 // ===================== MOBILE SIMULATOR =====================
 function initMobileSimulator() {
-  if (!document.getElementById('sim-toggle-network')) return;
-  document.getElementById('sim-toggle-network') && document.getElementById('sim-toggle-network').addEventListener('change', (e) => {
-    state.simIsOnline = e.target.checked;
-    const badge = document.getElementById('net-status-text');
-    badge.textContent = state.simIsOnline ? 'Conectado (Online)' : 'Desconectado (Offline)';
-    if (state.simIsOnline) syncOfflineQueue();
-    renderMobileScreen();
-  });
-  document.getElementById('sim-btn-download-templates') && document.getElementById('sim-btn-download-templates').addEventListener('click', downloadTemplates);
-  document.getElementById('sim-btn-sync-queue') && document.getElementById('sim-btn-sync-queue').addEventListener('click', syncOfflineQueue);
+  const toggleNet = document.getElementById('sim-toggle-network');
+  if (toggleNet) {
+    toggleNet.addEventListener('change', (e) => {
+      state.simIsOnline = e.target.checked;
+      const badge = document.getElementById('net-status-text');
+      if (badge) badge.textContent = state.simIsOnline ? 'Conectado (Online)' : 'Desconectado (Offline)';
+      if (state.simIsOnline) syncOfflineQueue();
+      renderMobileScreen();
+    });
+  }
+
+  const btnDown = document.getElementById('sim-btn-download-templates');
+  if (btnDown) btnDown.addEventListener('click', downloadTemplates);
+
+  const btnSync = document.getElementById('sim-btn-sync-queue');
+  if (btnSync) btnSync.addEventListener('click', syncOfflineQueue);
+
   const cachedQueue = localStorage.getItem('guiadata_offline_queue');
-  if (cachedQueue) { state.simOfflineQueue = JSON.parse(cachedQueue); document.getElementById('sim-offline-queue-count').textContent = state.simOfflineQueue.length; }
+  if (cachedQueue) {
+    try {
+      state.simOfflineQueue = JSON.parse(cachedQueue);
+      const countEl = document.getElementById('sim-offline-queue-count');
+      if (countEl) countEl.textContent = state.simOfflineQueue.length;
+    } catch(e) {}
+  }
   renderMobileScreen();
 }
 
@@ -3266,7 +3339,7 @@ window.runAiAnalysis = async function() {
 // ===================== LOGS =====================
 async function fetchLogs() {
   const container = document.getElementById('log-console-container');
-  if (state.activeRole !== 'DEV') { container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-lock"></i><h4>Acesso restrito</h4><p>Apenas o perfil de Suporte Técnico (DEV) pode visualizar os registros.</p></div>'; return; }
+  if (state.activeRole !== 'DEV' && state.activeRole !== 'Admin') { container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-lock"></i><h4>Acesso restrito</h4><p>Apenas perfis de Administrador ou Suporte Técnico (DEV) podem visualizar os registros.</p></div>'; return; }
   try {
     const logs = await apiFetch('/api/logs');
     state.logs = logs;
@@ -4336,36 +4409,45 @@ async function loadCloudStatus() {
 
     // Cloudflare Edge
     const cfBadge = document.getElementById('cf-status-badge');
-    if (cfBadge) cfBadge.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${data.cloudflare.status}`;
+    if (cfBadge && data.cloudflare) cfBadge.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${data.cloudflare.status}`;
 
     const cfLatency = document.getElementById('cf-latency');
-    if (cfLatency) cfLatency.textContent = data.cloudflare.latency;
+    if (cfLatency && data.cloudflare) cfLatency.textContent = data.cloudflare.latency;
 
     const cfLocation = document.getElementById('cf-edge-location');
-    if (cfLocation) cfLocation.textContent = `${data.cloudflare.edgeLocation} (${data.cloudflare.protocol})`;
+    if (cfLocation && data.cloudflare) cfLocation.textContent = `${data.cloudflare.edgeLocation} (${data.cloudflare.protocol})`;
 
     // Google Drive
     const gdBadge = document.getElementById('gdrive-status-badge');
-    if (gdBadge) gdBadge.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${data.googleDrive.status}`;
+    if (gdBadge && data.googleDrive) gdBadge.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${data.googleDrive.status}`;
 
     const gdFiles = document.getElementById('gdrive-files-count');
-    if (gdFiles) gdFiles.textContent = `${data.googleDrive.totalFilesSynced} arquivos sincronizados`;
+    if (gdFiles && data.googleDrive) gdFiles.textContent = `${data.googleDrive.totalFilesSynced} arquivos sincronizados`;
 
-    const gdLabel = document.getElementById('gdrive-storage-label');
-    if (gdLabel) gdLabel.textContent = `${data.googleDrive.usedGb} GB de ${data.googleDrive.totalQuotaGb} GB (${data.googleDrive.percentUsed}%)`;
+    const gdLabel = document.getElementById('gdrive-quota-text') || document.getElementById('gdrive-storage-label');
+    if (gdLabel && data.googleDrive) gdLabel.textContent = `${data.googleDrive.usedGb} GB / ${data.googleDrive.totalQuotaGb} GB (${data.googleDrive.percentUsed}%)`;
 
-    const gdBar = document.getElementById('gdrive-storage-bar');
-    if (gdBar) gdBar.style.width = `${data.googleDrive.percentUsed}%`;
+    const gdBar = document.getElementById('gdrive-quota-bar') || document.getElementById('gdrive-storage-bar');
+    if (gdBar && data.googleDrive) gdBar.style.width = `${Math.max(5, data.googleDrive.percentUsed)}%`;
 
     const gdSync = document.getElementById('gdrive-last-sync');
-    if (gdSync) gdSync.textContent = data.googleDrive.lastSync;
+    if (gdSync && data.googleDrive) gdSync.textContent = data.googleDrive.lastSync;
+
+    const gdAcc = document.getElementById('gdrive-account');
+    if (gdAcc && data.googleDrive) gdAcc.textContent = data.googleDrive.account || 'nuvem.auditoria@guiadata.corp';
+
+    const gdAudios = document.getElementById('gdrive-audios');
+    if (gdAudios) gdAudios.textContent = `${(data.googleDrive && data.googleDrive.totalFilesSynced) || (state.interviews ? state.interviews.length : 0)} áudios sincronizados`;
+
+    const gdInts = document.getElementById('gdrive-interviews');
+    if (gdInts) gdInts.textContent = `${state.interviews ? state.interviews.length : 0} entrevistas em nuvem`;
   } catch (err) {
     console.warn('Erro ao carregar telemetria de nuvem:', err);
   }
 }
 
 window.syncGoogleDriveNow = async function() {
-  const btn = document.getElementById('btn-sync-gdrive');
+  const btn = document.getElementById('btn-sync-drive-manual') || document.getElementById('btn-sync-gdrive');
   const oldText = btn ? btn.innerHTML : '';
   if (btn) {
     btn.innerHTML = '<i class="fa-solid fa-arrows-rotate fa-spin"></i> Sincronizando...';
@@ -4431,6 +4513,12 @@ window.switchExecTab = function(tabId) {
     content.style.display = content.id === tabId ? 'block' : 'none';
   });
 
+  if (tabId === 'exec-tab-crosstab' && !window.currentCrossTabResult) {
+    runExecCrossTab();
+  }
+  if (tabId === 'exec-tab-forensic') {
+    runExecForensicAudit();
+  }
   if (tabId === 'exec-tab-audit') loadAuditTrailEvents();
   if (tabId === 'exec-tab-sla') { loadSlaStatus(); loadVipTickets(); }
   if (tabId === 'exec-tab-whitelabel') loadWhiteLabelSettings();
@@ -4443,7 +4531,7 @@ window.loadFormQuestionsForCrossTab = function(formId) {
   if (!form || !rowSelect || !colSelect) return;
 
   const questions = form.questions || [];
-  const validQs = questions.filter(q => q.type === 'single_choice' || q.type === 'select_one' || q.type === 'select_multiple' || q.type === 'number');
+  const validQs = questions.filter(q => q.type !== 'geopoint' && q.type !== 'audio' && q.type !== 'image');
 
   if (validQs.length === 0) {
     rowSelect.innerHTML = '<option value="">Nenhuma pergunta elegível</option>';
@@ -4451,8 +4539,8 @@ window.loadFormQuestionsForCrossTab = function(formId) {
     return;
   }
 
-  const rowHtml = validQs.map((q, i) => `<option value="${q.id}" ${i === 0 ? 'selected' : ''}>${q.text || q.id}</option>`).join('');
-  const colHtml = validQs.map((q, i) => `<option value="${q.id}" ${i === 1 ? 'selected' : (i === 0 ? 'selected' : '')}>${q.text || q.id}</option>`).join('');
+  const rowHtml = validQs.map((q, i) => `<option value="${q.id}" ${i === 0 ? 'selected' : ''}>${q.title || q.text || q.label || q.id}</option>`).join('');
+  const colHtml = validQs.map((q, i) => `<option value="${q.id}" ${i === 1 ? 'selected' : (i === 0 ? 'selected' : '')}>${q.title || q.text || q.label || q.id}</option>`).join('');
 
   rowSelect.innerHTML = rowHtml;
   colSelect.innerHTML = colHtml;
@@ -5111,9 +5199,8 @@ window.switchTeamSubTab = function(subtab) {
 window.loadTeamProductivityLeaderboard = async function() {
   try {
     const res = await apiFetch('/api/analytics/team-productivity');
-    if (!res || !res.researchers) return;
-
-    const researchers = res.researchers;
+    if (!res) return;
+    const researchers = res.researchers || (Array.isArray(res) ? res : []);
     const activeToday = researchers.filter(r => r.is_active_today).length;
     const totalCollected = researchers.reduce((acc, r) => acc + r.total_interviews, 0);
     const avgApproval = researchers.length > 0
@@ -5217,5 +5304,150 @@ window.loadGeospatialMetrics = async function(formId) {
     console.warn('Erro ao carregar métricas geoespaciais:', err);
   }
 };
+
+// =========================================================================
+// ODK XML VIEWER, GROUP BUILDER & HELPER EXTENSIONS
+// =========================================================================
+
+window.openXmlViewer = function() {
+  const form = state.activeForm;
+  if (!form || !form.id) {
+    return showToast('warning', 'Selecione ou crie um formulário primeiro para visualizar o XML.');
+  }
+
+  let xmlModal = document.getElementById('xml-viewer-modal');
+  if (!xmlModal) {
+    xmlModal = document.createElement('div');
+    xmlModal.className = 'modal-overlay';
+    xmlModal.id = 'xml-viewer-modal';
+    xmlModal.innerHTML = `
+      <div class="modal-box" style="max-width: 650px; width: 90%;">
+        <div class="modal-title" style="display:flex; justify-content:space-between; align-items:center;">
+          <span><i class="fa-solid fa-code" style="color:var(--primary); margin-right:8px;"></i> Código Fonte OpenRosa / XForm XML</span>
+          <button class="btn-icon" onclick="document.getElementById('xml-viewer-modal').classList.remove('active')">&times;</button>
+        </div>
+        <p style="font-size:0.8rem; color:var(--text-muted); margin:0.5rem 0 1rem 0;">
+          Estrutura XML em padrão OpenRosa 1.0 para compatibilidade nativa com ODK Collect, KoboCollect e Enketo.
+        </p>
+        <pre id="xml-viewer-code" style="background:#040711; color:#38bdf8; padding:1rem; border-radius:8px; border:1px solid var(--glass-border); max-height:360px; overflow:auto; font-size:0.78rem; font-family:var(--font-mono); user-select:all;"></pre>
+        <div class="modal-actions" style="margin-top:1rem; display:flex; justify-content:space-between; align-items:center;">
+          <button class="btn btn-outline btn-sm" onclick="copyXmlCode()"><i class="fa-solid fa-copy"></i> Copiar XML</button>
+          <button class="btn btn-primary btn-sm" onclick="document.getElementById('xml-viewer-modal').classList.remove('active')">Fechar</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(xmlModal);
+  }
+
+  const formId = form.id || 'form_survey';
+  const title = form.title || 'Pesquisa GuiaData';
+  const questions = form.questions || [];
+  
+  let binds = '';
+  let body = '';
+  questions.forEach(q => {
+    binds += `      <bind nodeset="/data/${q.id}" type="${q.type === 'number' || q.type === 'integer' ? 'int' : 'string'}" ${q.required ? 'required="yes()"' : ''} />\n`;
+    if (q.type === 'single_choice' || q.type === 'select_one') {
+      body += `    <select1 ref="/data/${q.id}">\n      <label>${q.title || q.text || q.id}</label>\n`;
+      (q.options || []).forEach((opt, idx) => {
+        const val = typeof opt === 'object' ? (opt.label || opt.name) : opt;
+        body += `      <item><label>${val}</label><value>opt_${idx + 1}</value></item>\n`;
+      });
+      body += `    </select1>\n`;
+    } else {
+      body += `    <input ref="/data/${q.id}">\n      <label>${q.title || q.text || q.id}</label>\n    </input>\n`;
+    }
+  });
+
+  const xmlContent = `<?xml version="1.0" encoding="UTF-8"?>
+<h:html xmlns="http://www.w3.org/2002/xforms"
+        xmlns:h="http://www.w3.org/1999/xhtml"
+        xmlns:ev="http://www.w3.org/2001/xml-events"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:jr="http://openrosa.org/javarosa">
+  <h:head>
+    <h:title>${title}</h:title>
+    <model>
+      <instance>
+        <data id="${formId}" version="${form.version || 1}">
+${questions.map(q => `          <${q.id} />`).join('\n')}
+        </data>
+      </instance>
+${binds}    </model>
+  </h:head>
+  <h:body>
+${body}  </h:body>
+</h:html>`;
+
+  document.getElementById('xml-viewer-code').textContent = xmlContent;
+  xmlModal.classList.add('active');
+};
+
+window.copyXmlCode = function() {
+  const code = document.getElementById('xml-viewer-code')?.textContent || '';
+  navigator.clipboard.writeText(code).then(() => {
+    showToast('success', 'Código XML OpenRosa copiado para a área de transferência!');
+  }).catch(() => {
+    showToast('info', 'Selecione e copie o texto manualmente.');
+  });
+};
+
+window.testOdkConnection = async function() {
+  const resultEl = document.getElementById('odk-test-result');
+  if (resultEl) resultEl.innerHTML = '<span style="color:var(--primary);"><i class="fa-solid fa-spinner fa-spin"></i> Testando servidor ODK...</span>';
+  try {
+    const res = await fetch('/formList');
+    if (res.ok) {
+      if (resultEl) {
+        resultEl.innerHTML = '<span style="color:#10b981; font-weight:700;"><i class="fa-solid fa-circle-check"></i> Servidor Ativo (OpenRosa 200 OK)</span>';
+      }
+      showToast('success', 'Servidor ODK Collect operacional e respondendo perfeitamente!');
+    } else {
+      throw new Error(`Status HTTP ${res.status}`);
+    }
+  } catch (err) {
+    if (resultEl) {
+      resultEl.innerHTML = `<span style="color:#ef4444;"><i class="fa-solid fa-circle-xmark"></i> Erro: ${err.message}</span>`;
+    }
+    showToast('error', 'Falha ao conectar no servidor ODK: ' + err.message);
+  }
+};
+
+window.openGroupModal = function() {
+  document.getElementById('question-type-modal')?.classList.remove('active');
+  const modal = document.getElementById('group-modal');
+  if (modal) {
+    const nameInput = document.getElementById('group-modal-name');
+    if (nameInput) nameInput.value = '';
+    modal.classList.add('active');
+  }
+};
+
+window.confirmCreateGroup = function() {
+  const name = document.getElementById('group-modal-name')?.value.trim();
+  const type = document.getElementById('group-modal-type')?.value || 'group';
+  if (!name) return showToast('warning', 'Informe o nome da seção.');
+  
+  const qId = 'sec_' + (state.activeForm.questions.length + 1);
+  const newQ = {
+    id: qId,
+    title: name,
+    text: name,
+    type: type,
+    options: [],
+    required: false
+  };
+  state.activeForm.questions.push(newQ);
+  renderBuilderQuestions();
+  document.getElementById('group-modal')?.classList.remove('active');
+  showToast('success', `Seção "${name}" criada com sucesso!`);
+};
+
+window.loadInterviews = async function() {
+  await loadServerData();
+};
+
+window.showConfirmModal = showConfirm;
+
 
 

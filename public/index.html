@@ -420,7 +420,7 @@
                 <option value="published">Publicado</option>
               </select>
 
-              <button type="button" class="btn btn-sm btn-primary" id="btn-save-form" title="Salvar alterações no rascunho">
+              <button type="button" class="btn btn-sm btn-primary" id="btn-save-form" onclick="saveActiveForm()" title="Salvar alterações no rascunho">
                 <i class="fa-solid fa-floppy-disk"></i> Salvar Rascunho
               </button>
 
@@ -481,7 +481,7 @@
               </div>
               <div id="builder-questions-list" class="sys-questions-container"></div>
               <div style="text-align:center; margin-top:1rem;">
-                <button class="sys-btn-add-q" id="btn-add-question" title="Adicionar Pergunta: Abre a paleta de opções para adicionar um novo campo ao formulário."><i class="fa-solid fa-plus"></i></button>
+                <button class="sys-btn-add-q" id="btn-add-question" onclick="document.getElementById('question-type-modal').classList.add('active')" title="Adicionar Pergunta: Abre a paleta de opções para adicionar um novo campo ao formulário."><i class="fa-solid fa-plus"></i></button>
               </div>
             </div>
           </div>
@@ -1467,12 +1467,30 @@
 
       <!-- ===== VIEW: MOBILE SIMULATOR ===== -->
       <section id="view-mobile-sim" class="view-panel">
-        <div class="page-header">
-          <h1 class="page-title"><i class="fa-solid fa-mobile-screen"></i> Preview (Simulador)</h1>
-          <p class="page-subtitle">Teste e valide como o questionário se comportará no aplicativo móvel dos pesquisadores.</p>
+        <div class="page-header" style="margin-bottom:1.5rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+            <div>
+              <h1 class="page-title"><i class="fa-solid fa-mobile-screen"></i> Preview (Simulador ODK)</h1>
+              <p class="page-subtitle">Teste e valide como o questionário se comportará no aplicativo móvel dos pesquisadores.</p>
+            </div>
+            <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+              <div style="display:flex; align-items:center; gap:0.5rem; background:rgba(255,255,255,0.04); border:1px solid var(--glass-border); padding:0.4rem 0.8rem; border-radius:8px;">
+                <label class="switch" style="margin:0; display:flex; align-items:center; gap:0.4rem; cursor:pointer;">
+                  <input type="checkbox" id="sim-toggle-network" checked style="accent-color:var(--primary);" />
+                  <span id="net-status-text" style="font-size:0.8rem; color:#fff; font-weight:600;">Conectado (Online)</span>
+                </label>
+              </div>
+              <button class="btn btn-sm btn-outline" id="sim-btn-download-templates" title="Baixar questionários publicados para o dispositivo virtual">
+                <i class="fa-solid fa-cloud-arrow-down"></i> Baixar Modelos
+              </button>
+              <button class="btn btn-sm btn-primary" id="sim-btn-sync-queue" title="Enviar pesquisas acumuladas offline">
+                <i class="fa-solid fa-arrows-rotate"></i> Sincronizar Fila (<span id="sim-offline-queue-count">0</span>)
+              </button>
+            </div>
+          </div>
         </div>
         
-        <div style="display: flex; justify-content: center; align-items: flex-start; padding-top: 2rem;">
+        <div style="display: flex; justify-content: center; align-items: flex-start; padding-top: 1rem;">
           <div class="phone-frame">
             <div class="phone-wrapper">
               <div class="phone-notch"></div>
@@ -1652,7 +1670,7 @@
                     <span style="font-size:0.68rem; color:var(--text-muted);">Proteção de Borda & Roteamento Global</span>
                   </div>
                 </div>
-                <span class="sys-status-badge"><span class="status-pulse-dot"></span> Ativo</span>
+                <span class="sys-status-badge" id="cf-status-badge"><span class="status-pulse-dot"></span> Ativo</span>
               </div>
               <div class="cloud-metric-row">
                 <span class="cloud-metric-label"><i class="fa-solid fa-lock" style="color:var(--green);"></i> Certificado SSL/TLS</span>
@@ -1669,6 +1687,10 @@
               <div class="cloud-metric-row">
                 <span class="cloud-metric-label"><i class="fa-solid fa-gauge-high" style="color:var(--indigo);"></i> Latência Média (Edge POP)</span>
                 <span class="cloud-metric-val" id="cf-latency">8ms (Brasil)</span>
+              </div>
+              <div class="cloud-metric-row">
+                <span class="cloud-metric-label"><i class="fa-solid fa-server" style="color:var(--cyan);"></i> Localização Edge (POP)</span>
+                <span class="cloud-metric-val" id="cf-edge-location">GRU - São Paulo (HTTP/3)</span>
               </div>
               <div class="cloud-metric-row">
                 <span class="cloud-metric-label"><i class="fa-solid fa-chart-line" style="color:#ec4899;"></i> Cache Hit Ratio</span>
@@ -1688,7 +1710,7 @@
                     <span style="font-size:0.68rem; color:var(--text-muted);">Armazenamento Perpétuo & Backup de Mídias</span>
                   </div>
                 </div>
-                <span class="sys-status-badge"><span class="status-pulse-dot"></span> Conectado</span>
+                <span class="sys-status-badge" id="gdrive-status-badge"><span class="status-pulse-dot"></span> Conectado</span>
               </div>
               
               <div>
@@ -2152,6 +2174,24 @@
           </div>
           <div class="modal-actions" style="justify-content:flex-end;">
             <button class="btn" onclick="document.getElementById('interview-modal').classList.remove('active')">Fechar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- XML Viewer Modal -->
+      <div class="modal-overlay" id="xml-viewer-modal">
+        <div class="modal-box" style="max-width: 680px; width: 92%;">
+          <div class="modal-title" style="display:flex; justify-content:space-between; align-items:center;">
+            <span><i class="fa-solid fa-code" style="color:var(--primary); margin-right:8px;"></i> Código Fonte OpenRosa / XForm XML</span>
+            <button class="btn-icon" onclick="document.getElementById('xml-viewer-modal').classList.remove('active')" style="background:transparent; border:none; color:var(--text-muted); font-size:1.4rem; cursor:pointer;">&times;</button>
+          </div>
+          <p style="font-size:0.8rem; color:var(--text-muted); margin:0.5rem 0 1rem 0;">
+            Estrutura XML em padrão OpenRosa 1.0 para compatibilidade nativa com ODK Collect, KoboCollect e Enketo.
+          </p>
+          <pre id="xml-viewer-code" style="background:#040711; color:#38bdf8; padding:1rem; border-radius:8px; border:1px solid var(--glass-border); max-height:360px; overflow:auto; font-size:0.78rem; font-family:monospace; user-select:all; white-space:pre-wrap;"></pre>
+          <div class="modal-actions" style="margin-top:1rem; display:flex; justify-content:space-between; align-items:center;">
+            <button class="btn btn-outline btn-sm" onclick="copyXmlCode()"><i class="fa-solid fa-copy"></i> Copiar XML</button>
+            <button class="btn btn-primary btn-sm" onclick="document.getElementById('xml-viewer-modal').classList.remove('active')">Fechar</button>
           </div>
         </div>
       </div>
