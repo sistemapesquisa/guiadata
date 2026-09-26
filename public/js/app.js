@@ -1448,6 +1448,7 @@ window.addNewQuestion = function(type) {
 
 function renderFormBuilderList() {
   const container = document.getElementById('forms-list-container');
+  if (!container) return;
   container.innerHTML = '';
   if (state.forms.length === 0) {
     container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-clipboard-list"></i><h4>Nenhum formulário</h4><p>Clique em "Novo" para criar o primeiro formulário.</p></div>';
