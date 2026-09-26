@@ -2851,5 +2851,179 @@ textarea:focus-visible {
   color: var(--text-muted);
 }
 
+/* =========================================================================
+   GUIA DATA ENTERPRISE (R$ 3.500/MÊS) B2B DESIGN SYSTEM
+   ========================================================================= */
+
+/* Enterprise License Badge */
+.enterprise-license-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(168, 85, 247, 0.15));
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+  padding: 0.3rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Discreet Technical Dev Portal Trigger */
+.dev-portal-trigger {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  opacity: 0.45;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+}
+.dev-portal-trigger:hover {
+  opacity: 1;
+  color: #a855f7;
+  background: rgba(168, 85, 247, 0.1);
+}
+
+/* Role Badges VIP */
+.badge-role {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+.badge-role-admin {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.35);
+}
+.badge-role-coordinator {
+  background: rgba(37, 99, 235, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.35);
+}
+.badge-role-supervisor {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+.badge-role-analyst {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+.badge-role-researcher {
+  background: rgba(34, 211, 238, 0.15);
+  color: #22d3ee;
+  border: 1px solid rgba(34, 211, 238, 0.35);
+}
+.badge-role-dev {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+/* WhatsApp Direct Button */
+.btn-whatsapp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.6rem;
+  background: rgba(37, 211, 102, 0.12);
+  border: 1px solid rgba(37, 211, 102, 0.3);
+  color: #25d366;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.btn-whatsapp:hover {
+  background: #25d366;
+  color: #0b1120;
+  box-shadow: 0 0 10px rgba(37, 211, 102, 0.4);
+}
+
+/* User Avatar Ring */
+.team-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Team Filter Pills */
+.team-filter-pill {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: rgba(15, 26, 48, 0.7);
+  border: 1px solid var(--glass-border);
+  color: var(--text-secondary);
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.team-filter-pill:hover {
+  background: rgba(30, 48, 80, 0.8);
+  color: #fff;
+  border-color: rgba(56, 189, 248, 0.3);
+}
+.team-filter-pill.active {
+  background: var(--primary);
+  color: #060d1f;
+  border-color: var(--primary);
+  box-shadow: 0 0 15px rgba(34, 211, 238, 0.35);
+  font-weight: 700;
+}
+
+/* Developer Platform Sidebar Section */
+.dev-sidebar-section {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px dashed rgba(168, 85, 247, 0.3);
+}
+.dev-sidebar-title {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #c084fc;
+  padding: 0 0.85rem 0.5rem 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* ODK Pair Box */
+.odk-qr-container {
+  background: #ffffff;
+  padding: 1.25rem;
+  border-radius: 12px;
+  display: inline-block;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+
 
 

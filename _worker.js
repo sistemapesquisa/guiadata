@@ -34,21 +34,54 @@ export default {
       // =========================================================================
       if (path === '/api/users') {
         if (request.method === 'GET') {
-          if (!env.DB) return jsonResponse(getDefaultUsers());
-          const { results } = await env.DB.prepare(
-            'SELECT id, name, email, role, status, permissions_json, created_at FROM users WHERE status != ? ORDER BY created_at DESC'
-          ).bind('removido').all();
-          return jsonResponse(results && results.length > 0 ? results : getDefaultUsers());
+          let usersList = [];
+          if (!env.DB) {
+            usersList = getDefaultUsers();
+          } else {
+            const { results } = await env.DB.prepare(
+              'SELECT id, name, email, role, status, permissions_json, created_at FROM users WHERE status != ? ORDER BY created_at DESC'
+            ).bind('removido').all();
+            usersList = (results && results.length > 0) ? results : getDefaultUsers();
+          }
+          const enriched = usersList.map(u => {
+            let meta = {};
+            try { meta = JSON.parse(u.permissions_json || '{}'); } catch(e) {}
+            return {
+              ...u,
+              phone: meta.phone || u.phone || '(11) 98765-4321',
+              region: meta.region || u.region || (u.role === 'Researcher' ? 'Zona Sul / Centro' : 'Base Operacional Central'),
+              device_id: meta.device_id || u.device_id || (u.role === 'Researcher' ? `ODK-${u.id.slice(-4).toUpperCase()}` : '-')
+            };
+          });
+          return jsonResponse(enriched);
         }
         if (request.method === 'POST') {
           const body = await request.json();
           const id = 'user_' + crypto.randomUUID().substring(0, 8);
+          let permsObj = {};
+          if (typeof body.permissions_json === 'string') {
+            try { permsObj = JSON.parse(body.permissions_json); } catch(e) {}
+          } else if (typeof body.permissions_json === 'object') {
+            permsObj = body.permissions_json || {};
+          }
+          if (body.phone) permsObj.phone = body.phone;
+          if (body.region) permsObj.region = body.region;
+          const permStr = JSON.stringify(permsObj);
+
           if (env.DB) {
             await env.DB.prepare(
               'INSERT INTO users (id, name, email, password_hash, role, status, permissions_json) VALUES (?, ?, ?, ?, ?, ?, ?)'
-            ).bind(id, body.name, body.email || '', body.password || 'guiadata123', body.role || 'pesquisador', 'ativo', body.permissions_json || '{}').run();
+            ).bind(id, body.name, body.email || '', body.password || 'guiadata123', body.role || 'Researcher', 'ativo', permStr).run();
           }
-          return jsonResponse({ success: true, id }, 201);
+          return jsonResponse({
+            success: true,
+            id,
+            name: body.name,
+            email: body.email,
+            role: body.role,
+            phone: body.phone,
+            region: body.region
+          }, 201);
         }
       }
 
@@ -60,11 +93,24 @@ export default {
             return jsonResponse(u);
           }
           const user = await env.DB.prepare('SELECT id, name, email, role, status, permissions_json, created_at FROM users WHERE id = ?').bind(userId).first();
-          return user ? jsonResponse(user) : jsonResponse({ error: 'Usuário não encontrado' }, 404);
+          if (!user) return jsonResponse({ error: 'Usuário não encontrado' }, 404);
+          let meta = {};
+          try { meta = JSON.parse(user.permissions_json || '{}'); } catch(e) {}
+          return jsonResponse({
+            ...user,
+            phone: meta.phone || '(11) 98765-4321',
+            region: meta.region || 'Base Operacional Central'
+          });
         }
         if (request.method === 'PUT') {
           const body = await request.json();
           if (env.DB) {
+            const existing = await env.DB.prepare('SELECT permissions_json FROM users WHERE id = ?').bind(userId).first();
+            let permsObj = {};
+            try { permsObj = JSON.parse(existing?.permissions_json || '{}'); } catch(e) {}
+            if (body.phone !== undefined) permsObj.phone = body.phone;
+            if (body.region !== undefined) permsObj.region = body.region;
+
             const sets = [];
             const vals = [];
             if (body.name !== undefined) { sets.push('name = ?'); vals.push(body.name); }
@@ -72,9 +118,12 @@ export default {
             if (body.role !== undefined) { sets.push('role = ?'); vals.push(body.role); }
             if (body.status !== undefined) { sets.push('status = ?'); vals.push(body.status); }
             if (body.password) { sets.push('password_hash = ?'); vals.push(body.password); }
-            if (body.permissions_json !== undefined) {
+            if (body.phone !== undefined || body.region !== undefined || body.permissions_json !== undefined) {
+              if (body.permissions_json && typeof body.permissions_json === 'object') {
+                permsObj = { ...permsObj, ...body.permissions_json };
+              }
               sets.push('permissions_json = ?');
-              vals.push(typeof body.permissions_json === 'string' ? body.permissions_json : JSON.stringify(body.permissions_json));
+              vals.push(JSON.stringify(permsObj));
             }
             if (sets.length > 0) {
               vals.push(userId);
@@ -1061,9 +1110,13 @@ async function handleLogin(request, env) {
     'admin_user': { id: 'admin_user', name: 'Clara Admin', email: 'sistemagithub@gmail.com', pass: 'admin123', role: 'Admin', permissions: ['all'] },
     'admin': { id: 'admin_user', name: 'Clara Admin', email: 'sistemagithub@gmail.com', pass: 'admin123', role: 'Admin', permissions: ['all'] },
     'user_admin': { id: 'admin_user', name: 'Clara Admin', email: 'sistemagithub@gmail.com', pass: 'admin123', role: 'Admin', permissions: ['all'] },
+    'coord_user': { id: 'coord_user', name: 'Rodrigo Coordenador', email: 'rodrigo.coord@guiadata.com', pass: 'coord123', role: 'Coordinator', permissions: ['projects', 'forms', 'routes'] },
+    'super_user': { id: 'super_user', name: 'Marcos Supervisor', email: 'marcos.super@guiadata.com', pass: 'super123', role: 'Supervisor', permissions: ['field', 'validation', 'audit'] },
+    'analyst_user': { id: 'analyst_user', name: 'Juliana Analista', email: 'juliana.dados@guiadata.com', pass: 'analyst123', role: 'Analyst', permissions: ['crosstab', 'bi', 'export'] },
     'dev_user': { id: 'dev_user', name: 'Gustavo Dev', email: 'dev@guiadata.com', pass: 'dev123', role: 'DEV', permissions: ['all'] },
     'dev': { id: 'dev_user', name: 'Gustavo Dev', email: 'dev@guiadata.com', pass: 'dev123', role: 'DEV', permissions: ['all'] },
     'researcher_1': { id: 'researcher_1', name: 'Ana Pesquisadora', email: 'ana@guiadata.com', pass: 'pesquisa123', role: 'Researcher', permissions: ['collect'] },
+    'researcher_2': { id: 'researcher_2', name: 'Carlos Pesquisador', email: 'carlos.campo@guiadata.com', pass: 'pesquisa123', role: 'Researcher', permissions: ['collect'] },
     'sistemagithub@gmail.com': { id: 'admin_user', name: 'Clara Admin', email: 'sistemagithub@gmail.com', pass: 'admin123', role: 'Admin', permissions: ['all'] }
   };
 
@@ -1223,16 +1276,46 @@ function getDefaultUsers() {
       email: "sistemagithub@gmail.com",
       role: "Admin",
       status: "ativo",
-      permissions_json: '{"can_create_projects":true,"can_view_maps":true,"can_export_data":true,"can_edit_forms":true,"can_manage_users":true}',
+      permissions_json: JSON.stringify({
+        can_create_projects: true, can_view_maps: true, can_export_data: true, can_edit_forms: true, can_manage_users: true,
+        phone: "(11) 98111-2233", region: "Diretoria Executiva"
+      }),
       created_at: new Date().toISOString()
     },
     {
-      id: "dev_user",
-      name: "Gustavo Dev",
-      email: "dev@guiadata.com",
-      role: "DEV",
+      id: "coord_user",
+      name: "Rodrigo Coordenador",
+      email: "rodrigo.coord@guiadata.com",
+      role: "Coordinator",
       status: "ativo",
-      permissions_json: '{"can_create_projects":true,"can_view_maps":true,"can_export_data":true,"can_edit_forms":true,"can_manage_users":true}',
+      permissions_json: JSON.stringify({
+        can_create_projects: true, can_view_maps: true, can_export_data: true, can_edit_forms: true, can_manage_users: false,
+        phone: "(11) 97222-3344", region: "Polo Central & Região Metropolitana"
+      }),
+      created_at: new Date().toISOString()
+    },
+    {
+      id: "super_user",
+      name: "Marcos Supervisor",
+      email: "marcos.super@guiadata.com",
+      role: "Supervisor",
+      status: "ativo",
+      permissions_json: JSON.stringify({
+        can_create_projects: false, can_view_maps: true, can_export_data: false, can_edit_forms: false, can_manage_users: false,
+        phone: "(11) 96333-4455", region: "Supervisão de Campo - Zona Sul"
+      }),
+      created_at: new Date().toISOString()
+    },
+    {
+      id: "analyst_user",
+      name: "Juliana Analista",
+      email: "juliana.dados@guiadata.com",
+      role: "Analyst",
+      status: "ativo",
+      permissions_json: JSON.stringify({
+        can_create_projects: false, can_view_maps: true, can_export_data: true, can_edit_forms: false, can_manage_users: false,
+        phone: "(11) 95444-5566", region: "Inteligência Estatística & BI"
+      }),
       created_at: new Date().toISOString()
     },
     {
@@ -1241,7 +1324,34 @@ function getDefaultUsers() {
       email: "ana@guiadata.com",
       role: "Researcher",
       status: "ativo",
-      permissions_json: '{"can_create_projects":false,"can_view_maps":true,"can_export_data":false,"can_edit_forms":false,"can_manage_users":false}',
+      permissions_json: JSON.stringify({
+        can_create_projects: false, can_view_maps: true, can_export_data: false, can_edit_forms: false, can_manage_users: false,
+        phone: "(11) 94555-6677", region: "Rota Centro-Expandido", device_id: "ODK-Samsung-A54"
+      }),
+      created_at: new Date().toISOString()
+    },
+    {
+      id: "researcher_2",
+      name: "Carlos Pesquisador",
+      email: "carlos.campo@guiadata.com",
+      role: "Researcher",
+      status: "ativo",
+      permissions_json: JSON.stringify({
+        can_create_projects: false, can_view_maps: true, can_export_data: false, can_edit_forms: false, can_manage_users: false,
+        phone: "(11) 93666-7788", region: "Rota Zona Leste", device_id: "ODK-Motorola-G84"
+      }),
+      created_at: new Date().toISOString()
+    },
+    {
+      id: "dev_user",
+      name: "Gustavo Dev",
+      email: "dev@guiadata.com",
+      role: "DEV",
+      status: "ativo",
+      permissions_json: JSON.stringify({
+        can_create_projects: true, can_view_maps: true, can_export_data: true, can_edit_forms: true, can_manage_users: true,
+        phone: "(11) 99999-0000", region: "Infraestrutura Cloud & Borda"
+      }),
       created_at: new Date().toISOString()
     }
   ];

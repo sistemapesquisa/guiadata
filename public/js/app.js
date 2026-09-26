@@ -35,14 +35,32 @@ const MOCK_USER_IDS = {
   Coordinator: 'coord_user', Supervisor: 'super_user', Researcher: 'researcher_1'
 };
 const MOCK_USER_NAMES = {
-  DEV: 'Gustavo Dev', Admin: 'Clara Admin', Researcher: 'Ana Pesquisadora'
+  DEV: 'Gustavo Dev', Admin: 'Clara Admin', Researcher: 'Ana Pesquisadora',
+  Coordinator: 'Rodrigo Coordenador', Supervisor: 'Marcos Supervisor', Analyst: 'Juliana Analista'
 };
 const ROLE_LABELS = {
-  DEV: 'Suporte Técnico', Admin: 'Administrador', Researcher: 'Pesquisador'
+  Admin: 'Diretoria / Administrador',
+  Coordinator: 'Coordenador de Pesquisas',
+  Supervisor: 'Supervisor de Campo',
+  Analyst: 'Analista Estatístico',
+  Researcher: 'Pesquisador de Campo',
+  DEV: 'Suporte Técnico (DEV)'
 };
-const RESEARCHER_COLORS = {
-  researcher_1: '#ef4444', researcher_2: '#7c3aed',
-  researcher_3: '#059669', researcher_4: '#0284c7'
+const ROLE_BADGE_CLASSES = {
+  Admin: 'badge-role-admin',
+  Coordinator: 'badge-role-coordinator',
+  Supervisor: 'badge-role-supervisor',
+  Analyst: 'badge-role-analyst',
+  Researcher: 'badge-role-researcher',
+  DEV: 'badge-role-dev'
+};
+const ROLE_ICONS = {
+  Admin: 'fa-solid fa-crown',
+  Coordinator: 'fa-solid fa-bullseye',
+  Supervisor: 'fa-solid fa-tower-broadcast',
+  Analyst: 'fa-solid fa-chart-column',
+  Researcher: 'fa-solid fa-mobile-screen',
+  DEV: 'fa-solid fa-terminal'
 };
 const STATUS_LABELS = { approved: 'Aprovada', pending: 'Pendente', rejected: 'Rejeitada' };
 
@@ -268,21 +286,20 @@ window.switchTab = function switchTab(targetId) {
 
 // ===================== RBAC =====================
 const NAV_PERMISSIONS = {
-  'nav-dashboard': ['DEV','Admin','Analyst','Coordinator','Researcher'],
-  'nav-library': ['DEV','Admin','Analyst','Coordinator'],
-  'nav-mobile-sim': ['DEV','Admin','Analyst','Coordinator','Researcher'],
-  'nav-team': ['DEV','Admin'],
+  'nav-dashboard': ['DEV','Admin','Analyst','Coordinator','Supervisor','Researcher'],
+  'nav-executive-suite': ['DEV','Admin','Coordinator','Analyst'],
+  'nav-team': ['DEV','Admin','Coordinator','Supervisor'],
   'nav-roles': ['DEV','Admin'],
-  'nav-form-builder': ['DEV','Admin'],
-  'nav-cloud-storage': ['DEV','Admin','Analyst','Coordinator'],
-  'nav-logs': ['DEV','Admin'],
-  'nav-executive-suite': ['DEV','Admin','Analyst','Coordinator'],
-  'nav-pendrive-backup': ['DEV','Admin','Analyst','Coordinator']
+  'nav-library': ['DEV','Admin','Coordinator','Analyst'],
+  'nav-mobile-sim': ['DEV','Admin','Coordinator','Supervisor','Researcher'],
+  'nav-pendrive-backup': ['DEV','Admin','Coordinator'],
+  'nav-cloud-storage': ['DEV'],
+  'nav-logs': ['DEV']
 };
 const SECTION_PERMISSIONS = {
   'financial-dashboard-section': ['DEV','Admin'],
-  'supervisor-validation-panel': ['DEV','Admin'],
-  'audio-review-panel': ['DEV','Admin'],
+  'supervisor-validation-panel': ['DEV','Admin','Supervisor'],
+  'audio-review-panel': ['DEV','Admin','Supervisor'],
 };
 
 function normalizeRole(r) {
@@ -299,6 +316,8 @@ function normalizeRole(r) {
 
 function applyRoleRestrictions() {
   const role = normalizeRole(state.activeRole);
+  const isDev = (role === 'DEV');
+
   // Nav items
   Object.entries(NAV_PERMISSIONS).forEach(([navId, roles]) => {
     const el = document.getElementById(navId);
@@ -307,6 +326,13 @@ function applyRoleRestrictions() {
       el.style.display = isAllowed ? '' : 'none';
     }
   });
+
+  // Dedicated DEV section in sidebar
+  const devSec = document.getElementById('nav-dev-section');
+  if (devSec) {
+    devSec.style.display = isDev ? 'block' : 'none';
+  }
+
   // Dashboard sections
   Object.entries(SECTION_PERMISSIONS).forEach(([secId, roles]) => {
     const el = document.getElementById(secId);
@@ -315,6 +341,7 @@ function applyRoleRestrictions() {
       el.style.display = isAllowed ? '' : 'none';
     }
   });
+
   // If current view is hidden, switch to dashboard
   const activePanel = document.querySelector('.view-panel.active');
   if (activePanel) {
@@ -322,6 +349,20 @@ function applyRoleRestrictions() {
     if (activeNav && activeNav.style.display === 'none') window.switchTab('view-dashboard');
   }
 }
+
+// Dev Modal Handlers (Strictly segregated technical access)
+window.openDevLoginModal = function() {
+  const m = document.getElementById('dev-login-modal');
+  if (m) m.classList.add('active');
+};
+window.closeDevLoginModal = function() {
+  const m = document.getElementById('dev-login-modal');
+  if (m) m.classList.remove('active');
+};
+window.loginAsDevDirect = async function() {
+  window.closeDevLoginModal();
+  await window.quickLogin('DEV');
+};
 
 function updateUserUI() {
   const name = MOCK_USER_NAMES[state.activeRole] || state.activeRole;
@@ -344,6 +385,9 @@ window.quickLogin = async function(role) {
   if (passEl) passEl.value = c.pass;
   const roleEl = document.getElementById('login-role');
   if (roleEl) roleEl.value = role;
+  state.activeRole = role;
+  applyRoleRestrictions();
+  updateUserUI();
   await window.fazerLogin();
 };
 
@@ -3439,39 +3483,306 @@ function initDataExporter() {
   });
 }
 
-// ===================== TEAM =====================
+// ===================== ENTERPRISE TEAM MANAGEMENT =====================
+state.teamUsers = [];
+state.teamFilterRole = 'all';
+state.teamSearchQuery = '';
+
+window.filterTeamRole = function(role) {
+  state.teamFilterRole = role;
+  document.querySelectorAll('#team-role-filter-container .team-filter-pill').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.dataset.filter === role) btn.classList.add('active');
+  });
+  renderTeamTable();
+};
+
+window.filterTeamSearch = function(query) {
+  state.teamSearchQuery = (query || '').toLowerCase().trim();
+  renderTeamTable();
+};
+
 async function loadTeam() {
-  const usersTable = document.getElementById('users-tbody');
   try {
     const users = await apiFetch('/api/users');
-    const routes = await apiFetch('/api/routes');
-    const forms = await apiFetch('/api/forms');
-    
-    if(usersTable) {
-      usersTable.innerHTML = '';
-      users.filter(u => u.status !== 'deleted').forEach(u => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td><strong>${u.name}</strong><br><span style="font-size:0.75rem;color:var(--text-muted);">${u.email}</span></td>
-          <td><span class="badge badge-info">${ROLE_LABELS[u.role]||u.role}</span></td>
-          <td>
-            <button class="btn-icon" style="color:var(--primary)" onclick="editUser('${u.id}')" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
-            <button class="btn-icon" style="color:var(--danger)" onclick="deleteUser('${u.id}')" title="Remover"><i class="fa-solid fa-trash"></i></button>
-          </td>
-        `;
-        usersTable.appendChild(tr);
-      });
-    }
+    state.teamUsers = Array.isArray(users) ? users : [];
+    updateTeamKpis();
+    renderTeamTable();
 
-    
+    // Populate researcher selects
     const resSelect = document.getElementById('route-form-researcher');
-    if(resSelect) {
-      resSelect.innerHTML = users.filter(u => u.status !== 'deleted' && u.role === 'Researcher').map(u => `<option value="${u.id}">${u.name}</option>`).join('');
+    if (resSelect) {
+      resSelect.innerHTML = state.teamUsers
+        .filter(u => u.status !== 'removido' && u.status !== 'deleted' && u.role === 'Researcher')
+        .map(u => `<option value="${u.id}">${u.name}</option>`)
+        .join('');
     }
   } catch(err) {
+    console.error('Erro ao carregar equipe:', err);
     showToast('error', 'Erro ao carregar equipe.');
   }
 }
+
+function updateTeamKpis() {
+  // If not DEV, filter out DEV users from company counts
+  const companyUsers = state.teamUsers.filter(u => u.status !== 'removido' && (state.activeRole === 'DEV' || u.role !== 'DEV'));
+  const total = companyUsers.length;
+  const researchers = companyUsers.filter(u => u.role === 'Researcher').length;
+  const leads = companyUsers.filter(u => u.role === 'Coordinator' || u.role === 'Supervisor').length;
+  const analysts = companyUsers.filter(u => u.role === 'Analyst').length;
+
+  const elTotal = document.getElementById('kpi-team-total');
+  if (elTotal) elTotal.textContent = total;
+  const elField = document.getElementById('kpi-team-field');
+  if (elField) elField.textContent = researchers;
+  const elLead = document.getElementById('kpi-team-lead');
+  if (elLead) elLead.textContent = leads;
+  const elAnalysts = document.getElementById('kpi-team-analysts');
+  if (elAnalysts) elAnalysts.textContent = analysts;
+
+  const countAll = document.getElementById('team-count-all');
+  if (countAll) countAll.textContent = total;
+}
+
+function renderTeamTable() {
+  const usersTable = document.getElementById('users-tbody');
+  if (!usersTable) return;
+  usersTable.innerHTML = '';
+
+  let list = (state.teamUsers || []).filter(u => u.status !== 'removido' && u.status !== 'deleted');
+  // Strict DEV isolation: If logged-in user is not DEV, NEVER show DEV users in team list
+  if (state.activeRole !== 'DEV') {
+    list = list.filter(u => u.role !== 'DEV');
+  }
+
+  // Filter by role
+  if (state.teamFilterRole && state.teamFilterRole !== 'all') {
+    list = list.filter(u => u.role === state.teamFilterRole);
+  }
+
+  // Filter by search query
+  if (state.teamSearchQuery) {
+    const q = state.teamSearchQuery;
+    list = list.filter(u => 
+      (u.name || '').toLowerCase().includes(q) ||
+      (u.email || '').toLowerCase().includes(q) ||
+      (u.phone || '').includes(q) ||
+      (u.region || '').toLowerCase().includes(q)
+    );
+  }
+
+  if (list.length === 0) {
+    usersTable.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:2.5rem; color:var(--text-muted);"><i class="fa-solid fa-user-slash" style="font-size:1.8rem; margin-bottom:0.5rem; display:block;"></i>Nenhum colaborador encontrado com este filtro.</td></tr>';
+    return;
+  }
+
+  list.forEach(u => {
+    const roleLabel = ROLE_LABELS[u.role] || u.role;
+    const badgeClass = ROLE_BADGE_CLASSES[u.role] || 'badge-role-researcher';
+    const roleIcon = ROLE_ICONS[u.role] || 'fa-solid fa-user';
+    const initial = (u.name || 'U').charAt(0).toUpperCase();
+    const isSuspended = (u.status === 'suspenso' || u.status === 'inativo');
+    
+    // Format WhatsApp phone link
+    const phoneDigits = (u.phone || '').replace(/\D/g, '');
+    const waLink = phoneDigits ? `https://wa.me/55${phoneDigits}?text=Ol%C3%A1%20${encodeURIComponent(u.name)}%2C%20mensagem%20do%20painel%20GuiaData` : null;
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <div style="display:flex; align-items:center; gap:0.75rem;">
+          <div class="team-avatar" style="background:linear-gradient(135deg, rgba(34,211,238,0.2), rgba(99,102,241,0.2)); color:var(--text-primary); border-color:var(--border);">
+            ${initial}
+          </div>
+          <div>
+            <div style="font-weight:700; color:#fff; font-size:0.9rem;">${u.name}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">${u.email}</div>
+          </div>
+        </div>
+      </td>
+      <td>
+        ${waLink ? `
+          <a href="${waLink}" target="_blank" rel="noopener noreferrer" class="btn-whatsapp" title="Conversar no WhatsApp">
+            <i class="fa-brands fa-whatsapp"></i> ${u.phone}
+          </a>
+        ` : `<span style="font-size:0.78rem; color:var(--text-muted);">${u.phone || 'Sem telefone'}</span>`}
+      </td>
+      <td>
+        <span class="badge-role ${badgeClass}">
+          <i class="${roleIcon}"></i> ${roleLabel}
+        </span>
+      </td>
+      <td>
+        <span style="font-size:0.82rem; color:var(--text-secondary);"><i class="fa-solid fa-location-dot" style="font-size:0.75rem; margin-right:4px; color:var(--text-muted);"></i> ${u.region || 'Base Geral'}</span>
+      </td>
+      <td style="text-align:center;">
+        ${isSuspended ? `
+          <span class="badge badge-warning" style="font-size:0.72rem;"><i class="fa-solid fa-pause"></i> Suspenso</span>
+        ` : `
+          <span class="sys-status-badge" style="font-size:0.72rem;"><span class="status-pulse-dot" style="margin-right:4px;"></span> Ativo</span>
+        `}
+      </td>
+      <td style="text-align:center;">
+        ${u.role === 'Researcher' ? `
+          <button class="btn btn-xs btn-outline" style="border-color:var(--cyan); color:var(--cyan); font-size:0.75rem; padding:0.25rem 0.55rem;" onclick="openOdkPairingModal('${u.id}')" title="Gerar QR Code para parear o celular ODK do pesquisador">
+            <i class="fa-solid fa-qrcode"></i> Parear ODK
+          </button>
+        ` : `<span style="font-size:0.75rem; color:var(--text-muted);">-</span>`}
+      </td>
+      <td style="text-align:right;">
+        <div style="display:inline-flex; gap:0.35rem;">
+          <button class="btn-icon" style="color:var(--primary);" onclick="editUser('${u.id}')" title="Editar Colaborador"><i class="fa-solid fa-pen-to-square"></i></button>
+          <button class="btn-icon" style="color:#fbbf24;" onclick="toggleUserStatus('${u.id}')" title="${isSuspended ? 'Ativar Colaborador' : 'Suspender Acesso'}">
+            <i class="fa-solid ${isSuspended ? 'fa-play' : 'fa-pause'}"></i>
+          </button>
+          <button class="btn-icon" style="color:var(--danger);" onclick="deleteUser('${u.id}')" title="Desativar e Remover"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </td>
+    `;
+    usersTable.appendChild(tr);
+  });
+}
+
+window.openUserModal = function() {
+  document.getElementById('user-form-id').value = '';
+  document.getElementById('user-form-name').value = '';
+  document.getElementById('user-form-email').value = '';
+  document.getElementById('user-form-role').value = 'Researcher';
+  const phoneEl = document.getElementById('user-form-phone');
+  if (phoneEl) phoneEl.value = '';
+  const regEl = document.getElementById('user-form-region');
+  if (regEl) regEl.value = '';
+  document.getElementById('user-form-password').value = '';
+  document.getElementById('user-modal-title').textContent = 'Cadastrar Colaborador';
+  document.getElementById('user-modal').classList.add('active');
+};
+
+window.closeUserModal = function() {
+  document.getElementById('user-modal').classList.remove('active');
+};
+
+window.generateRandomPassword = function() {
+  const chars = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#';
+  let pwd = '';
+  for (let i = 0; i < 8; i++) pwd += chars.charAt(Math.floor(Math.random() * chars.length));
+  const el = document.getElementById('user-form-password');
+  if (el) {
+    el.value = pwd;
+    el.type = 'text';
+    showToast('info', `Senha gerada: ${pwd}`);
+  }
+};
+
+window.saveUser = async function() {
+  const id = document.getElementById('user-form-id').value;
+  const name = document.getElementById('user-form-name').value.trim();
+  const email = document.getElementById('user-form-email').value.trim();
+  const role = document.getElementById('user-form-role').value;
+  const phone = (document.getElementById('user-form-phone')?.value || '').trim();
+  const region = (document.getElementById('user-form-region')?.value || '').trim();
+  const password = document.getElementById('user-form-password').value;
+  
+  if(!name || !email) { showToast('warning', 'Preencha o nome completo e e-mail corporativo.'); return; }
+  
+  try {
+    if(id) {
+      const payload = { name, email, role, phone, region };
+      if (password) payload.password = password;
+      await apiFetch(`/api/users/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+      showToast('success', 'Colaborador atualizado com sucesso!');
+    } else {
+      if(!password) { showToast('warning', 'Informe uma senha provisória ou clique em "Gerar Senha Segura".'); return; }
+      await apiFetch('/api/users', { method: 'POST', body: JSON.stringify({ name, email, role, phone, region, password }) });
+      showToast('success', 'Colaborador cadastrado com sucesso!');
+    }
+    closeUserModal();
+    loadTeam();
+  } catch(err) { showToast('error', err.message); }
+};
+
+window.editUser = async function(id) {
+  try {
+    const u = (state.teamUsers || []).find(x => x.id === id);
+    if(u) {
+      document.getElementById('user-form-id').value = u.id;
+      document.getElementById('user-form-name').value = u.name;
+      document.getElementById('user-form-email').value = u.email;
+      document.getElementById('user-form-role').value = u.role;
+      const phoneEl = document.getElementById('user-form-phone');
+      if (phoneEl) phoneEl.value = u.phone || '';
+      const regEl = document.getElementById('user-form-region');
+      if (regEl) regEl.value = u.region || '';
+      document.getElementById('user-form-password').value = '';
+      document.getElementById('user-modal-title').textContent = 'Editar Colaborador';
+      document.getElementById('user-modal').classList.add('active');
+    }
+  } catch(err) {
+    showToast('error', 'Erro ao abrir edição de usuário.');
+  }
+};
+
+window.toggleUserStatus = async function(userId) {
+  const u = (state.teamUsers || []).find(x => x.id === userId);
+  if (!u) return;
+  const newStatus = (u.status === 'suspenso' || u.status === 'inativo') ? 'ativo' : 'suspenso';
+  try {
+    await apiFetch(`/api/users/${userId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ status: newStatus })
+    });
+    showToast('success', `Colaborador ${u.name} agora está ${newStatus}!`);
+    loadTeam();
+  } catch(err) {
+    showToast('error', 'Erro ao alterar status: ' + err.message);
+  }
+};
+
+window.deleteUser = function(id) {
+  showConfirm('Remover Colaborador', 'Tem certeza que deseja desativar este colaborador da empresa?', async () => {
+    try {
+      await apiFetch(`/api/users/${id}`, { method: 'DELETE' });
+      showToast('success', 'Colaborador removido da equipe.');
+      loadTeam();
+    } catch(err) { showToast('error', err.message); }
+  });
+};
+
+window.openOdkPairingModal = function(userId) {
+  const u = (state.teamUsers || []).find(x => x.id === userId);
+  const userTitle = document.getElementById('odk-pairing-username');
+  if (userTitle) userTitle.textContent = u ? `${u.name} (${ROLE_LABELS[u.role] || u.role})` : 'Pesquisador';
+  
+  const qrContainer = document.getElementById('odk-pairing-qr-canvas');
+  if (qrContainer) {
+    qrContainer.innerHTML = `
+      <div style="text-align:center;">
+        <div style="width:160px; height:160px; background:#000; padding:10px; border-radius:8px; margin:0 auto; display:flex; align-items:center; justify-content:center;">
+          <i class="fa-solid fa-qrcode" style="font-size:7.5rem; color:#fff;"></i>
+        </div>
+        <div style="font-size:0.75rem; color:#333; font-weight:700; margin-top:8px;">
+          ODK // ${u ? u.id : 'COLLECT'}
+        </div>
+      </div>
+    `;
+  }
+
+  const modal = document.getElementById('odk-pairing-modal');
+  if (modal) modal.classList.add('active');
+};
+
+window.closeOdkPairingModal = function() {
+  const modal = document.getElementById('odk-pairing-modal');
+  if (modal) modal.classList.remove('active');
+};
+
+window.copyOdkServerUrl = function() {
+  const url = window.location.origin + '/api/openrosa';
+  navigator.clipboard.writeText(url).then(() => {
+    showToast('success', 'URL do servidor copiada: ' + url);
+  }).catch(() => {
+    showToast('info', 'URL: ' + url);
+  });
+};
 
 async function loadProjectAccess() {
   if (!state.activeProjectFormId) return;
@@ -3510,63 +3821,6 @@ async function loadProjectAccess() {
     showToast('error', 'Erro ao carregar acessos do projeto.');
   }
 }
-
-window.openUserModal = function() {
-  document.getElementById('user-form-id').value = '';
-  document.getElementById('user-form-name').value = '';
-  document.getElementById('user-form-email').value = '';
-  document.getElementById('user-form-role').value = 'Researcher';
-  document.getElementById('user-form-password').value = '';
-  document.getElementById('user-modal-title').textContent = 'Novo Usuário';
-  document.getElementById('user-modal').classList.add('active');
-};
-window.closeUserModal = function() { document.getElementById('user-modal').classList.remove('active'); };
-window.saveUser = async function() {
-  const id = document.getElementById('user-form-id').value;
-  const name = document.getElementById('user-form-name').value;
-  const email = document.getElementById('user-form-email').value;
-  const role = document.getElementById('user-form-role').value;
-  const password = document.getElementById('user-form-password').value;
-  
-  if(!name || !email) { showToast('warning', 'Preencha nome e e-mail.'); return; }
-  
-  try {
-    if(id) {
-      await apiFetch(`/api/users/${id}`, { method: 'PUT', body: JSON.stringify({ name, email, role, password }) });
-      showToast('success', 'Usuário atualizado!');
-    } else {
-      if(!password) { showToast('warning', 'A senha inicial é obrigatória.'); return; }
-      await apiFetch('/api/users', { method: 'POST', body: JSON.stringify({ name, email, role, password }) });
-      showToast('success', 'Usuário criado!');
-    }
-    closeUserModal();
-    loadTeam();
-  } catch(err) { showToast('error', err.message); }
-};
-window.editUser = async function(id) {
-  try {
-    const users = await apiFetch('/api/users');
-    const u = users.find(x => x.id === id);
-    if(u) {
-      document.getElementById('user-form-id').value = u.id;
-      document.getElementById('user-form-name').value = u.name;
-      document.getElementById('user-form-email').value = u.email;
-      document.getElementById('user-form-role').value = u.role;
-      document.getElementById('user-form-password').value = '';
-      document.getElementById('user-modal-title').textContent = 'Editar Usuário';
-      document.getElementById('user-modal').classList.add('active');
-    }
-  } catch(err) {}
-};
-window.deleteUser = function(id) {
-  showConfirm('Remover Usuário', 'Tem certeza que deseja desativar este usuário?', async () => {
-    try {
-      await apiFetch(`/api/users/${id}`, { method: 'DELETE' });
-      showToast('success', 'Usuário removido.');
-      loadTeam();
-    } catch(err) { showToast('error', err.message); }
-  });
-};
 
 window.openRouteModal = async function() {
   if (!state.activeProjectFormId) {
