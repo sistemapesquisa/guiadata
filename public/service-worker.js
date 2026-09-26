@@ -4,7 +4,7 @@
  * and PWA installability.
  */
 
-const CACHE_NAME = 'guiadata-v3.5';
+const CACHE_NAME = 'guiadata-v3.5.5-networkfirst';
 const PRECACHE_ASSETS = [
   '/',
   '/index.html',
@@ -91,7 +91,23 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // 3. Static Assets: Stale-While-Revalidate (Fast response + background refresh)
+  // 3. Same-origin assets (app.js, styles.css, etc.): Network-First so users always see updates immediately
+  if (url.origin === self.location.origin) {
+    event.respondWith(
+      fetch(request)
+        .then(networkResponse => {
+          if (networkResponse && networkResponse.status === 200) {
+            const resClone = networkResponse.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(request, resClone));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match(request))
+    );
+    return;
+  }
+
+  // 4. External CDN Assets: Stale-While-Revalidate
   event.respondWith(
     caches.match(request).then(cachedResponse => {
       const fetchPromise = fetch(request).then(networkResponse => {
