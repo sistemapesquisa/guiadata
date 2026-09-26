@@ -212,7 +212,9 @@ function setButtonLoading(btn, loading) {
 async function loadServerData() {
   try {
     const [users, forms, interviews] = await Promise.all([
-      apiFetch('/api/users'), apiFetch('/api/forms'), apiFetch('/api/interviews')
+      apiFetch('/api/users').catch(e => { console.warn('apiFetch users error:', e); return []; }),
+      apiFetch('/api/forms').catch(e => { console.warn('apiFetch forms error:', e); return []; }),
+      apiFetch('/api/interviews').catch(e => { console.warn('apiFetch interviews error:', e); return []; })
     ]);
     state.users = users || [];
     state.forms = forms || [];
@@ -465,7 +467,7 @@ function renderDashboard() {
     const progressPct = Math.min(100, Math.round((ints.length / targetQuota) * 100));
 
     grid.innerHTML += `
-      <div class="project-card-glass" onclick="openProject('${form.id}')">
+      <div class="project-card-glass" onclick="openProject('${form.id}')" style="cursor: pointer;" title="Abrir projeto ${form.title}">
         <div class="project-card-header">
           <div style="flex: 1; min-width: 0;">
             <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.4rem;">
@@ -480,10 +482,10 @@ function renderDashboard() {
             </p>
           </div>
           <div style="display:flex; align-items:center; gap:0.5rem;" onclick="event.stopPropagation()">
-            <a href="/api/export/xlsx/${form.id}" class="btn btn-sm btn-outline" style="border-color:var(--glass-border); color:#34d399;" title="Exportar Planilha Excel (.xlsx) Direto">
+            <a href="/api/export/xlsx/${form.id}" class="btn btn-sm btn-outline" style="border-color:var(--glass-border); color:#34d399;" title="Exportar Planilha Excel (.xlsx) Direto" onclick="event.stopPropagation()">
               <i class="fa-solid fa-file-excel"></i> XLSX
             </a>
-            <button class="btn btn-sm btn-primary" onclick="openProject('${form.id}')" title="Abrir Área de Trabalho do Projeto">
+            <button type="button" class="btn btn-sm btn-primary" onclick="event.stopPropagation(); openProject('${form.id}')" title="Abrir Área de Trabalho do Projeto">
               <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir
             </button>
           </div>
@@ -519,18 +521,48 @@ function renderDashboard() {
 }
 
 // ===================== PROJECT DETAILS =====================
-window.openProject = function(formId) {
+window.openProject = async function(formId) {
+  if (!formId) {
+    showToast('warning', 'ID do projeto não fornecido.');
+    return;
+  }
+
   state.activeProjectFormId = formId;
-  const form = state.forms.find(f => f.id === formId);
-  if (!form) return;
 
-  const ints = state.interviews.filter(i => i.form_id === formId);
-  const isPub = form.status === 'published';
-  const isArchived = form.status === 'archived';
+  // 1. Find form in local state, or fetch from server
+  let form = (state.forms || []).find(f => f.id === formId || String(f.id).trim() === String(formId).trim());
+  if (!form) {
+    try {
+      await loadServerData();
+      form = (state.forms || []).find(f => f.id === formId || String(f.id).trim() === String(formId).trim());
+    } catch (e) {
+      console.warn('Erro ao atualizar projetos:', e);
+    }
+  }
 
-  document.getElementById('project-details-title-top').textContent = form.title;
+  if (!form) {
+    showToast('error', `Projeto ${formId} não encontrado no sistema.`);
+    return;
+  }
+
+  // Ensure state.activeForm is synchronized for builder and sub-components
+  state.activeForm = JSON.parse(JSON.stringify(form));
+  if (!state.activeForm.questions || !Array.isArray(state.activeForm.questions)) {
+    state.activeForm.questions = [];
+  }
+  if (!form.questions || !Array.isArray(form.questions)) {
+    form.questions = [];
+  }
+
+  const qCount = form.questions.length;
+  const ints = (state.interviews || []).filter(i => i.form_id === formId);
+  const isPub = form.status === 'published' || form.status === 'publicado';
+  const isArchived = form.status === 'archived' || form.status === 'arquivado';
+
+  // 2. Populate Header & Resumo Info
+  const titleTop = document.getElementById('project-details-title-top');
+  if (titleTop) titleTop.textContent = form.title || 'Projeto';
   
-  // Populate Resumo Info
   let statusBadgeHtml = '';
   if (isArchived) {
     statusBadgeHtml = '<span class="sys-status-badge badge-archived"><i class="fa-solid fa-box-archive"></i> Arquivado</span>';
@@ -541,43 +573,48 @@ window.openProject = function(formId) {
   }
   
   const elStatusBadge = document.getElementById('pd-status-badge');
-  if(elStatusBadge) elStatusBadge.innerHTML = statusBadgeHtml;
+  if (elStatusBadge) elStatusBadge.innerHTML = statusBadgeHtml;
   const elStatusBadgeTop = document.getElementById('pd-status-badge-top');
-  if(elStatusBadgeTop) elStatusBadgeTop.innerHTML = statusBadgeHtml;
+  if (elStatusBadgeTop) elStatusBadgeTop.innerHTML = statusBadgeHtml;
   
   const elQCount = document.getElementById('pd-questions-count');
-  if(elQCount) elQCount.textContent = `${form.questions.length} perguntas cadastradas`;
+  if (elQCount) elQCount.textContent = `${qCount} perguntas cadastradas`;
   
-  const name = state.activeUserName || MOCK_USER_NAMES[state.activeRole] || state.activeRole || 'Usuário';
+  const name = String(state.activeUserName || (state.activeRole && MOCK_USER_NAMES[state.activeRole]) || state.activeRole || 'Usuário');
   const initial = name.charAt(0).toUpperCase();
   const shortName = name.split(' ')[0];
 
   const elOwnerInit = document.getElementById('pd-owner-initial');
-  if(elOwnerInit) elOwnerInit.textContent = initial;
+  if (elOwnerInit) elOwnerInit.textContent = initial;
+  const elOwnerInitTop = document.getElementById('pd-owner-initial-top');
+  if (elOwnerInitTop) elOwnerInitTop.textContent = initial;
   const elOwnerName = document.getElementById('pd-owner-name');
-  if(elOwnerName) elOwnerName.textContent = shortName;
+  if (elOwnerName) elOwnerName.textContent = shortName;
 
   const elTotalSubs = document.getElementById('pd-total-submissions');
-  if(elTotalSubs) elTotalSubs.textContent = ints.length;
+  if (elTotalSubs) elTotalSubs.textContent = ints.length;
 
   const modDateStr = form.updated_at ? new Date(form.updated_at).toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR');
   const elLastMod = document.getElementById('pd-last-mod');
-  if(elLastMod) elLastMod.textContent = modDateStr;
+  if (elLastMod) elLastMod.textContent = modDateStr;
 
   const pubDateStr = isPub ? modDateStr : '-';
   const elLastPub = document.getElementById('pd-last-pub');
-  if(elLastPub) elLastPub.textContent = pubDateStr;
+  if (elLastPub) elLastPub.textContent = pubDateStr;
 
+  // 3. SWITCH VIEW IMMEDIATELY
   switchTab('view-project-details');
-  loadProjectAccess();
 
   // Reset to default tab (RESUMO)
   sysSwitchTab('proj-tab-resumo');
 
-  renderQuotasProgress(formId);
-  renderReportsTable();
-  renderCharts();
-  renderAudioReviewList();
+  // 4. Safely initialize sub-modules with try/catch
+  try { loadProjectAccess(); } catch (e) { console.error('Erro em loadProjectAccess:', e); }
+  try { renderQuotasProgress(formId); } catch (e) { console.error('Erro em renderQuotasProgress:', e); }
+  try { renderReportsTable(); } catch (e) { console.error('Erro em renderReportsTable:', e); }
+  try { renderAudioReviewList(); } catch (e) { console.error('Erro em renderAudioReviewList:', e); }
+  try { renderCharts(); } catch (e) { console.error('Erro em renderCharts:', e); }
+  try { if (typeof renderProjectVersionsTab === 'function') renderProjectVersionsTab(formId); } catch (e) { console.error('Erro em renderProjectVersionsTab:', e); }
 };
 
 async function renderQuotasProgress(formId) {
@@ -633,41 +670,47 @@ window.sysSwitchTab = function(tabId) {
   });
   document.querySelectorAll('#view-project-details .tab-content').forEach(c => c.style.display = 'none');
   const target = document.getElementById(tabId);
-  if (target) target.style.display = 'block';
+  if (target) {
+    target.style.display = 'block';
+    target.classList.add('active');
+  }
   
   if (tabId === 'proj-tab-resumo') {
     if (typeof renderQuotasProgress === 'function' && state.activeProjectFormId) {
-      renderQuotasProgress(state.activeProjectFormId);
+      try { renderQuotasProgress(state.activeProjectFormId); } catch(e){}
     }
   }
 
   if (tabId === 'proj-tab-versoes') {
-    if (typeof renderProjectVersionsTab === 'function') {
-      renderProjectVersionsTab(state.activeProjectFormId);
+    if (typeof renderProjectVersionsTab === 'function' && state.activeProjectFormId) {
+      try { renderProjectVersionsTab(state.activeProjectFormId); } catch(e){}
     }
   }
 
   if (tabId === 'proj-tab-dados') {
-    if (typeof renderReportsTable === 'function') renderReportsTable();
-    if (typeof renderAudioReviewList === 'function') renderAudioReviewList();
+    if (typeof renderReportsTable === 'function') try { renderReportsTable(); } catch(e){}
+    if (typeof renderAudioReviewList === 'function') try { renderAudioReviewList(); } catch(e){}
+    if (typeof renderCharts === 'function') try { renderCharts(); } catch(e){}
   }
 
   if (tabId === 'proj-tab-mapa') {
-    if (typeof loadGeospatialMetrics === 'function') {
-      loadGeospatialMetrics(state.activeProjectFormId);
+    if (typeof loadGeospatialMetrics === 'function' && state.activeProjectFormId) {
+      try { loadGeospatialMetrics(state.activeProjectFormId); } catch(e){}
     }
     if (!state.map) {
-      setTimeout(() => initMap(), 100);
+      setTimeout(() => { try { initMap(); } catch(e){} }, 100);
     } else {
       setTimeout(() => {
-        state.map.invalidateSize();
-        renderMapMarkers();
+        try {
+          state.map.invalidateSize();
+          renderMapMarkers();
+        } catch(e){}
       }, 150);
     }
   }
 
   if (tabId === 'proj-tab-config') {
-    if (typeof loadProjectAccess === 'function') loadProjectAccess();
+    if (typeof loadProjectAccess === 'function') try { loadProjectAccess(); } catch(e){}
   }
 };
 
@@ -839,105 +882,116 @@ window.renderCharts = function() {
   if (!container) return;
 
   const formId = state.activeProjectFormId;
-  const form = state.forms.find(f => f.id === formId);
-  const interviews = state.interviews.filter(i => i.form_id === formId);
+  const form = (state.forms || []).find(f => f.id === formId) || state.activeForm;
+  const interviews = (state.interviews || []).filter(i => i.form_id === formId);
 
   if (!form || !form.questions || form.questions.length === 0 || interviews.length === 0) {
     container.innerHTML = '<p class="text-muted" style="grid-column: 1 / -1; text-align: center;">Não há dados suficientes para gerar relatórios gráficos.</p>';
     return;
   }
 
+  if (typeof Chart === 'undefined') {
+    container.innerHTML = '<p class="text-muted" style="grid-column: 1 / -1; text-align: center;">Carregando biblioteca de gráficos...</p>';
+    return;
+  }
+
   container.innerHTML = '';
   if (window._analyticsCharts) {
-    window._analyticsCharts.forEach(c => c.destroy());
+    window._analyticsCharts.forEach(c => {
+      try { c.destroy(); } catch(e){}
+    });
   }
   window._analyticsCharts = [];
 
   form.questions.forEach(q => {
-    const isSelect = q.type === 'single_choice' || q.type === 'select_one' || q.type === 'multiple_choice' || q.type === 'select_multiple' || q.type === 'range';
-    if (isSelect && q.options && q.options.length > 0) {
-      const counts = {};
-      const labelsMap = {};
-      
-      q.options.forEach(opt => {
-        const val = typeof opt === 'object' ? (opt.name || opt.value || opt.label) : opt;
-        const lbl = typeof opt === 'object' ? (opt.label || opt.name || val) : opt;
-        counts[val] = 0;
-        labelsMap[val] = lbl;
-      });
+    try {
+      const isSelect = q.type === 'single_choice' || q.type === 'select_one' || q.type === 'multiple_choice' || q.type === 'select_multiple' || q.type === 'range';
+      if (isSelect && q.options && q.options.length > 0) {
+        const counts = {};
+        const labelsMap = {};
+        
+        q.options.forEach(opt => {
+          const val = typeof opt === 'object' ? (opt.name || opt.value || opt.label) : opt;
+          const lbl = typeof opt === 'object' ? (opt.label || opt.name || val) : opt;
+          counts[val] = 0;
+          labelsMap[val] = lbl;
+        });
 
-      let totalResponses = 0;
+        let totalResponses = 0;
 
-      interviews.forEach(int => {
-        const val = int.data && int.data[q.id];
-        if (val !== undefined && val !== null && val !== '') {
-          if (Array.isArray(val)) {
-            val.forEach(v => {
-              if (counts[v] !== undefined) counts[v]++;
-              else counts[v] = 1;
-            });
-            totalResponses++;
-          } else {
-            if (counts[val] !== undefined) counts[val]++;
-            else counts[val] = 1;
-            totalResponses++;
-          }
-        }
-      });
-
-      if (totalResponses === 0) return;
-
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.style.padding = '1.3rem';
-      
-      const title = document.createElement('h4');
-      title.style.fontSize = '0.95rem';
-      title.style.fontWeight = '700';
-      title.style.marginBottom = '1rem';
-      title.style.color = 'var(--text-primary)';
-      title.textContent = q.text || q.id;
-      card.appendChild(title);
-
-      const canvas = document.createElement('canvas');
-      canvas.style.maxHeight = '250px';
-      card.appendChild(canvas);
-
-      container.appendChild(card);
-
-      const displayLabels = Object.keys(counts).map(k => labelsMap[k] || k);
-      const displayData = Object.values(counts);
-
-      const ctx = canvas.getContext('2d');
-      const chart = new Chart(ctx, {
-        type: displayLabels.length > 6 ? 'bar' : 'pie',
-        data: {
-          labels: displayLabels,
-          datasets: [{
-            label: 'Respostas',
-            data: displayData,
-            backgroundColor: ['#22d3ee', '#34d399', '#fbbf24', '#f87171', '#818cf8', '#38bdf8', '#a78bfa', '#ec4899', '#10b981', '#6366f1'],
-            borderColor: 'rgba(6, 11, 24, 0.8)',
-            borderWidth: 2
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { 
-              display: displayLabels.length <= 6,
-              position: 'bottom', 
-              labels: { 
-                boxWidth: 12, 
-                color: '#eef4ff', 
-                font: { size: 11, family: 'Inter' } 
-              } 
+        interviews.forEach(int => {
+          const val = int.data && int.data[q.id];
+          if (val !== undefined && val !== null && val !== '') {
+            if (Array.isArray(val)) {
+              val.forEach(v => {
+                if (counts[v] !== undefined) counts[v]++;
+                else counts[v] = 1;
+              });
+              totalResponses++;
+            } else {
+              if (counts[val] !== undefined) counts[val]++;
+              else counts[val] = 1;
+              totalResponses++;
             }
           }
-        }
-      });
-      window._analyticsCharts.push(chart);
+        });
+
+        if (totalResponses === 0) return;
+
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.padding = '1.3rem';
+        
+        const title = document.createElement('h4');
+        title.style.fontSize = '0.95rem';
+        title.style.fontWeight = '700';
+        title.style.marginBottom = '1rem';
+        title.style.color = 'var(--text-primary)';
+        title.textContent = q.text || q.title || q.id;
+        card.appendChild(title);
+
+        const canvas = document.createElement('canvas');
+        canvas.style.maxHeight = '250px';
+        card.appendChild(canvas);
+
+        container.appendChild(card);
+
+        const displayLabels = Object.keys(counts).map(k => labelsMap[k] || k);
+        const displayData = Object.values(counts);
+
+        const ctx = canvas.getContext('2d');
+        const chart = new Chart(ctx, {
+          type: displayLabels.length > 6 ? 'bar' : 'pie',
+          data: {
+            labels: displayLabels,
+            datasets: [{
+              label: 'Respostas',
+              data: displayData,
+              backgroundColor: ['#22d3ee', '#34d399', '#fbbf24', '#f87171', '#818cf8', '#38bdf8', '#a78bfa', '#ec4899', '#10b981', '#6366f1'],
+              borderColor: 'rgba(6, 11, 24, 0.8)',
+              borderWidth: 2
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { 
+                display: displayLabels.length <= 6,
+                position: 'bottom', 
+                labels: { 
+                  boxWidth: 12, 
+                  color: '#eef4ff', 
+                  font: { size: 11, family: 'Inter' } 
+                } 
+              }
+            }
+          }
+        });
+        window._analyticsCharts.push(chart);
+      }
+    } catch(err) {
+      console.warn('Erro ao renderizar gráfico da pergunta:', q.id, err);
     }
   });
 
@@ -959,7 +1013,8 @@ window.renderReportsTable = function() {
   const searchInput = document.getElementById('reports-search');
   if (!tbody || !thead) return;
   
-  const form = state.activeForm || { questions: [] };
+  const formId = state.activeProjectFormId;
+  const form = (state.forms || []).find(f => f.id === formId) || state.activeForm || { questions: [] };
   const questions = form.questions || [];
 
   let filtered = [...state.interviews].reverse(); // newest first
@@ -1402,7 +1457,8 @@ function renderFormBuilderList() {
     const div = document.createElement('div');
     div.className = `form-list-item ${state.activeForm.id === form.id ? 'active' : ''}`;
     const badge = form.status === 'published' ? '<span class="badge badge-success">PUB</span>' : '<span class="badge badge-draft">RASCUNHO</span>';
-    div.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;"><span class="form-list-title">${form.title}</span>${badge}</div><div class="form-list-meta">Versão ${form.version} · ${form.questions.length} perguntas</div>`;
+    const qCount = (form.questions || []).length;
+    div.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;"><span class="form-list-title">${form.title}</span>${badge}</div><div class="form-list-meta">Versão ${form.version || 1} · ${qCount} perguntas</div>`;
     div.addEventListener('click', () => loadFormIntoBuilder(form));
     container.appendChild(div);
   });
@@ -3678,6 +3734,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     state.activeUserName = u.name;
     document.querySelector('.sidebar').style.display = 'flex';
     document.querySelector('.main-content').style.marginLeft = 'var(--sidebar-w)';
+    switchTab('view-dashboard');
     await loadServerData();
     updateUserUI();
     applyRoleRestrictions();

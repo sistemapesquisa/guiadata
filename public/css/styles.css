@@ -334,6 +334,9 @@ body::before {
 #view-project-details.active {
   display: flex !important;
   flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
 }
 
 @keyframes fadeSlideUp {
