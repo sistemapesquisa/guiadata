@@ -41,7 +41,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
-  <link rel="stylesheet" href="css/styles.css?v=6.0.4_capslock">
+  <link rel="stylesheet" href="css/styles.css?v=6.0.5_full_audit">
   <style>
     /* Blindagem Critica: Bloqueio absoluto de sobreposicao de modais inativos */
     .modal-overlay {
@@ -185,7 +185,7 @@
             </button>
             
             <p style="font-size:0.75rem; color:var(--text-muted); text-align:center; margin-top:1rem; margin-bottom:0;">
-              <i class="fa-solid fa-shield-halved" style="color:#10b981;"></i> Acesso restrito a pesquisadores e auditores credenciados
+              <i class="fa-solid fa-shield-halved" ></i> Acesso restrito a pesquisadores e auditores credenciados
             </p>
 
             <!-- Segregated Technical DEV Portal Access (Discreet) -->
@@ -216,15 +216,15 @@
 
       <!-- Modal: Acesso Técnico & Infraestrutura (DEV Only) -->
       <div class="modal-overlay" id="dev-login-modal">
-        <div class="modal-box" style="border: 1px solid rgba(168, 85, 247, 0.4); max-width: 440px;">
+        <div class="modal-box" style="border: 1px solid var(--border); max-width: 440px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
             <div style="display: flex; align-items: center; gap: 0.6rem;">
               <div style="background: rgba(168, 85, 247, 0.2); color: #c084fc; width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem;">
                 <i class="fa-solid fa-terminal"></i>
               </div>
               <div>
-                <h3 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: #fff;">Portal de Infraestrutura DEV</h3>
-                <span style="font-size: 0.72rem; color: #a855f7;">Camada de Borda Cloudflare & Bancos D1</span>
+                <h3 style="margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--text-primary);">Portal de Infraestrutura DEV</h3>
+                <span style="font-size: 0.72rem; color: var(--text-secondary);">Camada de Borda Cloudflare & Bancos D1</span>
               </div>
             </div>
             <button class="btn-icon" onclick="closeDevLoginModal()"><i class="fa-solid fa-xmark"></i></button>
@@ -238,7 +238,7 @@
                 <div style="font-size: 0.85rem; font-weight: 700; color: #e9d5ff;">Gustavo Dev (Plataforma)</div>
                 <div style="font-size: 0.72rem; color: var(--text-muted);">dev@guiadata.com • Acesso Irrestrito</div>
               </div>
-              <button class="btn btn-primary btn-sm" style="background: #a855f7; border-color: #a855f7;" onclick="loginAsDevDirect()">
+              <button class="btn btn-primary btn-sm"  onclick="loginAsDevDirect()">
                 <i class="fa-solid fa-bolt"></i> Entrar como DEV
               </button>
             </div>
@@ -480,7 +480,7 @@
               <div style="display:flex; align-items:center; gap:0.5rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                 <span style="color:var(--text-muted); font-size:0.85rem;">Projetos /</span>
                 <span id="builder-breadcrumb-title" style="color:var(--text-primary); font-weight:700; font-size:0.95rem; overflow:hidden; text-overflow:ellipsis;">Questionário</span>
-                <span id="builder-version-badge" class="badge" style="background:rgba(56,189,248,0.15); color:var(--primary); font-weight:700; font-size:0.75rem;">V1</span>
+                <span id="builder-version-badge" class="badge" style="background:var(--bg-subtle); color:var(--text-secondary); border:1px solid var(--border); font-size:0.75rem;">V1</span>
                 <span id="builder-status-badge" class="badge badge-warning" style="font-weight:700; font-size:0.75rem;">Rascunho</span>
               </div>
             </div>
@@ -1079,10 +1079,10 @@
             </div>
             <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
               <button class="btn btn-sm btn-outline" onclick="openOdkQrModal()" title="Gerar QR Code para conexão instantânea do ODK Collect"><i class="fa-solid fa-qrcode" style="color:var(--cyan);"></i> Conectar Celular</button>
-              <button class="btn btn-sm btn-outline" onclick="exportProjectDataXLSX()" title="Exportar XLSX direto"><i class="fa-solid fa-file-excel" style="color:#10b981;"></i> Excel</button>
+              <button class="btn btn-sm btn-outline" onclick="exportProjectDataXLSX()" title="Exportar XLSX direto"><i class="fa-solid fa-file-excel" ></i> Excel</button>
               <button class="btn btn-sm btn-outline" onclick="exportProjectSpss()" title="Exportar Sintaxe SPSS (.sps)"><i class="fa-solid fa-file-code" style="color: var(--accent);"></i> SPSS</button>
-              <button class="btn btn-sm btn-outline" onclick="exportProjectR()" title="Exportar Script R (.R)"><i class="fa-solid fa-chart-column" style="color:#a855f7;"></i> Script R</button>
-              <button class="btn btn-sm btn-outline" onclick="exportProjectCodebook()" title="Dicionário de Variáveis (Codebook)"><i class="fa-solid fa-book" style="color:#f59e0b;"></i> Dicionário</button>
+              <button class="btn btn-sm btn-outline" onclick="exportProjectR()" title="Exportar Script R (.R)"><i class="fa-solid fa-chart-column" ></i> Script R</button>
+              <button class="btn btn-sm btn-outline" onclick="exportProjectCodebook()" title="Dicionário de Variáveis (Codebook)"><i class="fa-solid fa-book" ></i> Dicionário</button>
               <div class="sys-owner-circle" style="background: var(--bg-subtle); color: var(--accent); border: 1px solid var(--border); font-weight:600; width:30px; height:30px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:0.8rem;" id="pd-owner-initial-top">C</div>
             </div>
           </div>
@@ -1091,11 +1091,11 @@
             <!-- Sidebar Navigation for Project Workspace -->
             <div style="width: 240px; background: var(--bg-sidebar); border-right: 1px solid var(--glass-border); display: flex; flex-direction: column; padding: 1.25rem 0.75rem; gap: 0.4rem; flex-shrink: 0;">
               <button class="sys-list-btn sys-proj-tab active" data-tab="proj-tab-resumo" onclick="sysSwitchTab('proj-tab-resumo')" style="justify-content: flex-start; gap: 0.85rem; padding: 0.75rem 1rem;"><i class="fa-solid fa-chart-line" style="color:var(--primary);"></i> Resumo</button>
-              <button class="sys-list-btn sys-proj-tab" data-tab="proj-tab-form" onclick="sysEditForm()" style="justify-content: flex-start; gap: 0.85rem; padding: 0.75rem 1rem;"><i class="fa-solid fa-clipboard-list" style="color:#a855f7;"></i> Questionário</button>
+              <button class="sys-list-btn sys-proj-tab" data-tab="proj-tab-form" onclick="sysEditForm()" style="justify-content: flex-start; gap: 0.85rem; padding: 0.75rem 1rem;"><i class="fa-solid fa-clipboard-list" ></i> Questionário</button>
               <button class="sys-list-btn sys-proj-tab" data-tab="proj-tab-versoes" onclick="sysSwitchTab('proj-tab-versoes')" style="justify-content: flex-start; gap: 0.85rem; padding: 0.75rem 1rem;"><i class="fa-solid fa-code-branch" style="color: var(--accent);"></i> Versões & Ciclo</button>
-              <button class="sys-list-btn sys-proj-tab" data-tab="proj-tab-dados" onclick="sysSwitchTab('proj-tab-dados')" style="justify-content: flex-start; gap: 0.85rem; padding: 0.75rem 1rem;"><i class="fa-solid fa-table" style="color:#10b981;"></i> Dados & Auditoria</button>
-              <button class="sys-list-btn sys-proj-tab" data-tab="proj-tab-mapa" onclick="sysSwitchTab('proj-tab-mapa')" style="justify-content: flex-start; gap: 0.85rem; padding: 0.75rem 1rem;"><i class="fa-solid fa-map-location-dot" style="color:#f59e0b;"></i> Mapa de Campo</button>
-              <button class="sys-list-btn sys-proj-tab" data-tab="proj-tab-config" onclick="sysSwitchTab('proj-tab-config')" style="justify-content: flex-start; gap: 0.85rem; padding: 0.75rem 1rem;"><i class="fa-solid fa-user-shield" style="color:#ec4899;"></i> Equipe & Acessos</button>
+              <button class="sys-list-btn sys-proj-tab" data-tab="proj-tab-dados" onclick="sysSwitchTab('proj-tab-dados')" style="justify-content: flex-start; gap: 0.85rem; padding: 0.75rem 1rem;"><i class="fa-solid fa-table" ></i> Dados & Auditoria</button>
+              <button class="sys-list-btn sys-proj-tab" data-tab="proj-tab-mapa" onclick="sysSwitchTab('proj-tab-mapa')" style="justify-content: flex-start; gap: 0.85rem; padding: 0.75rem 1rem;"><i class="fa-solid fa-map-location-dot" ></i> Mapa de Campo</button>
+              <button class="sys-list-btn sys-proj-tab" data-tab="proj-tab-config" onclick="sysSwitchTab('proj-tab-config')" style="justify-content: flex-start; gap: 0.85rem; padding: 0.75rem 1rem;"><i class="fa-solid fa-user-shield" ></i> Equipe & Acessos</button>
               
               <div style="flex: 1;"></div>
               <div style="padding-top: 1rem; border-top: 1px solid var(--glass-border);">
@@ -1120,8 +1120,8 @@
                     </div>
                   </div>
 
-                  <div class="card" style="display: flex; align-items: center; gap: 1.5rem; border-left: 4px solid #10b981;">
-                    <div style="background: rgba(16,185,129,0.15); color: #10b981; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                  <div class="card" style="display: flex; align-items: center; gap: 1.5rem;">
+                    <div style="background: var(--bg-subtle); color: var(--accent); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; border: 1px solid var(--border);">
                       <i class="fa-solid fa-satellite-dish"></i>
                     </div>
                     <div>
@@ -1130,8 +1130,8 @@
                     </div>
                   </div>
 
-                  <div class="card" style="display: flex; align-items: center; gap: 1.5rem; border-left: 4px solid #f59e0b;">
-                    <div style="background: rgba(245,158,11,0.15); color: #f59e0b; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                  <div class="card" style="display: flex; align-items: center; gap: 1.5rem;">
+                    <div style="background: var(--bg-subtle); color: var(--accent); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; border: 1px solid var(--border);">
                       <i class="fa-solid fa-clock-rotate-left"></i>
                     </div>
                     <div>
@@ -1155,7 +1155,7 @@
                       <button class="btn btn-outline btn-sm" onclick="openWebFormForActiveProject()">
                         <i class="fa-solid fa-globe"></i> Preencher no Navegador
                       </button>
-                      <button class="btn btn-outline btn-sm" onclick="publishActiveProject()" style="border-color:#10b981; color:#10b981; gap:0.4rem;" title="Disponibilizar nova versão para download no ODK Collect">
+                      <button class="btn btn-outline btn-sm" onclick="publishActiveProject()" style="gap:0.4rem;" title="Disponibilizar nova versão para download no ODK Collect">
                         <i class="fa-solid fa-cloud-arrow-up"></i> Publicar / Atualizar no ODK
                       </button>
                     </div>
@@ -1214,7 +1214,7 @@
                   <button class="btn btn-primary btn-sm" id="btn-export-data" onclick="exportProjectData()"><i class="fa-solid fa-file-csv"></i> Exportar CSV</button>
                   <button class="btn btn-success btn-sm" id="btn-export-xlsx" onclick="exportProjectDataXLSX()"><i class="fa-solid fa-file-excel"></i> Exportar XLSX</button>
                   <button class="btn btn-outline btn-sm" onclick="openCodebookWindow()" title="Ver Dicionário de Variáveis Oficial (HTML/PDF)"><i class="fa-solid fa-book-bookmark" style="color:var(--primary);"></i> Codebook</button>
-                  <button class="btn btn-outline btn-sm" onclick="downloadSpssSyntax()" title="Baixar Sintaxe IBM SPSS (.sps)"><i class="fa-solid fa-square-binary" style="color:#a855f7;"></i> Sintaxe SPSS</button>
+                  <button class="btn btn-outline btn-sm" onclick="downloadSpssSyntax()" title="Baixar Sintaxe IBM SPSS (.sps)"><i class="fa-solid fa-square-binary" ></i> Sintaxe SPSS</button>
                   <button class="btn btn-outline btn-sm" onclick="downloadRScript()" title="Baixar Script de Análise Estatística R (.R)"><i class="fa-solid fa-code" style="color:#0284c7;"></i> Script R</button>
                   <button class="btn btn-danger btn-sm" id="btn-clear-tests" onclick="clearTestInterviews()"><i class="fa-solid fa-trash"></i> Apagar Selecionados</button>
                 </div>
@@ -1248,7 +1248,7 @@
               <div class="modal-box" style="max-width: 480px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
                   <div class="modal-title" style="font-size: 1.05rem; margin:0;"><i class="fa-solid fa-headphones" style="color:var(--primary);"></i> Auditoria Pericial de Áudio</div>
-                  <span id="audio-modal-status-badge" class="badge" style="font-size:0.75rem; background:rgba(255,255,255,0.1); padding:3px 8px; border-radius:4px;">Pendente</span>
+                  <span id="audio-modal-status-badge" class="badge" style="font-size:0.75rem; background:var(--bg-subtle); color:var(--text-secondary); padding:2px 7px; border-radius:var(--radius); border:1px solid var(--border);">Pendente</span>
                 </div>
                 
                 <div style="margin: 0.5rem 0 1rem 0; font-size:0.85rem; color:var(--text-muted);">
@@ -1313,11 +1313,11 @@
                   </div>
                   <div>
                     <span style="font-size:0.75rem; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Área Estimada Coberta</span>
-                    <div id="geo-coverage-area" style="font-size:1.35rem; font-weight:700; color:#10b981;">-</div>
+                    <div id="geo-coverage-area" style="font-size:1.35rem; font-weight:700; color:var(--status-approved-text);">-</div>
                   </div>
                   <div>
                     <span style="font-size:0.75rem; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Conformidade Espacial</span>
-                    <div id="geo-quality-badge" style="margin-top:4px;"><span class="badge" style="background:rgba(255,255,255,0.1); padding:3px 8px;">Calculando...</span></div>
+                    <div id="geo-quality-badge" style="margin-top:4px;"><span class="badge" style="background:var(--bg-subtle); padding:3px 8px; border-radius:var(--radius); border:1px solid var(--border);">Calculando...</span></div>
                   </div>
                 </div>
               </div>
@@ -1389,7 +1389,7 @@
                 <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid rgba(255,255,255,0.08);">
                   <div>
                     <div style="font-size:0.75rem; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Status do Campo</div>
-                    <div id="metric-field-status" style="font-size:1.1rem; font-weight:700; color:#10b981; margin-top:2px;">Aberto & Coletando</div>
+                    <div id="metric-field-status" style="font-size:1.1rem; font-weight:600; color:var(--text-primary); margin-top:2px;">Aberto & Coletando</div>
                   </div>
                   <div>
                     <div style="font-size:0.75rem; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Perguntas no Formulário</div>
@@ -1410,7 +1410,7 @@
               <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
                 <div class="card" style="border:1px solid var(--border); padding:1.25rem;">
                   <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
-                    <i class="fa-solid fa-pen-ruler" style="color:#f59e0b; font-size:1.1rem;"></i>
+                    <i class="fa-solid fa-pen-ruler" style="color:var(--text-secondary); font-size:1.1rem;"></i>
                     <h4 style="margin:0; font-size:0.95rem; font-weight:700;">1. Rascunho (Draft)</h4>
                   </div>
                   <p style="color:var(--text-muted); font-size:0.8rem; margin:0; line-height:1.4;">
@@ -1420,7 +1420,7 @@
 
                 <div class="card" style="border:1px solid var(--border); padding:1.25rem;">
                   <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
-                    <i class="fa-solid fa-circle-check" style="color:#10b981; font-size:1.1rem;"></i>
+                    <i class="fa-solid fa-circle-check" style="color:var(--text-secondary); font-size:1.1rem;"></i>
                     <h4 style="margin:0; font-size:0.95rem; font-weight:700;">2. Publicado (Published)</h4>
                   </div>
                   <p style="color:var(--text-muted); font-size:0.8rem; margin:0; line-height:1.4;">
@@ -1440,7 +1440,7 @@
 
                 <div class="card" style="border:1px solid var(--border); padding:1.25rem;">
                   <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
-                    <i class="fa-solid fa-book-bookmark" style="color:#a855f7; font-size:1.1rem;"></i>
+                    <i class="fa-solid fa-book-bookmark" style="color:var(--text-secondary); font-size:1.1rem;"></i>
                     <h4 style="margin:0; font-size:0.95rem; font-weight:700;">4. Biblioteca de Modelos</h4>
                   </div>
                   <p style="color:var(--text-muted); font-size:0.8rem; margin:0; line-height:1.4;">
@@ -1615,7 +1615,7 @@
               <div style="display:flex; align-items:center; gap:0.5rem; background:rgba(255,255,255,0.04); border:1px solid var(--glass-border); padding:0.4rem 0.8rem; border-radius:8px;">
                 <label class="switch" style="margin:0; display:flex; align-items:center; gap:0.4rem; cursor:pointer;">
                   <input type="checkbox" id="sim-toggle-network" checked style="accent-color:var(--primary);" />
-                  <span id="net-status-text" style="font-size:0.8rem; color:#fff; font-weight:600;">Conectado (Online)</span>
+                  <span id="net-status-text" style="font-size:0.8rem; color:var(--text-primary); font-weight:600;">Conectado (Online)</span>
                 </label>
               </div>
               <button class="btn btn-sm btn-outline" id="sim-btn-download-templates" title="Baixar questionários publicados para o dispositivo virtual">
@@ -1832,7 +1832,7 @@
           <div class="modal-box" style="max-width: 480px; text-align:center;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
               <div style="display:flex; align-items:center; gap:0.5rem; text-align:left;">
-                <div style="background:rgba(34,211,238,0.2); color:var(--cyan); width:34px; height:34px; border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                <div style="background:var(--bg-subtle); color:var(--accent); width:34px; height:34px; border-radius:var(--radius); border:1px solid var(--border); display:flex; align-items:center; justify-content:center;">
                   <i class="fa-solid fa-qrcode"></i>
                 </div>
                 <div>
@@ -1914,7 +1914,7 @@
             <div class="card">
               <div class="card-header">
                 <div style="display:flex; align-items:center; gap:0.6rem;">
-                  <div style="width:36px; height:36px; border-radius:var(--r-md); background:rgba(245,158,11,0.15); color:#f59e0b; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
+                  <div style="width:34px; height:34px; border-radius:var(--radius); background:var(--bg-subtle); color:var(--accent); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
                     <i class="fa-brands fa-cloudflare"></i>
                   </div>
                   <div>
@@ -1945,16 +1945,16 @@
                 <span class="cloud-metric-val" id="cf-edge-location">GRU - São Paulo (HTTP/3)</span>
               </div>
               <div class="cloud-metric-row">
-                <span class="cloud-metric-label"><i class="fa-solid fa-chart-line" style="color:#ec4899;"></i> Cache Hit Ratio</span>
+                <span class="cloud-metric-label"><i class="fa-solid fa-chart-line" ></i> Cache Hit Ratio</span>
                 <span class="cloud-metric-val" id="cf-cache">96.4%</span>
               </div>
             </div>
 
             <!-- Google Drive Card -->
-            <div class="card" style="border: 1px solid rgba(56,189,248,0.3); , rgba(2,132,199,0.08));">
+            <div class="card">
               <div class="card-header">
                 <div style="display:flex; align-items:center; gap:0.6rem;">
-                  <div style="width:36px; height:36px; border-radius:var(--r-md); background:rgba(34,211,238,0.15); color:var(--cyan); display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
+                  <div style="width:34px; height:34px; border-radius:var(--radius); background:var(--bg-subtle); color:var(--accent); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
                     <i class="fa-brands fa-google-drive"></i>
                   </div>
                   <div>
@@ -1962,7 +1962,7 @@
                     <span style="font-size:0.68rem; color:var(--text-muted);">Armazenamento Seguro de Áudios, Fotos & Backups</span>
                   </div>
                 </div>
-                <span class="sys-status-badge" id="gdrive-status-badge" style="background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3);"><span class="status-pulse-dot"></span> Conectado</span>
+                <span class="sys-status-badge" id="gdrive-status-badge" style="background:var(--status-approved-bg); color:var(--status-approved-text); border:1px solid var(--status-approved-border);"><span class="status-pulse-dot"></span> Conectado</span>
               </div>
               
               <div>
@@ -1977,7 +1977,7 @@
 
               <div class="cloud-metric-row" style="margin-top:0.8rem;">
                 <span class="cloud-metric-label"><i class="fa-solid fa-user-check" style="color:var(--cyan);"></i> Conta Conectada</span>
-                <span class="cloud-metric-val" id="gdrive-account" style="font-size:0.8rem; font-weight:600; color:#fff;">sistemagithub@gmail.com</span>
+                <span class="cloud-metric-val" id="gdrive-account" style="font-size:0.8rem; font-weight:600; color:var(--text-primary);">sistemagithub@gmail.com</span>
               </div>
               <div class="cloud-metric-row">
                 <span class="cloud-metric-label"><i class="fa-solid fa-folder-closed" style="color:var(--amber);"></i> ID da Pasta Remota</span>
@@ -1997,10 +1997,10 @@
               </div>
 
               <div style="margin-top: 1.25rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                <a href="https://drive.google.com/drive/folders/1IH2cWAAtNLuUfzeaVpDmv4pn6p3AQozQ" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm" style="flex: 1; justify-content: center; gap: 0.5rem; background: #0284c7;">
+                <a href="https://drive.google.com/drive/folders/1IH2cWAAtNLuUfzeaVpDmv4pn6p3AQozQ" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm" style="flex: 1; justify-content: center; gap: 0.5rem;">
                   <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir Pasta no Google Drive
                 </a>
-                <button class="btn btn-outline btn-sm" onclick="syncGoogleDriveNow()" style="border-color: var(--glass-border); color: #fff;">
+                <button class="btn btn-outline btn-sm" onclick="syncGoogleDriveNow()" >
                   <i class="fa-solid fa-rotate"></i> Sincronizar
                 </button>
               </div>
@@ -2010,7 +2010,7 @@
             <div class="card" style="grid-column: 1 / -1;">
               <div class="card-header">
                 <div style="display:flex; align-items:center; gap:0.6rem;">
-                  <div style="width:36px; height:36px; border-radius:var(--r-md); background:rgba(52,211,153,0.15); color:var(--green); display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
+                  <div style="width:34px; height:34px; border-radius:var(--radius); background:var(--bg-subtle); color:var(--accent); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
                     <i class="fa-solid fa-satellite-dish"></i>
                   </div>
                   <div>
@@ -2022,15 +2022,15 @@
               </div>
 
               <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:1rem; margin-top:0.5rem;">
-                <div style="background:rgba(255,255,255,0.025); border:1px solid var(--border); padding:1rem; border-radius:var(--r-md);">
+                <div style="background:var(--bg-subtle); border:1px solid var(--border); padding:1rem; border-radius:var(--radius);">
                   <div style="color:var(--green); font-weight:700; font-size:0.85rem; margin-bottom:0.3rem;"><i class="fa-solid fa-signal-stream"></i> 1. Pré-Carga na Base</div>
                   <p style="font-size:0.78rem; color:var(--text-secondary); line-height:1.5;">O pesquisador sincroniza o questionário via Wi-Fi no escritório antes de partir para a rota.</p>
                 </div>
-                <div style="background:rgba(255,255,255,0.025); border:1px solid var(--border); padding:1rem; border-radius:var(--r-md);">
+                <div style="background:var(--bg-subtle); border:1px solid var(--border); padding:1rem; border-radius:var(--radius);">
                   <div style="color:var(--accent); font-weight:700; font-size:0.85rem; margin-bottom:0.3rem;"><i class="fa-solid fa-location-dot"></i> 2. Coleta Offline em Campo</div>
                   <p style="font-size:0.78rem; color:var(--text-secondary); line-height:1.5;">No campo, fotos, áudios e posições GPS por satélite são gravados no banco local seguro do smartphone.</p>
                 </div>
-                <div style="background:rgba(255,255,255,0.025); border:1px solid var(--border); padding:1rem; border-radius:var(--r-md);">
+                <div style="background:var(--bg-subtle); border:1px solid var(--border); padding:1rem; border-radius:var(--radius);">
                   <div style="color:var(--indigo); font-weight:700; font-size:0.85rem; margin-bottom:0.3rem;"><i class="fa-solid fa-cloud-arrow-up"></i> 3. Despejo e Nuvem</div>
                   <p style="font-size:0.78rem; color:var(--text-secondary); line-height:1.5;">Ao detectar internet ou via Pen Drive físico, todos os dados são descarregados e arquivados no Google Drive.</p>
                 </div>
@@ -2049,7 +2049,7 @@
             <p class="page-subtitle">Tabulação Cruzada Multivariada, Auditoria Forense Antifraude, Governança LGPD e Gestão de SLA 99.9%.</p>
           </div>
           <div style="display:flex; align-items:center; gap:0.5rem;">
-            <span class="badge" style=" color:#fff; font-size:0.75rem; padding:6px 14px; font-weight:700; border-radius:999px; ">
+            <span class="badge" style="background:var(--bg-subtle); color:var(--text-secondary); border:1px solid var(--border); font-size:0.75rem; padding:4px 10px; border-radius:var(--radius);">
               <i class="fa-solid fa-shield-halved" style="color: var(--accent);"></i> Módulo de Estatística & Auditoria
             </span>
           </div>
@@ -2116,7 +2116,7 @@
               </div>
               <div class="stat-card">
                 <div class="stat-label">Margem de Erro (95% Conf.)</div>
-                <div class="stat-num" id="exec-crosstab-me" style="color:#10b981;">±0.0%</div>
+                <div class="stat-num" id="exec-crosstab-me" >±0.0%</div>
               </div>
               <div class="stat-card">
                 <div class="stat-label">Teste Qui-Quadrado (χ²)</div>
@@ -2124,7 +2124,7 @@
               </div>
               <div class="stat-card">
                 <div class="stat-label">Significância Estatística</div>
-                <div class="stat-num" id="exec-crosstab-sig" style="font-size:1.1rem; color:#f59e0b; margin-top:0.6rem;">p &lt; 0.05</div>
+                <div class="stat-num" id="exec-crosstab-sig" style="font-size:1.1rem; font-weight:600; color:var(--text-primary); margin-top:0.6rem;">p &lt; 0.05</div>
               </div>
             </div>
 
@@ -2161,9 +2161,9 @@
             <!-- Forensic Summary Grid -->
             <div id="exec-forensic-results" style="display:none;">
               <div class="stats-grid" style="margin-bottom: 1.5rem;">
-                <div class="stat-card" style="border-left: 4px solid #10b981;">
+                <div class="stat-card" >
                   <div class="stat-label">Índice de Confiabilidade (Trust Score)</div>
-                  <div class="stat-num" id="exec-forensic-trust-score" style="color:#10b981;">0%</div>
+                  <div class="stat-num" id="exec-forensic-trust-score" >0%</div>
                 </div>
                 <div class="stat-card">
                   <div class="stat-label">Total de Questionários</div>
@@ -2175,7 +2175,7 @@
                 </div>
                 <div class="stat-card">
                   <div class="stat-label">Sinalizadas para Expurgo</div>
-                  <div class="stat-num" id="exec-forensic-flagged" style="color:#ef4444;">0</div>
+                  <div class="stat-num" id="exec-forensic-flagged" style="color:var(--status-rejected-text);">0</div>
                 </div>
               </div>
 
@@ -2183,7 +2183,7 @@
               <div class="card" style="margin-bottom: 1.5rem;">
                 <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1rem;">
                   <div style="display:flex; align-items:center; gap:0.75rem;">
-                    <div style="width:42px; height:42px; border-radius:50%; background:rgba(56,189,248,0.15); color:var(--cyan); display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
+                    <div style="width:38px; height:38px; border-radius:50%; background:var(--bg-subtle); color:var(--accent); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
                       <i class="fa-solid fa-stamp"></i>
                     </div>
                     <div>
@@ -2255,7 +2255,7 @@
                 </div>
               </div>
               <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:var(--r-md); padding:1.25rem; margin-bottom:1.5rem;">
-                <h4 style="color:#fff; font-size:0.95rem; margin-bottom:0.5rem;"><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--cyan);"></i> Sanitização e Ofuscação em 1-Clique</h4>
+                <h4 style="color:var(--text-primary); font-size:0.95rem; margin-bottom:0.5rem;"><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--cyan);"></i> Sanitização e Ofuscação em 1-Clique</h4>
                 <p style="font-size:0.83rem; color:var(--text-secondary); line-height:1.6; margin-bottom:1rem;">
                   Ao fornecer dados brutos para analistas externos, estatísticos ou relatórios públicos, execute a anonimização. O sistema ofusca nomes, CPFs, números de telefone, converte o identificador de dispositivo em anônimo e arredonda coordenadas GPS para uma margem difusa segura (~1.1 km), preservando a distribuição estatística.
                 </p>
@@ -2271,9 +2271,9 @@
           <!-- TAB 5: SLA 99.9% & VIP SUPPORT -->
           <div class="exec-tab-content" id="exec-tab-sla" style="display:none;">
             <div class="stats-grid" style="margin-bottom: 1.5rem;">
-              <div class="stat-card" style="border-left:4px solid #10b981;">
+              <div class="stat-card" >
                 <div class="stat-label">Disponibilidade Apurada (SLA)</div>
-                <div class="stat-num" id="exec-sla-current" style="color:#10b981;">99.98%</div>
+                <div class="stat-num" id="exec-sla-current" >99.98%</div>
                 <span style="font-size:0.7rem; color:var(--text-muted);">Meta Contratual: 99.90%</span>
               </div>
               <div class="stat-card">
@@ -2286,7 +2286,7 @@
               </div>
               <div class="stat-card">
                 <div class="stat-label">Status dos Serviços</div>
-                <div class="stat-num" id="exec-sla-status" style="font-size:1.1rem; color:#10b981; margin-top:0.6rem;"><i class="fa-solid fa-circle-check"></i> OPERACIONAL</div>
+                <div class="stat-num" id="exec-sla-status" style="font-size:1.1rem; font-weight:600; color:var(--text-primary); margin-top:0.6rem;"><i class="fa-solid fa-circle-check"></i> OPERACIONAL</div>
               </div>
             </div>
 

@@ -543,7 +543,7 @@ function renderDashboard() {
     grid.innerHTML = `
       <div style="text-align:center; padding: 4rem 2rem; background: var(--bg-card); border-radius: var(--radius-lg); border: 1px dashed var(--glass-border);">
         <i class="fa-solid fa-folder-open" style="font-size: 2.5rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
-        <h3 style="font-size: 1.15rem; color: #fff; margin-bottom: 0.5rem;">Nenhum projeto encontrado</h3>
+        <h3 style="font-size: 1.15rem; color: var(--text-primary); margin-bottom: 0.5rem; font-weight: 600;">Nenhum projeto encontrado</h3>
         <p style="color: var(--text-secondary); font-size: 0.85rem; max-width: 400px; margin: 0 auto 1.5rem auto;">Crie um novo questionário ou ajuste os filtros de busca para visualizar seus projetos.</p>
         <button class="btn btn-primary" onclick="switchTab('view-form-builder'); newForm();"><i class="fa-solid fa-plus"></i> Criar Novo Projeto</button>
       </div>`;
@@ -819,7 +819,7 @@ async function renderQuotasProgress(formId) {
             <strong>${q.question_id}: ${q.target_value}</strong>
             <span>${q.count} / ${q.limit} (${pct}%)</span>
           </div>
-          <div style="width:100%; height:8px; background:rgba(255,255,255,0.08); border-radius:4px; overflow:hidden;">
+          <div style="width:100%; height:8px; background:var(--border); border-radius:2px; overflow:hidden;">
             <div style="height:100%; width:${pct}%; background:${color}; border-radius:4px;"></div>
           </div>
         </div>
@@ -1016,7 +1016,7 @@ function renderMapMarkers() {
       <div style="font-family:'Plus Jakarta Sans',sans-serif; min-width:220px; color:#f8fafc;">
         <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem; padding-bottom:0.4rem; border-bottom:1px solid rgba(255,255,255,0.1);">
           <div style="width:10px; height:10px; border-radius:50%; background:${color};"></div>
-          <strong style="font-size:0.95rem; color:#fff;">${formTitle}</strong>
+          <strong style="font-size:0.95rem; color:var(--text-primary); font-weight: 600;">${formTitle}</strong>
         </div>
         <div style="font-size:0.8rem; color:#94a3b8; line-height:1.6;">
           <div><i class="fa-solid fa-user" style="color:${color}; width:16px;"></i> <b>Pesquisador:</b> ${researcherName}</div>
@@ -1808,7 +1808,7 @@ function renderBuilderQuestions() {
       optionsHtml += `
         <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.4rem;">
           <div class="sys-add-choice" onclick="addOption(${idx})" title="Adicionar Opção" style="flex:1;">+ Adicionar nova opção...</div>
-          <button type="button" class="btn btn-sm btn-outline" onclick="openBatchOptionsModal(${idx})" title="Colar Lista de Opções (Candidatos, Bairros, etc.)" style="padding:0.25rem 0.65rem; font-size:0.75rem; border-color:var(--border-cyan); color:var(--cyan); white-space:nowrap; background:rgba(6,182,212,0.06);">
+          <button type="button" class="btn btn-sm btn-outline" onclick="openBatchOptionsModal(${idx})" title="Colar Lista em Lote"><i class="fa-solid fa-list-check"></i> Opções em Lote</button>
             <i class="fa-solid fa-list-check"></i> + Colar Lista
           </button>
         </div>
@@ -2848,7 +2848,7 @@ window.renderProjectVersionsTab = async function(formId) {
           
           rowsHtml += `
             <tr>
-              <td><span style="font-weight:700; color:#38bdf8;">Versão ${v} (V${v})</span> ${isCurrent ? '<span style="font-size:0.75rem; color:#10b981; margin-left:4px;">(Atual)</span>' : ''}</td>
+              <td><span style="font-weight:600; color:var(--text-primary);">Versão ${v} (V${v})</span> ${isCurrent ? '<span style="font-size:0.75rem; color:#10b981; margin-left:4px;">(Atual)</span>' : ''}</td>
               <td>${statusPill}</td>
               <td>${qCount} perguntas</td>
               <td><span style="font-weight:700; color:${vCount > 0 ? '#10b981' : 'var(--text-muted)'};">${vCount} entrevistas</span></td>
@@ -3105,8 +3105,8 @@ function renderMobileScreen() {
   const now = new Date();
   const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
   header.innerHTML = `
-    <div style="font-weight: 700; font-size: 0.8rem; color: #fff; letter-spacing: -0.2px;">${timeStr}</div>
-    <div style="display: flex; align-items: center; gap: 7px; font-size: 0.72rem; color: #fff;">
+    <div style="font-weight: 600; font-size: 0.8rem; color: var(--text-primary); letter-spacing: -0.2px;">${timeStr}</div>
+    <div style="display: flex; align-items: center; gap: 7px; font-size: 0.72rem; color: var(--text-secondary);">
       <i class="fa-solid fa-signal" style="font-size: 0.65rem;"></i>
       <i class="fa-solid fa-wifi" style="font-size: 0.65rem;"></i>
       <div style="display: flex; align-items: center; gap: 3px;">
@@ -3125,13 +3125,13 @@ function renderMobileScreen() {
     screen.innerHTML = `
       <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:1rem;">
         <div style="text-align:center;margin-bottom:1.5rem;">
-          <div style="width:60px;height:60px;background:rgba(56,189,248,0.15);border:1px solid rgba(56,189,248,0.3);border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem auto;font-size:1.8rem;color:var(--primary);box-shadow:0 0 20px rgba(56,189,248,0.2);">
+          <div style="width:52px;height:52px;background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem auto;font-size:1.5rem;color:var(--accent);">
             <i class="fa-solid fa-mobile-screen"></i>
           </div>
-          <h4 style="font-size:1.15rem;font-weight:700;color:#fff;margin-bottom:0.3rem;">ODK Collect Preview</h4>
+          <h4 style="font-size:1.15rem;font-weight:600;color:var(--text-primary);margin-bottom:0.3rem;">ODK Collect Preview</h4>
           <p style="font-size:0.78rem;color:var(--text-secondary);margin:0;">Simule a experiência do pesquisador em campo no Android.</p>
         </div>
-        <select class="form-select" id="sim-select-form" style="margin-bottom:1rem;background:#090e1a;color:#fff;">${opts}</select>
+        <select class="form-select" id="sim-select-form" style="margin-bottom:1rem;background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border);">${opts}</select>
         <button class="btn btn-primary" style="width:100%;padding:0.75rem;font-weight:700;justify-content:center;gap:0.5rem;" onclick="simStartInterview()"><i class="fa-solid fa-play"></i> Iniciar Coleta Simulada</button>
         ${warn}
       </div>`;
@@ -3144,14 +3144,14 @@ function renderMobileScreen() {
       const q = qList[ci];
       const isLast = ci === qList.length - 1;
       let inputHtml = '';
-      if (q.type === 'text') inputHtml = `<input type="text" id="sim-ans-${q.id}" class="form-input" style="margin-top:0.75rem; background:#070b14; color:#fff;" value="${state.simAnswers[q.id]||''}" placeholder="Digite a resposta..." />`;
-      else if (q.type === 'number' || q.type === 'integer' || q.type === 'decimal') inputHtml = `<input type="number" id="sim-ans-${q.id}" class="form-input" style="margin-top:0.75rem; background:#070b14; color:#fff;" value="${state.simAnswers[q.id]||''}" ${q.type==='integer'?'step="1"':''} placeholder="Digite um valor numérico..." />`;
+      if (q.type === 'text') inputHtml = `<input type="text" id="sim-ans-${q.id}" class="form-input" style="margin-top:0.75rem; background:var(--bg-input); color:var(--text-primary); border:1px solid var(--border);" value="${state.simAnswers[q.id]||''}" placeholder="Digite a resposta..." />`;
+      else if (q.type === 'number' || q.type === 'integer' || q.type === 'decimal') inputHtml = `<input type="number" id="sim-ans-${q.id}" class="form-input" style="margin-top:0.75rem; background:var(--bg-input); color:var(--text-primary); border:1px solid var(--border);" value="${state.simAnswers[q.id]||''}" ${q.type==='integer'?'step="1"':''} placeholder="Digite um valor numérico..." />`;
       else if (q.type === 'single_choice' || q.type === 'select_one') {
         inputHtml = '<div style="margin-top:0.75rem; display:flex; flex-direction:column; gap:0.5rem;">';
         if(q.options) q.options.forEach(opt => { 
           const val = typeof opt==='object'?opt.label:opt; 
           const chk = state.simAnswers[q.id]===val?'checked':''; 
-          inputHtml += `<label style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1rem;background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);border-radius:10px;font-size:0.88rem;color:#f8fafc;cursor:pointer;transition:all 0.2s;"><input type="radio" name="sim-rad-${q.id}" value="${val}" ${chk} style="accent-color:var(--primary);transform:scale(1.2);" /> ${val}</label>`; 
+          inputHtml += `<label style="display:flex;align-items:center;gap:0.75rem;padding:0.65rem 0.9rem;background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--radius);font-size:0.85rem;color:var(--text-primary);cursor:pointer;"><input type="radio" name="sim-rad-${q.id}" value="${val}" ${chk} style="accent-color:var(--primary);transform:scale(1.2);" /> ${val}</label>`; 
         });
         inputHtml += '</div>';
       } else if (q.type === 'multiple_choice' || q.type === 'select_multiple') {
@@ -3160,13 +3160,13 @@ function renderMobileScreen() {
         if(q.options) q.options.forEach(opt => { 
           const val = typeof opt==='object'?opt.label:opt; 
           const chk = arr.includes(val)?'checked':''; 
-          inputHtml += `<label style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1rem;background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);border-radius:10px;font-size:0.88rem;color:#f8fafc;cursor:pointer;transition:all 0.2s;"><input type="checkbox" name="sim-chk-${q.id}" value="${val}" ${chk} style="accent-color:var(--primary);transform:scale(1.2);" /> ${val}</label>`; 
+          inputHtml += `<label style="display:flex;align-items:center;gap:0.75rem;padding:0.65rem 0.9rem;background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--radius);font-size:0.85rem;color:var(--text-primary);cursor:pointer;"><input type="checkbox" name="sim-chk-${q.id}" value="${val}" ${chk} style="accent-color:var(--primary);transform:scale(1.2);" /> ${val}</label>`; 
         });
         inputHtml += '</div>';
       } else if (q.type === 'geopoint') {
         const val = state.simAnswers[q.id] || '';
         inputHtml = `
-          <div style="margin-top:0.75rem;padding:1.25rem;background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);border-radius:12px;text-align:center;">
+          <div style="margin-top:0.75rem;padding:1.25rem;background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--radius);text-align:center;">
             <i class="fa-solid fa-location-dot" style="font-size:2rem;color:var(--primary);margin-bottom:0.6rem;display:block;"></i>
             <div style="display:flex; flex-direction:column; gap:0.5rem;">
               <button type="button" class="btn btn-sm btn-primary" onclick="simCaptureRealGps('${q.id}')" style="justify-content:center; gap:0.4rem;">
@@ -3186,7 +3186,7 @@ function renderMobileScreen() {
       } else if (q.type === 'image' || q.type === 'video') {
         const val = state.simAnswers[q.id] || '';
         const icon = q.type === 'image' ? 'fa-camera' : 'fa-video';
-        inputHtml = `<div style="margin-top:0.75rem;padding:1.25rem;background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);border-radius:12px;text-align:center;"><i class="fa-solid ${icon}" style="font-size:2rem;color:var(--primary);margin-bottom:0.6rem;display:block;"></i><input type="hidden" id="sim-ans-${q.id}" value="${val?val:'midia_capturada.jpg'}"><button class="btn btn-sm btn-outline" onclick="document.getElementById('sim-ans-${q.id}').value='arquivo_simulado.${q.type==='video'?'mp4':'jpg'}';this.innerHTML='<i class=\\'fa-solid fa-check\\'></i> Anexo Confirmado';this.classList.add('btn-success');"><i class="fa-solid fa-paperclip"></i> Capturar ou Anexar Mídia</button>${val?'<div style="font-size:0.75rem;margin-top:0.5rem;color:var(--success);font-weight:600;"><i class="fa-solid fa-check"></i> Arquivo anexado</div>':''}</div>`;
+        inputHtml = `<div style="margin-top:0.75rem;padding:1.25rem;background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--radius);text-align:center;"><i class="fa-solid ${icon}" style="font-size:2rem;color:var(--primary);margin-bottom:0.6rem;display:block;"></i><input type="hidden" id="sim-ans-${q.id}" value="${val?val:'midia_capturada.jpg'}"><button class="btn btn-sm btn-outline" onclick="document.getElementById('sim-ans-${q.id}').value='arquivo_simulado.${q.type==='video'?'mp4':'jpg'}';this.innerHTML='<i class=\\'fa-solid fa-check\\'></i> Anexo Confirmado';this.classList.add('btn-success');"><i class="fa-solid fa-paperclip"></i> Capturar ou Anexar Mídia</button>${val?'<div style="font-size:0.75rem;margin-top:0.5rem;color:var(--success);font-weight:600;"><i class="fa-solid fa-check"></i> Arquivo anexado</div>':''}</div>`;
       } else if (q.type === 'audio_record' || q.type === 'audio') {
         const isRec = state.simIsRecording;
         inputHtml = `
@@ -3246,7 +3246,7 @@ function renderMobileScreen() {
       screen.innerHTML = `
         <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:0.75rem;text-align:center;">
           <i class="fa-solid fa-circle-check" style="font-size:3rem;color:var(--success);margin-bottom:0.75rem;"></i>
-          <h3 style="margin-bottom:0.3rem; color:#fff;">Entrevista Concluída!</h3>
+          <h3 style="margin-bottom:0.3rem; color:var(--text-primary); font-weight:600;">Entrevista Concluída!</h3>
           <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:1rem;">Todas as validações e lógicas de pulo foram aprovadas.</p>
           <div style="background:var(--bg-page);padding:0.75rem;border-radius:8px;margin-bottom:1rem;font-size:0.75rem;text-align:left;max-height:140px;overflow-y:auto; border:1px solid var(--border);">
             ${Object.entries(state.simAnswers).map(([k,v])=>`<div><strong style="color:var(--cyan);">${k}:</strong> ${Array.isArray(v)?v.join(', '):v}</div>`).join('')}
@@ -3963,7 +3963,7 @@ window.openOdkPairingModal = function(userId) {
     qrContainer.innerHTML = `
       <div style="text-align:center;">
         <div style="width:160px; height:160px; background:#000; padding:10px; border-radius:8px; margin:0 auto; display:flex; align-items:center; justify-content:center;">
-          <i class="fa-solid fa-qrcode" style="font-size:7.5rem; color:#fff;"></i>
+          <i class="fa-solid fa-qrcode" style="font-size:7.5rem; color:var(--text-primary);"></i>
         </div>
         <div style="font-size:0.75rem; color:#333; font-weight:700; margin-top:8px;">
           ODK // ${u ? u.id : 'COLLECT'}
@@ -5293,7 +5293,7 @@ window.runExecCrossTab = async function() {
 
     let bodyHtml = '';
     res.rowCategories.forEach(row => {
-      bodyHtml += `<tr><td style="font-weight:700; color:#fff;">${row}</td>`;
+      bodyHtml += `<tr><td style="font-weight:600; color:var(--text-primary);">${row}</td>`;
       res.colCategories.forEach(col => {
         const cell = res.cells[row][col] || { count: 0, rowPct: 0, colPct: 0 };
         // Determine heatmap intensity class (0-4)
@@ -6396,25 +6396,25 @@ ${body}  </h:body>
         <button class="btn-icon" onclick="document.getElementById('odk-test-modal').classList.remove('active')">&times;</button>
       </div>
 
-      <div style="background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:1rem; margin:1rem 0;">
+      <div style="background:var(--bg-surface); border:1px solid var(--border); border-radius:var(--radius); padding:1rem; margin:1rem 0;">
         <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
           <i class="fa-solid ${statusIcon}" style="color:${statusColor}; font-size:1.6rem;"></i>
           <div>
-            <h4 style="margin:0; font-size:1.05rem; color:#fff;">${statusTitle}</h4>
+            <h4 style="margin:0; font-size:1.05rem; color:var(--text-primary); font-weight:600;">${statusTitle}</h4>
             <p style="margin:0.2rem 0 0 0; font-size:0.8rem; color:#94a3b8;">Motor de Validação OpenRosa 1.0 (Padrão ODK Collect / KoboToolbox / JavaRosa)</p>
           </div>
         </div>
 
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:0.6rem; margin-top:0.75rem;">
-          <div style="background:rgba(255,255,255,0.04); padding:0.6rem 0.8rem; border-radius:6px; border:1px solid rgba(255,255,255,0.06);">
+          <div style="background:var(--bg-subtle); padding:0.6rem 0.8rem; border-radius:var(--radius); border:1px solid var(--border);">
             <div style="font-size:0.7rem; color:#94a3b8;">Total de Perguntas</div>
-            <div style="font-size:1.15rem; font-weight:700; color:#fff;">${result.totalQuestions}</div>
+            <div style="font-size:1.15rem; font-weight:700; color:var(--text-primary);">${result.totalQuestions}</div>
           </div>
-          <div style="background:rgba(255,255,255,0.04); padding:0.6rem 0.8rem; border-radius:6px; border:1px solid rgba(255,255,255,0.06);">
+          <div style="background:var(--bg-subtle); padding:0.6rem 0.8rem; border-radius:var(--radius); border:1px solid var(--border);">
             <div style="font-size:0.7rem; color:#94a3b8;">Esquema XML XForms</div>
             <div style="font-size:0.95rem; font-weight:700; color:#34d399;">✓ Válido (OpenRosa)</div>
           </div>
-          <div style="background:rgba(255,255,255,0.04); padding:0.6rem 0.8rem; border-radius:6px; border:1px solid rgba(255,255,255,0.06);">
+          <div style="background:var(--bg-subtle); padding:0.6rem 0.8rem; border-radius:var(--radius); border:1px solid var(--border);">
             <div style="font-size:0.7rem; color:#94a3b8;">Trava de IDs Únicos</div>
             <div style="font-size:0.95rem; font-weight:700; color:${result.errors.length === 0 ? '#34d399' : '#f87171'};">
               ${result.errors.length === 0 ? '✓ Sem Duplicatas' : '⚠️ Erros de ID'}
@@ -6428,7 +6428,7 @@ ${body}  </h:body>
         <button class="btn btn-xs btn-outline" onclick="copyXmlCodeFromText(document.getElementById('odk-test-xml-code').textContent)"><i class="fa-solid fa-copy"></i> Copiar XML</button>
       </div>
 
-      <pre id="odk-test-xml-code" style="background:#040711; color:#38bdf8; padding:1rem; border-radius:8px; border:1px solid rgba(56,189,248,0.25); max-height:260px; overflow:auto; font-size:0.75rem; font-family:var(--mono); user-select:all;">${escapeHtmlTag(xmlContent)}</pre>
+      <pre id="odk-test-xml-code" style="background:var(--bg-card); color:var(--text-primary); padding:1rem; border-radius:var(--radius); border:1px solid var(--border); max-height:260px; overflow:auto; font-size:0.75rem; font-family:var(--font-mono); user-select:all;">${escapeHtmlTag(xmlContent)}</pre>
 
       <div class="modal-actions" style="margin-top:1.25rem; display:flex; justify-content:space-between; align-items:center;">
         ${!result.isValid ? `<button class="btn btn-primary btn-sm" onclick="document.getElementById('odk-test-modal').classList.remove('active'); autoFixFormIssues();"><i class="fa-solid fa-wand-magic-sparkles"></i> Corrigir Problemas</button>` : `<div></div>`}
