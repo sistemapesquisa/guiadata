@@ -4,7 +4,7 @@
  * and PWA installability.
  */
 
-const CACHE_NAME = 'guiadata-v3.6.0-enterprise';
+const CACHE_NAME = 'guiadata-v6.0.0-pro';
 const PRECACHE_ASSETS = [
   '/',
   '/index.html',

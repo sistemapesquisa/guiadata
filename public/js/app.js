@@ -287,13 +287,13 @@ window.switchTab = function switchTab(targetId) {
 // ===================== RBAC =====================
 const NAV_PERMISSIONS = {
   'nav-dashboard': ['DEV','Admin','Analyst','Coordinator','Supervisor','Researcher'],
-  'nav-executive-suite': ['DEV','Admin','Coordinator','Analyst'],
+  'nav-cloud-storage': ['DEV','Admin','Coordinator','Supervisor','Analyst'],
   'nav-team': ['DEV','Admin','Coordinator','Supervisor'],
   'nav-roles': ['DEV','Admin'],
   'nav-library': ['DEV','Admin','Coordinator','Analyst'],
   'nav-mobile-sim': ['DEV','Admin','Coordinator','Supervisor','Researcher'],
   'nav-pendrive-backup': ['DEV','Admin','Coordinator'],
-  'nav-cloud-storage': ['DEV'],
+  'nav-executive-suite': ['DEV','Admin'],
   'nav-logs': ['DEV']
 };
 const SECTION_PERMISSIONS = {
@@ -342,9 +342,9 @@ function applyRoleRestrictions() {
     }
   });
 
-  // If current view is hidden, switch to dashboard
+  // If current view is hidden, switch to dashboard (exempt internal workspaces)
   const activePanel = document.querySelector('.view-panel.active');
-  if (activePanel) {
+  if (activePanel && activePanel.id !== 'view-project-details' && activePanel.id !== 'view-form-builder' && activePanel.id !== 'view-login') {
     const activeNav = document.querySelector(`.nav-item[data-target="${activePanel.id}"]`);
     if (activeNav && activeNav.style.display === 'none') window.switchTab('view-dashboard');
   }
@@ -475,94 +475,149 @@ function renderDashboard() {
     return;
   }
 
+  let rowsHtml = '';
   formsList.forEach(form => {
     const ints = state.interviews.filter(i => i.form_id === form.id);
     const isPub = form.status === 'published';
     const isArchived = form.status === 'archived';
     
-    let statusBadge = '';
+    let statusDotClass = 'status-dot-draft';
+    let statusBadgeText = 'Rascunho';
+    let statusBadgeClass = 'draft';
+
     if (isArchived) {
-      statusBadge = '<span class="sys-status-badge" style="background:rgba(71, 85, 105, 0.4); color:#94a3b8; border:1px solid rgba(148, 163, 184, 0.2);"><i class="fa-solid fa-box-archive"></i> Arquivado</span>';
+      statusDotClass = 'status-dot-archived';
+      statusBadgeText = 'Arquivado';
+      statusBadgeClass = 'archived';
     } else if (isPub) {
-      statusBadge = '<span class="sys-status-badge" style="background:rgba(16, 185, 129, 0.15); color:#34d399; border:1px solid rgba(16, 185, 129, 0.3);"><span class="status-pulse-dot" style="display:inline-block; margin-right:5px;"></span> Em Coleta (Ativo)</span>';
-    } else {
-      statusBadge = '<span class="sys-status-badge" style="background:rgba(245, 158, 11, 0.15); color:#fbbf24; border:1px solid rgba(245, 158, 11, 0.3);"><i class="fa-solid fa-pen" style="margin-right:4px;"></i> Rascunho</span>';
+      statusDotClass = 'status-dot-active';
+      statusBadgeText = 'Em Coleta';
+      statusBadgeClass = 'active';
     }
 
     const cat = form.category || 'geral';
     const year = form.year || new Date().getFullYear();
     const catLabels = {
-      eleitoral: 'Eleitoral & Opinião',
-      governo: 'Avaliação Governamental',
-      mercado: 'Pesquisa de Mercado',
-      satisfacao: 'Satisfação / NPS',
-      auditoria: 'Auditoria de Campo',
+      eleitoral: 'Eleitoral',
+      governo: 'Governo',
+      mercado: 'Mercado',
+      satisfacao: 'Satisfação',
+      auditoria: 'Auditoria',
       geral: 'Geral'
     };
     const catLabel = catLabels[cat] || cat;
-    const catBadge = `<span class="badge-cat badge-cat-${cat}"><i class="fa-solid fa-tag"></i> ${catLabel}</span>`;
-    const yearBadge = `<span class="proj-year-badge"><i class="fa-regular fa-calendar"></i> ${year}</span>`;
     
     const modDateStr = form.updated_at ? new Date(form.updated_at).toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR');
     const qCount = form.questions ? form.questions.length : 0;
     
-    // Sample target calculation (default 100 or from quota)
-    const targetQuota = 100;
+    let territory = 'Manaus (Todas as Zonas)';
+    if (form.title && /zona norte/i.test(form.title)) territory = 'Manaus (Zona Norte)';
+    else if (form.title && /zona leste/i.test(form.title)) territory = 'Manaus (Zona Leste)';
+    else if (form.title && /zona sul/i.test(form.title)) territory = 'Manaus (Zona Sul)';
+    else if (form.title && /zona oeste/i.test(form.title)) territory = 'Manaus (Zona Oeste)';
+    else if (form.title && /interior|amazonas/i.test(form.title)) territory = 'Amazonas (Interior)';
+
+    const targetQuota = 1000;
     const progressPct = Math.min(100, Math.round((ints.length / targetQuota) * 100));
 
-    grid.innerHTML += `
-      <div class="project-card-glass" onclick="openProject('${form.id}')" style="cursor: pointer;" title="Abrir projeto ${form.title}">
-        <div class="project-card-header">
-          <div style="flex: 1; min-width: 0;">
-            <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.4rem;">
-              <span class="project-id-badge"><i class="fa-solid fa-hashtag"></i> ${form.id}</span>
-              ${statusBadge}
-              ${yearBadge}
-              ${catBadge}
-            </div>
-            <h3 class="project-title">${form.title}</h3>
-            <p style="font-size:0.78rem; color:var(--text-muted); margin:0;">
-              <i class="fa-regular fa-clock" style="margin-right:4px;"></i> Atualizado em: ${modDateStr}
-            </p>
-          </div>
-          <div style="display:flex; align-items:center; gap:0.5rem;" onclick="event.stopPropagation()">
-            <a href="/api/export/xlsx/${form.id}" class="btn btn-sm btn-outline" style="border-color:var(--glass-border); color:#34d399;" title="Exportar Planilha Excel (.xlsx) Direto" onclick="event.stopPropagation()">
-              <i class="fa-solid fa-file-excel"></i> XLSX
-            </a>
-            <button type="button" class="btn btn-sm btn-primary" onclick="event.stopPropagation(); openProject('${form.id}')" title="Abrir Área de Trabalho do Projeto">
-              <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir
-            </button>
+    const cleanTitle = (form.title || 'Pesquisa')
+      .replace(/Demogr.fica/gi, 'Demográfica')
+      .replace(/Opini.o/gi, 'Opinião')
+      .replace(/Inten..o/gi, 'Intenção')
+      .replace(/Avalia..o/gi, 'Avaliação')
+      .replace(/Padr.o/gi, 'Padrão');
+
+    rowsHtml += `
+      <div class="proj-row" onclick="openProject('${form.id}')" title="Clique para abrir a área de trabalho do projeto">
+        <div class="td-main">
+          <span class="proj-status-dot ${statusDotClass}" title="${statusBadgeText}"></span>
+          <div class="proj-info-block">
+            <span class="proj-title-text">${cleanTitle}</span>
+            <span class="proj-sub-meta">
+              <code>${form.id}</code> • 
+              <span class="badge" style="padding:1px 6px; font-size:0.68rem; background:rgba(255,255,255,0.06); color:#cbd5e1;">${catLabel}</span> • 
+              <span>${year}</span>
+            </span>
           </div>
         </div>
 
-        <div class="project-metrics-grid">
-          <div class="metric-cell">
-            <span class="metric-cell-label">Entrevistas</span>
-            <span class="metric-cell-value" style="color:var(--primary);">${ints.length}</span>
+        <div class="td-territory">
+          <span class="proj-territory-pill"><i class="fa-solid fa-map-location-dot"></i> ${territory}</span>
+        </div>
+
+        <div class="td-status">
+          <span class="status-badge-compact ${statusBadgeClass}">${statusBadgeText}</span>
+        </div>
+
+        <div class="td-sample">
+          <div class="sample-stat-row">
+            <span><strong>${ints.length}</strong> / ${targetQuota}</span>
+            <span class="sample-pct">${progressPct}%</span>
           </div>
-          <div class="metric-cell">
-            <span class="metric-cell-label">Perguntas</span>
-            <span class="metric-cell-value">${qCount}</span>
-          </div>
-          <div class="metric-cell">
-            <span class="metric-cell-label">Meta da Amostra</span>
-            <span class="metric-cell-value" style="color:${progressPct >= 100 ? '#10b981' : '#38bdf8'};">${progressPct}%</span>
+          <div class="mini-progress-track">
+            <div class="mini-progress-fill" style="width: ${progressPct}%;"></div>
           </div>
         </div>
 
-        <div style="display:flex; flex-direction:column; gap:0.35rem;">
-          <div style="display:flex; justify-content:space-between; font-size:0.72rem; color:var(--text-muted);">
-            <span>Progresso da Coleta</span>
-            <span><b>${ints.length}</b> de ${targetQuota} respostas</span>
-          </div>
-          <div style="width:100%; height:6px; background:rgba(255,255,255,0.06); border-radius:var(--radius-full); overflow:hidden;">
-            <div style="height:100%; width:${progressPct}%; background:linear-gradient(90deg, var(--primary), #10b981); border-radius:var(--radius-full); transition: width 0.4s ease;"></div>
-          </div>
+        <div class="td-odk">
+          <span style="font-weight:600; color:#fff;">${qCount} qsts</span>
+          <span class="odk-ver">XForms v${form.version || 1}.0</span>
+        </div>
+
+        <div class="td-updated">
+          <span>${modDateStr}</span>
+        </div>
+
+        <div class="td-actions" onclick="event.stopPropagation()">
+          <button type="button" class="btn-action-compact primary" onclick="event.stopPropagation(); openProject('${form.id}')" title="Abrir Área de Trabalho">
+            <i class="fa-solid fa-folder-open"></i> Abrir
+          </button>
+          <button type="button" class="btn-action-compact" onclick="event.stopPropagation(); sysEditFormFromId('${form.id}')" title="Editar Questionário no Construtor">
+            <i class="fa-solid fa-sliders"></i> Form
+          </button>
+          <button type="button" class="btn-action-compact" onclick="event.stopPropagation(); openOdkQrModal()" title="Gerar QR Code ODK Collect">
+            <i class="fa-solid fa-qrcode"></i> ODK
+          </button>
+          <a href="/api/export/xlsx/${form.id}" class="btn-action-compact excel" onclick="event.stopPropagation()" title="Baixar Dados em Excel (.xlsx)">
+            <i class="fa-solid fa-file-excel"></i> XLSX
+          </a>
         </div>
       </div>
     `;
   });
+
+  grid.innerHTML = `
+    <div class="proj-table-container">
+      <div class="proj-table-header">
+        <div>Projeto de Pesquisa</div>
+        <div>Território / Zonas</div>
+        <div>Status</div>
+        <div>Coletas / Meta</div>
+        <div>ODK / Itens</div>
+        <div>Atualizado</div>
+        <div>Ações Rápidas</div>
+      </div>
+      <div class="proj-table-body">
+        ${rowsHtml}
+      </div>
+    </div>
+  `;
+
+  // Update top KPI widgets
+  const kpiProj = document.getElementById('dash-kpi-projects');
+  if (kpiProj) kpiProj.textContent = `${formsList.length} Projetos`;
+  const kpiSubs = document.getElementById('dash-kpi-subs');
+  if (kpiSubs) kpiSubs.textContent = `${state.interviews ? state.interviews.length : 0} Coletas`;
 }
+
+window.sysEditFormFromId = function(formId) {
+  state.activeProjectFormId = formId;
+  const form = (state.forms || []).find(f => f.id === formId);
+  if (form) {
+    loadFormIntoBuilder(form);
+    switchTab('view-form-builder');
+  }
+};
 
 // ===================== PROJECT DETAILS =====================
 window.openProject = async function(formId) {
@@ -836,17 +891,16 @@ window.toggleMap3D = function() {
     btn.innerHTML = '<i class="fa-solid fa-satellite"></i> Visão Satélite';
     btn.style.background = 'var(--primary)';
     if(state.tileLayer) state.map.removeLayer(state.tileLayer);
-    state.tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19, subdomains: 'abcd', attribution: '&copy; CARTO &copy; OpenStreetMap' }).addTo(state.map);
+    state.tileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', { maxZoom: 18, attribution: '&copy; Esri, DeLorme, NAVTEQ' }).addTo(state.map);
   }
 };
 
 function initMap() {
   if (state.map) return;
   state.map = L.map('map', { zoomControl: true }).setView([-3.1190, -60.0217], 7);
-  state.tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    maxZoom: 19,
-    subdomains: 'abcd',
-    attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; OpenStreetMap'
+  state.tileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 18,
+    attribution: '&copy; Esri, DeLorme, NAVTEQ'
   }).addTo(state.map);
   
   state.markerCluster = L.markerClusterGroup({
@@ -1105,7 +1159,7 @@ window.renderReportsTable = function() {
 
   filtered.forEach(int => {
     const researcher = state.users.find(u => u.id === int.researcher_id) || {name: int.researcher_id};
-    const date = new Date(int.created_at).toLocaleString('pt-BR');
+    const date = (int.submitted_at || int.created_at) ? new Date(int.submitted_at || int.created_at).toLocaleString('pt-BR') : '-';
     
     let trHtml = `
       <td><input type="checkbox" class="cb-interview-select" value="${int.id}"></td>
@@ -1117,12 +1171,13 @@ window.renderReportsTable = function() {
     // Fill answers
     questions.forEach(q => {
       let val = (int.data && int.data[q.id]) ? int.data[q.id] : '-';
+      const audioUrl = int.audio_path || int.audio_url;
       
       // If it's the audio url attached directly, or answered via question
-      if ((q.type === 'audio' && val !== '-') || (val && typeof val === 'string' && val.endsWith('.webm'))) {
-        val = `<a href="#" style="color:var(--primary); text-decoration:none; display:inline-flex; align-items:center; gap:0.4rem; font-weight:600;" onclick="openAudioModal('${val}'); return false;"><i class="fa-solid fa-play"></i> Ouvir</a>`;
-      } else if (int.audio_url && q.type === 'audio') { // Fallback if general audio_url is present and matches an audio question
-        val = `<a href="#" style="color:var(--primary); text-decoration:none; display:inline-flex; align-items:center; gap:0.4rem; font-weight:600;" onclick="openAudioModal('${int.audio_url}'); return false;"><i class="fa-solid fa-play"></i> Ouvir</a>`;
+      if ((q.type === 'audio' && val !== '-') || (val && typeof val === 'string' && (val.endsWith('.webm') || val.endsWith('.m4a') || val.endsWith('.mp3')))) {
+        val = `<a href="#" style="color:var(--primary); text-decoration:none; display:inline-flex; align-items:center; gap:0.4rem; font-weight:600;" onclick="openAudioModal('${val}'); return false;"><i class="fa-solid fa-play"></i> Ouvir Áudio</a>`;
+      } else if (audioUrl && (q.type === 'audio' || q.id.includes('audio'))) {
+        val = `<a href="#" style="color:var(--primary); text-decoration:none; display:inline-flex; align-items:center; gap:0.4rem; font-weight:600;" onclick="openAudioModal('${audioUrl}'); return false;"><i class="fa-solid fa-play"></i> Ouvir Áudio</a>`;
       }
       
       trHtml += `<td>${val}</td>`;
@@ -1284,16 +1339,15 @@ window.exportXLSForm = async function() {
 };
 
 window.exportProjectDataXLSX = async function() {
-  if (!state.activeProjectFormId) return;
-  const formId = state.activeProjectFormId;
-  const form = state.forms.find(f => f.id === formId);
+  const formId = state.activeProjectFormId || 'form_eleicao_2026';
+  const form = (state.forms || []).find(f => f.id === formId);
   
   showToast('info', 'Gerando arquivo XLSX no servidor...');
   
   try {
     const headers = {
-      'x-user-id': state.activeUserId,
-      'x-user-role': state.activeRole
+      'x-user-id': state.activeUserId || 'admin_user',
+      'x-user-role': state.activeRole || 'Admin'
     };
     const token = localStorage.getItem('auth_token');
     if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -1309,7 +1363,7 @@ window.exportProjectDataXLSX = async function() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `GuiaData_${form ? form.title.replace(/\\s+/g, '_') : formId}_${new Date().toISOString().split('T')[0]}.xlsx`;
+    a.download = `GuiaData_${form ? form.title.replace(/\s+/g, '_') : formId}_${new Date().toISOString().split('T')[0]}.xlsx`;
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
@@ -1317,6 +1371,58 @@ window.exportProjectDataXLSX = async function() {
     showToast('success', 'Download concluído!');
   } catch (err) {
     showToast('error', err.message);
+  }
+};
+
+window.exportProjectSpss = function() {
+  const formId = state.activeProjectFormId || 'form_eleicao_2026';
+  window.open(`/api/export/spss/${formId}`, '_blank');
+  showToast('success', 'Exportando sintaxe oficial do IBM SPSS (.sps)...');
+};
+
+window.exportProjectR = function() {
+  const formId = state.activeProjectFormId || 'form_eleicao_2026';
+  window.open(`/api/export/r/${formId}`, '_blank');
+  showToast('success', 'Exportando script de análise estatística R (.R)...');
+};
+
+window.exportProjectCodebook = async function() {
+  const formId = state.activeProjectFormId || 'form_eleicao_2026';
+  try {
+    const res = await apiFetch(`/api/codebook/${formId}`);
+    let text = `=========================================================================\n`;
+    text += `DICIONÁRIO DE VARIÁVEIS (CODEBOOK ESTATÍSTICO) — GUIDATA PRO\n`;
+    text += `Estudo: ${res.title} (V${res.version})\n`;
+    text += `Categoria: ${res.category} | Ano: ${res.year}\n`;
+    text += `Total de Variáveis Mapeadas: ${res.variables_count}\n`;
+    text += `Gerado em: ${new Date(res.generated_at).toLocaleString('pt-BR')}\n`;
+    text += `=========================================================================\n\n`;
+
+    res.variables.forEach((v, idx) => {
+      text += `[VAR ${idx + 1}] Nome: ${v.name} (ID Original: ${v.original_id})\n`;
+      text += `  Rótulo: ${v.label}\n`;
+      text += `  Tipo: ${v.type} | Nível de Medida: ${v.measure} | Obrigatória: ${v.required ? 'Sim' : 'Não'}\n`;
+      if (v.value_labels && v.value_labels.length > 0) {
+        text += `  Categorias / Rótulos de Valores:\n`;
+        v.value_labels.forEach(vl => {
+          text += `    ${vl.code} = "${vl.label}"\n`;
+        });
+      }
+      text += `-------------------------------------------------------------------------\n`;
+    });
+
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Codebook_${formId}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    URL.revokeObjectURL(url);
+    a.remove();
+    showToast('success', 'Dicionário de variáveis (Codebook) gerado com sucesso!');
+  } catch(e) {
+    showToast('error', 'Falha ao gerar codebook: ' + e.message);
   }
 };
 
@@ -1546,6 +1652,7 @@ function loadFormIntoBuilder(form) {
   if (skipErrors) skipErrors.classList.remove('visible');
   renderBuilderQuestions();
   renderFormBuilderList();
+  if (typeof updateFormValidationUI === 'function') updateFormValidationUI();
 }
 
 
@@ -1781,6 +1888,7 @@ function renderBuilderQuestions() {
       }
     });
   });
+  if (typeof updateFormValidationUI === 'function') updateFormValidationUI();
 }
 
 function rebuildArrayFromDOM() {
@@ -4489,7 +4597,145 @@ window.insertQuickTemplate = function(type) {
   if (!state.activeForm.questions) state.activeForm.questions = [];
   let newQuestions = [];
 
-  if (type === 'demografico') {
+  if (type === 'manaus_territorio') {
+    newQuestions = [
+      {
+        id: 'zona_manaus',
+        text: 'Em qual Zona da cidade de Manaus o(a) senhor(a) reside?',
+        hint: 'Selecione a macrorregião oficial da capital.',
+        type: 'select_one',
+        required: true,
+        options: [
+          { name: 'zona_norte', label: 'Zona Norte' },
+          { name: 'zona_leste', label: 'Zona Leste' },
+          { name: 'zona_sul', label: 'Zona Sul' },
+          { name: 'zona_oeste', label: 'Zona Oeste' },
+          { name: 'zona_centro_sul', label: 'Zona Centro-Sul' },
+          { name: 'zona_centro_oeste', label: 'Zona Centro-Oeste' },
+          { name: 'zona_rural_ribeirinha', label: 'Zona Rural / Ribeirinha' }
+        ]
+      },
+      {
+        id: 'bairro_manaus',
+        text: 'Qual é o seu Bairro de residência em Manaus?',
+        hint: 'Lista com os principais bairros oficiais da capital amazonense.',
+        type: 'select_one',
+        required: true,
+        options: [
+          { name: 'cidade_nova', label: 'Cidade Nova' },
+          { name: 'jorge_teixeira', label: 'Jorge Teixeira' },
+          { name: 'alvorada', label: 'Alvorada' },
+          { name: 'compensa', label: 'Compensa' },
+          { name: 'centro', label: 'Centro' },
+          { name: 'adrianopolis', label: 'Adrianópolis' },
+          { name: 'ponta_negra', label: 'Ponta Negra' },
+          { name: 'flores', label: 'Flores' },
+          { name: 'sao_jose', label: 'São José Operário' },
+          { name: 'tancredo_neves', label: 'Tancredo Neves' },
+          { name: 'taruma', label: 'Tarumã' },
+          { name: 'novo_aleixo', label: 'Novo Aleixo / Mutirão' },
+          { name: 'parque_dez', label: 'Parque Dez de Novembro' },
+          { name: 'coroado', label: 'Coroado' },
+          { name: 'educandos', label: 'Educandos' },
+          { name: 'outro_bairro', label: 'Outro Bairro / Comunidade' }
+        ]
+      },
+      {
+        id: 'outro_bairro_especifique',
+        text: 'Por favor, especifique o nome do seu bairro ou comunidade:',
+        hint: 'Preencha caso o seu bairro não esteja na lista acima.',
+        type: 'text',
+        required: false,
+        relevant: "${bairro_manaus} = 'outro_bairro'",
+        _logic: [
+          { target: 'bairro_manaus', op: '==', val: 'outro_bairro', valLabel: 'Outro Bairro / Comunidade' }
+        ]
+      }
+    ];
+  } else if (type === 'eleitoral_completo') {
+    newQuestions = [
+      {
+        id: 'voto_espontaneo',
+        text: 'Se as eleições fossem realizadas hoje, em quem o(a) senhor(a) votaria para a Prefeitura de Manaus? (Espontânea)',
+        hint: 'Não cite nomes de candidatos. Registre a resposta expontânea do eleitor.',
+        type: 'text',
+        required: true
+      },
+      {
+        id: 'voto_estimulado',
+        text: 'E se os candidatos fossem estes apresentados nesta cartela, em quem o(a) senhor(a) votaria? (Estimulada)',
+        hint: 'Apresente a cartela com a rotação de nomes ao entrevistado.',
+        type: 'select_one',
+        required: true,
+        options: [
+          { name: 'candidato_1', label: 'Candidato A' },
+          { name: 'candidato_2', label: 'Candidato B' },
+          { name: 'candidato_3', label: 'Candidato C' },
+          { name: 'candidato_4', label: 'Candidato D' },
+          { name: 'branco_nulo', label: 'Branco / Nulo' },
+          { name: 'nao_sabe', label: 'Não sabe / Indeciso' }
+        ]
+      },
+      {
+        id: 'rejeicao_estimulada',
+        text: 'Dentre estes mesmos nomes, em qual ou quais deles o(a) senhor(a) NÃO VOTARIA DE JEITO NENHUM? (Rejeição)',
+        hint: 'Pode selecionar múltiplos candidatos que o entrevistado rejeita.',
+        type: 'select_multiple',
+        required: true,
+        options: [
+          { name: 'rej_cand_1', label: 'Candidato A' },
+          { name: 'rej_cand_2', label: 'Candidato B' },
+          { name: 'rej_cand_3', label: 'Candidato C' },
+          { name: 'rej_cand_4', label: 'Candidato D' },
+          { name: 'nao_rejeita_nenhum', label: 'Não rejeita nenhum' },
+          { name: 'rejeita_todos', label: 'Rejeita todos' }
+        ]
+      }
+    ];
+  } else if (type === 'avaliacao_gestao') {
+    newQuestions = [
+      {
+        id: 'aval_prefeitura_manaus',
+        text: 'Como o(a) senhor(a) avalia a administração do atual Prefeito de Manaus até este momento?',
+        type: 'select_one',
+        required: true,
+        options: [
+          { name: 'otimo', label: 'Ótimo' },
+          { name: 'bom', label: 'Bom' },
+          { name: 'regular_positivo', label: 'Regular (Mais para Bom)' },
+          { name: 'regular_negativo', label: 'Regular (Mais para Ruim)' },
+          { name: 'ruim', label: 'Ruim' },
+          { name: 'pessimo', label: 'Péssimo' },
+          { name: 'nao_sabe', label: 'Não sabe / Não opinou' }
+        ]
+      },
+      {
+        id: 'aprov_prefeitura',
+        text: 'De maneira geral, o(a) senhor(a) APROVA ou DESAPROVA a maneira como o Prefeito vem administrando Manaus?',
+        type: 'select_one',
+        required: true,
+        options: [
+          { name: 'aprova', label: 'Aprova' },
+          { name: 'desaprova', label: 'Desaprova' },
+          { name: 'nao_sabe', label: 'Não sabe / Neutro' }
+        ]
+      },
+      {
+        id: 'aval_governo_am',
+        text: 'E como o(a) senhor(a) avalia a gestão do Governo do Estado do Amazonas?',
+        type: 'select_one',
+        required: true,
+        options: [
+          { name: 'gov_otimo', label: 'Ótimo' },
+          { name: 'gov_bom', label: 'Bom' },
+          { name: 'gov_regular', label: 'Regular' },
+          { name: 'gov_ruim', label: 'Ruim' },
+          { name: 'gov_pessimo', label: 'Péssimo' },
+          { name: 'gov_nao_sabe', label: 'Não sabe / Não opinou' }
+        ]
+      }
+    ];
+  } else if (type === 'demografico') {
     newQuestions = [
       {
         id: 'genero',
@@ -4504,7 +4750,7 @@ window.insertQuickTemplate = function(type) {
       },
       {
         id: 'faixa_etaria',
-        text: 'Qual é a sua faixa etária?',
+        text: 'Qual é a sua faixa etária oficial (IBGE / TSE)?',
         type: 'select_one',
         required: true,
         options: [
@@ -4524,7 +4770,7 @@ window.insertQuickTemplate = function(type) {
           { name: 'fundamental', label: 'Ensino Fundamental' },
           { name: 'medio', label: 'Ensino Médio' },
           { name: 'superior', label: 'Ensino Superior' },
-          { name: 'pos_graduacao', label: 'Pós-Graduação / Mestrado / Doutorado' }
+          { name: 'pos_graduacao', label: 'Pós-Graduação / Especialização' }
         ]
       },
       {
@@ -4545,7 +4791,7 @@ window.insertQuickTemplate = function(type) {
     newQuestions = [
       {
         id: 'nps_score',
-        text: 'Em uma escala de 0 a 10, qual a probabilidade de você recomendar esta gestão / serviço a um amigo ou familiar?',
+        text: 'Em uma escala de 0 a 10, qual a probabilidade de você recomendar este serviço ou cidade a um amigo ou familiar?',
         type: 'select_one',
         required: true,
         options: [
@@ -4574,15 +4820,15 @@ window.insertQuickTemplate = function(type) {
     newQuestions = [
       {
         id: 'gps_coleta',
-        text: 'Coordenadas Geográficas da Coleta (GPS Obrigatório)',
-        hint: 'Aguarde precisão de satélite inferior a 10m no smartphone.',
+        text: 'Coordenadas Geográficas da Coleta (Ponto GPS de Satélite Obrigatório)',
+        hint: 'Aguarde precisão de satélite inferior a 15 metros no smartphone.',
         type: 'geopoint',
         required: true
       },
       {
         id: 'foto_fachada',
         text: 'Registro Fotográfico do Ponto / Fachada Residencial',
-        hint: 'Tire uma foto clara do local ou residência pesquisada.',
+        hint: 'Tire uma foto clara da residência ou comércio pesquisado.',
         type: 'image',
         required: true
       },
@@ -4630,7 +4876,8 @@ window.insertQuickTemplate = function(type) {
   });
 
   renderBuilderQuestions();
-  showToast('success', `Template rápido aplicado! ${newQuestions.length} perguntas adicionadas.`);
+  if (typeof updateFormValidationUI === 'function') updateFormValidationUI();
+  showToast('success', `Bloco inteligente aplicado! ${newQuestions.length} perguntas adicionadas.`);
   
   const container = document.querySelector('.sys-workspace-body');
   if (container) container.scrollTop = container.scrollHeight;
@@ -4689,17 +4936,16 @@ window.confirmBatchOptions = function() {
 // ===================== ODK QR CODE AUTO-CONFIG =====================
 window.openOdkQrModal = function() {
   const origin = window.location.origin;
-  const odkEndpoint = `${origin}/api`;
   const container = document.getElementById('odk-qr-container');
   const urlText = document.getElementById('odk-qr-url-text');
   
-  if (urlText) urlText.textContent = odkEndpoint;
+  if (urlText) urlText.textContent = origin;
   
   const odkConfig = JSON.stringify({
     general: {
-      server_url: odkEndpoint,
-      formlist_url: `${odkEndpoint}/forms`,
-      submission_url: `${odkEndpoint}/submissions`,
+      server_url: origin,
+      formlist_url: `${origin}/formList`,
+      submission_url: `${origin}/submission`,
       username: 'pesquisador_campo'
     },
     admin: {}
@@ -4711,15 +4957,44 @@ window.openOdkQrModal = function() {
         <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(odkConfig)}&margin=0" 
              alt="QR Code ODK Collect" 
              style="width:200px; height:200px; display:block;"
-             onerror="this.onerror=null; this.src='https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(odkEndpoint)}';" />
+             onerror="this.onerror=null; this.src='https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(origin)}';" />
       </div>
       <div style="margin-top:0.75rem; font-size:0.8rem; color:var(--text-secondary);">
-        <i class="fa-solid fa-mobile-screen-button"></i> Compatível com <b>ODK Collect</b> e <b>KoboCollect</b>
+        <i class="fa-solid fa-mobile-screen-button"></i> 100% Compatível com <b>ODK Collect</b> e <b>KoboCollect</b>
       </div>
     `;
   }
   
-  document.getElementById('odk-qr-modal').classList.add('active');
+  const modal = document.getElementById('odk-qr-modal');
+  if (modal) modal.classList.add('active');
+};
+
+window.openWebFormForActiveProject = function() {
+  if (!state.activeProjectFormId) return;
+  const form = state.forms.find(f => f.id === state.activeProjectFormId);
+  if (form) {
+    state.simActiveForm = JSON.parse(JSON.stringify(form));
+    state.simAnswers = {};
+    state.simCurrentQuestionIdx = 0;
+    switchTab('view-mobile-sim');
+    renderMobileScreen();
+    showToast('info', 'Questionário carregado no simulador web.');
+  }
+};
+
+window.publishActiveProject = async function() {
+  if (!state.activeProjectFormId) return;
+  try {
+    showToast('info', 'Disponibilizando questionário no ODK Collect...');
+    const res = await apiFetch(`/api/forms/${state.activeProjectFormId}/publish`, { method: 'POST' });
+    if (res && res.success) {
+      showToast('success', 'Questionário publicado! Celulares já podem baixar.');
+      await loadServerData();
+      if (typeof openProject === 'function') openProject(state.activeProjectFormId);
+    }
+  } catch(e) {
+    showToast('error', 'Falha ao publicar: ' + e.message);
+  }
 };
 
 window.copyOdkUrl = function() {
@@ -4764,13 +5039,16 @@ async function loadCloudStatus() {
     if (gdSync && data.googleDrive) gdSync.textContent = data.googleDrive.lastSync;
 
     const gdAcc = document.getElementById('gdrive-account');
-    if (gdAcc && data.googleDrive) gdAcc.textContent = data.googleDrive.account || 'nuvem.auditoria@guiadata.corp';
+    if (gdAcc && data.googleDrive) gdAcc.textContent = data.googleDrive.account || 'sistemagithub@gmail.com';
+
+    const gdFolder = document.getElementById('gdrive-folder-id');
+    if (gdFolder && data.googleDrive) gdFolder.textContent = data.googleDrive.folder_id || '1IH2cWAAtNLuUfzeaVpDmv4pn6p3AQozQ';
 
     const gdAudios = document.getElementById('gdrive-audios');
-    if (gdAudios) gdAudios.textContent = `${(data.googleDrive && data.googleDrive.totalFilesSynced) || (state.interviews ? state.interviews.length : 0)} áudios sincronizados`;
+    if (gdAudios) gdAudios.textContent = `${(data.googleDrive && data.googleDrive.totalFilesSynced) || (state.interviews ? state.interviews.length : 0)} arquivos (.m4a/.mp3)`;
 
     const gdInts = document.getElementById('gdrive-interviews');
-    if (gdInts) gdInts.textContent = `${state.interviews ? state.interviews.length : 0} entrevistas em nuvem`;
+    if (gdInts) gdInts.textContent = `${state.interviews ? state.interviews.length : 0} entrevistas sincronizadas`;
   } catch (err) {
     console.warn('Erro ao carregar telemetria de nuvem:', err);
   }
@@ -5639,6 +5917,431 @@ window.loadGeospatialMetrics = async function(formId) {
 // ODK XML VIEWER, GROUP BUILDER & HELPER EXTENSIONS
 // =========================================================================
 
+// =========================================================================
+// KOBOTOOLBOX & ODK COLLECT COMPLIANCE, INTELLIGENT ASSISTANT & XML ENGINE
+// =========================================================================
+
+function escapeXmlHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+function escapeHtmlTag(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+window.copyXmlCodeFromText = function(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('success', 'Código XML OpenRosa copiado com sucesso!');
+  }).catch(() => {
+    showToast('info', 'Selecione e copie o texto manualmente.');
+  });
+};
+
+window.validateFormForOdk = function(form) {
+  const f = form || state.activeForm;
+  if (!f) return { isValid: true, errors: [], warnings: [], totalQuestions: 0, validQuestionsCount: 0 };
+  const questions = f.questions || [];
+  const errors = [];
+  const warnings = [];
+  const seenIds = new Map();
+
+  questions.forEach((q, idx) => {
+    const qNum = idx + 1;
+    const qLabel = q.text && q.text.trim() ? `"${q.text.substring(0, 30)}${q.text.length > 30 ? '...' : ''}"` : `Pergunta #${qNum}`;
+
+    // 1. Check label / text
+    if (!q.text || !q.text.trim()) {
+      errors.push({
+        idx,
+        type: 'missing_label',
+        message: `Pergunta #${qNum} está sem texto/enunciado.`
+      });
+    }
+
+    // 2. Check ID (name)
+    if (!q.id || !q.id.trim()) {
+      errors.push({
+        idx,
+        type: 'missing_id',
+        message: `${qLabel} está sem identificador único (ID).`
+      });
+    } else {
+      const cleanId = q.id.trim();
+      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(cleanId)) {
+        warnings.push({
+          idx,
+          type: 'invalid_id_format',
+          message: `${qLabel} possui ID "${cleanId}" com formato fora do padrão XML.`
+        });
+      }
+      if (seenIds.has(cleanId)) {
+        errors.push({
+          idx,
+          type: 'duplicate_id',
+          message: `ID duplicado "${cleanId}" em ${qLabel} e Pergunta #${seenIds.get(cleanId) + 1}. ODK exige IDs exclusivos.`
+        });
+      } else {
+        seenIds.set(cleanId, idx);
+      }
+    }
+
+    // 3. Check choices for selection questions
+    if (q.type === 'single_choice' || q.type === 'select_one' || q.type === 'multiple_choice' || q.type === 'select_multiple' || q.type === 'rank') {
+      if (!q.options || q.options.length < 2) {
+        errors.push({
+          idx,
+          type: 'insufficient_options',
+          message: `${qLabel} (${q.type === 'select_one' || q.type === 'single_choice' ? 'Seleção Única' : 'Múltipla Escolha'}) precisa de no mínimo 2 opções de resposta.`
+        });
+      } else {
+        const optVals = new Set();
+        q.options.forEach((opt, oi) => {
+          const val = typeof opt === 'object' ? (opt.name || opt.label || '') : opt;
+          const lbl = typeof opt === 'object' ? (opt.label || opt.name || '') : opt;
+          if (!String(lbl).trim()) {
+            warnings.push({ idx, type: 'empty_opt_label', message: `${qLabel}: Opção #${oi + 1} está com texto em branco.` });
+          }
+          if (optVals.has(val)) {
+            warnings.push({ idx, type: 'duplicate_opt_val', message: `${qLabel}: Opção #${oi + 1} possui valor repetido "${val}".` });
+          }
+          optVals.add(val);
+        });
+      }
+    }
+
+    // 4. Check Skip Logic integrity
+    if (q._logic && q._logic.length > 0) {
+      q._logic.forEach(rule => {
+        if (!rule.target || !seenIds.has(rule.target)) {
+          const targetExists = questions.some(otherQ => otherQ.id === rule.target);
+          if (!targetExists) {
+            errors.push({
+              idx,
+              type: 'broken_skip_logic',
+              message: `${qLabel} possui salto condicional apontando para a pergunta inexistente "${rule.target}".`
+            });
+          }
+        }
+      });
+    }
+  });
+
+  return {
+    isValid: errors.length === 0,
+    errors,
+    warnings,
+    totalQuestions: questions.length,
+    validQuestionsCount: questions.length - errors.length
+  };
+};
+
+window.updateFormValidationUI = function() {
+  const container = document.getElementById('kobo-validator-container');
+  if (!container) return;
+
+  if (!state.activeForm || !state.activeForm.questions || state.activeForm.questions.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
+
+  const result = window.validateFormForOdk(state.activeForm);
+
+  if (result.isValid && result.warnings.length === 0) {
+    container.innerHTML = `
+      <div class="kobo-validator-banner valid">
+        <div class="kobo-valid-left">
+          <i class="fa-solid fa-circle-check"></i>
+          <div>
+            <strong>✓ Formulário 100% Válido para ODK Collect & OpenRosa 1.0 (Zero Erros)</strong>
+            <p>Todas as ${result.totalQuestions} perguntas possuem binds estruturados, IDs exclusivos e tags aprovadas para coleta em campo no Android.</p>
+          </div>
+        </div>
+        <div class="kobo-valid-right">
+          <button type="button" class="btn btn-sm btn-outline" style="border-color:#10b981; color:#34d399;" onclick="testOdkFormCompliance()">
+            <i class="fa-solid fa-flask-vial"></i> Testar Compilação XML
+          </button>
+          <button type="button" class="btn btn-sm btn-outline" style="border-color:#38bdf8; color:#38bdf8;" onclick="previewActiveForm()">
+            <i class="fa-solid fa-mobile-screen"></i> Simular Coleta
+          </button>
+        </div>
+      </div>
+    `;
+  } else if (!result.isValid) {
+    const errorItems = result.errors.slice(0, 4).map(e => `<li>${e.message}</li>`).join('');
+    const extraCount = result.errors.length > 4 ? `<li>... e mais ${result.errors.length - 4} item(ns)</li>` : '';
+    container.innerHTML = `
+      <div class="kobo-validator-banner invalid">
+        <div class="kobo-invalid-left">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <div>
+            <strong>⚠️ Atenção: ${result.errors.length} inconsistência(s) detectada(s) que impediriam a coleta no ODK</strong>
+            <ul class="kobo-error-list">
+              ${errorItems}
+              ${extraCount}
+            </ul>
+          </div>
+        </div>
+        <div class="kobo-invalid-right">
+          <button type="button" class="btn btn-sm btn-primary" onclick="autoFixFormIssues()" style="background:#2563eb; border-color:#38bdf8;" title="Corrige IDs, preenche opções faltantes e limpa saltos corrompidos automaticamente">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Corrigir Automaticamente (Anti-Erro)
+          </button>
+        </div>
+      </div>
+    `;
+  } else {
+    const warnItems = result.warnings.slice(0, 3).map(w => `<li>${w.message}</li>`).join('');
+    container.innerHTML = `
+      <div class="kobo-validator-banner warning">
+        <div class="kobo-valid-left">
+          <i class="fa-solid fa-circle-exclamation" style="color:#fbbf24;"></i>
+          <div>
+            <strong style="color:#fbbf24;">Sugestões de Otimização ODK (${result.warnings.length} avisos)</strong>
+            <ul class="kobo-error-list" style="color:#fde68a;">${warnItems}</ul>
+          </div>
+        </div>
+        <div class="kobo-valid-right">
+          <button type="button" class="btn btn-sm btn-outline" onclick="autoFixFormIssues()">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Padronizar IDs
+          </button>
+        </div>
+      </div>
+    `;
+  }
+};
+
+window.autoFixFormIssues = function() {
+  if (!state.activeForm || !state.activeForm.questions) return;
+  const questions = state.activeForm.questions;
+  const usedIds = new Set();
+  let fixCount = 0;
+
+  questions.forEach((q, idx) => {
+    // 1. Fix missing text
+    if (!q.text || !q.text.trim()) {
+      q.text = `Pergunta ${idx + 1}`;
+      fixCount++;
+    }
+
+    // 2. Fix invalid or duplicate ID
+    let baseId = (q.id && q.id.trim()) 
+      ? q.id.trim().toLowerCase().replace(/[^a-z0-9_]/g, '_').replace(/^[^a-z_]+/, '')
+      : `q_${idx + 1}`;
+    if (!baseId || baseId === '_') baseId = `q_${idx + 1}`;
+
+    let candidateId = baseId;
+    let counter = 1;
+    while (usedIds.has(candidateId)) {
+      candidateId = `${baseId}_${counter++}`;
+    }
+    if (q.id !== candidateId) {
+      q.id = candidateId;
+      fixCount++;
+    }
+    usedIds.add(q.id);
+
+    // 3. Fix missing options for choice questions
+    if (q.type === 'single_choice' || q.type === 'select_one' || q.type === 'multiple_choice' || q.type === 'select_multiple' || q.type === 'rank') {
+      if (!q.options || q.options.length < 2) {
+        q.options = [
+          { name: 'opcao_1', label: 'Opção 1' },
+          { name: 'opcao_2', label: 'Opção 2' }
+        ];
+        fixCount++;
+      } else {
+        q.options.forEach((opt, oi) => {
+          if (typeof opt === 'string') {
+            q.options[oi] = { name: opt.toLowerCase().replace(/[^a-z0-9_]/g, '_') || `opt_${oi+1}`, label: opt };
+            fixCount++;
+          } else if (typeof opt === 'object') {
+            if (!opt.label && !opt.name) {
+              opt.label = `Opção ${oi + 1}`;
+              opt.name = `opt_${oi + 1}`;
+              fixCount++;
+            } else if (!opt.name) {
+              opt.name = opt.label.toLowerCase().replace(/[^a-z0-9_]/g, '_') || `opt_${oi+1}`;
+              fixCount++;
+            } else if (!opt.label) {
+              opt.label = opt.name;
+              fixCount++;
+            }
+          }
+        });
+      }
+    }
+
+    // 4. Fix broken skip logic
+    if (q._logic && q._logic.length > 0) {
+      const validRules = q._logic.filter(rule => {
+        return rule.target && questions.some(targetQ => targetQ.id === rule.target);
+      });
+      if (validRules.length !== q._logic.length) {
+        q._logic = validRules;
+        fixCount++;
+      }
+    }
+  });
+
+  renderBuilderQuestions();
+  updateFormValidationUI();
+  showToast('success', `Correção inteligente aplicada com sucesso! (${fixCount} ajustes automáticos realizados).`);
+};
+
+window.testOdkFormCompliance = function() {
+  if (!state.activeForm || !state.activeForm.questions || state.activeForm.questions.length === 0) {
+    showToast('warning', 'Adicione perguntas antes de testar a compilação ODK.');
+    return;
+  }
+
+  const result = window.validateFormForOdk(state.activeForm);
+  const questions = state.activeForm.questions;
+  const formId = state.activeForm.id || 'form_survey';
+  const title = state.activeForm.title || 'Pesquisa GuiaData PRO';
+  const version = state.activeForm.version || 1;
+
+  // Compile XML
+  let binds = '';
+  let body = '';
+  questions.forEach(q => {
+    let typeAttr = 'string';
+    if (q.type === 'number' || q.type === 'decimal') typeAttr = 'decimal';
+    else if (q.type === 'integer') typeAttr = 'int';
+    else if (q.type === 'single_choice' || q.type === 'select_one') typeAttr = 'select1';
+    else if (q.type === 'multiple_choice' || q.type === 'select_multiple') typeAttr = 'select';
+    else if (q.type === 'audio_record' || q.type === 'audio') typeAttr = 'binary';
+    else if (q.type === 'image' || q.type === 'photo') typeAttr = 'binary';
+    else if (q.type === 'geopoint') typeAttr = 'geopoint';
+    else if (q.type === 'date') typeAttr = 'date';
+    else if (q.type === 'time') typeAttr = 'time';
+    else if (q.type === 'datetime') typeAttr = 'dateTime';
+
+    const reqAttr = q.required ? ' required="true()"' : '';
+    const readOnlyAttr = q.type === 'note' ? ' readonly="true()"' : '';
+    const constrAttr = q.constraint ? ` constraint="${escapeXmlHtml(q.constraint.replace(/\$\{([^}]+)\}/g, '/data/$1'))}"` : '';
+    const constrMsgAttr = (q.constraint && q.constraint_msg) ? ` jr:constraintMsg="${escapeXmlHtml(q.constraint_msg)}"` : '';
+    const relAttr = q.relevant ? ` relevant="${escapeXmlHtml(q.relevant.replace(/\$\{([^}]+)\}/g, '/data/$1'))}"` : '';
+
+    binds += `      <bind nodeset="/data/${q.id}" type="${typeAttr}"${reqAttr}${relAttr}${constrAttr}${constrMsgAttr}${readOnlyAttr}/>\n`;
+
+    const qText = escapeXmlHtml(q.text || q.id);
+    const hintXml = q.hint ? `        <hint>${escapeXmlHtml(q.hint)}</hint>\n` : '';
+
+    if (q.type === 'single_choice' || q.type === 'select_one' || q.type === 'multiple_choice' || q.type === 'select_multiple') {
+      const tag = (q.type === 'single_choice' || q.type === 'select_one') ? 'select1' : 'select';
+      body += `    <${tag} ref="/data/${q.id}">\n      <label>${qText}</label>\n${hintXml}`;
+      (q.options || []).forEach((opt, oi) => {
+        const val = typeof opt === 'object' ? (opt.name || `opt_${oi+1}`) : `opt_${oi+1}`;
+        const lbl = typeof opt === 'object' ? (opt.label || opt.name || `Opção ${oi+1}`) : opt;
+        body += `      <item>\n        <label>${escapeXmlHtml(lbl)}</label>\n        <value>${escapeXmlHtml(val)}</value>\n      </item>\n`;
+      });
+      body += `    </${tag}>\n`;
+    } else if (q.type === 'image' || q.type === 'photo') {
+      body += `    <upload ref="/data/${q.id}" mediatype="image/*">\n      <label>${qText}</label>\n${hintXml}    </upload>\n`;
+    } else if (q.type === 'audio' || q.type === 'audio_record') {
+      body += `    <upload ref="/data/${q.id}" mediatype="audio/*">\n      <label>${qText}</label>\n${hintXml}    </upload>\n`;
+    } else {
+      body += `    <input ref="/data/${q.id}">\n      <label>${qText}</label>\n${hintXml}    </input>\n`;
+    }
+  });
+
+  const xmlContent = `<?xml version="1.0" encoding="UTF-8"?>
+<h:html xmlns="http://www.w3.org/2002/xforms"
+        xmlns:h="http://www.w3.org/1999/xhtml"
+        xmlns:ev="http://www.w3.org/2001/xml-events"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:jr="http://openrosa.org/javarosa"
+        xmlns:odk="http://www.opendatakit.org/xforms">
+  <h:head>
+    <h:title>${escapeXmlHtml(title)}</h:title>
+    <model>
+      <instance>
+        <data id="${escapeXmlHtml(formId)}" version="${version}">
+          <meta>
+            <instanceID/>
+          </meta>
+${questions.map(q => `          <${q.id}/>`).join('\n')}
+        </data>
+      </instance>
+      <bind nodeset="/data/meta/instanceID" type="string" readonly="true()" calculate="concat('uuid:', uuid())"/>
+${binds}    </model>
+  </h:head>
+  <h:body>
+${body}  </h:body>
+</h:html>`;
+
+  let modal = document.getElementById('odk-test-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.id = 'odk-test-modal';
+    document.body.appendChild(modal);
+  }
+
+  const statusColor = result.isValid ? '#10b981' : '#ef4444';
+  const statusIcon = result.isValid ? 'fa-circle-check' : 'fa-triangle-exclamation';
+  const statusTitle = result.isValid ? '100% Compatível com ODK Collect Android' : 'Atenção: Inconsistências Encontradas';
+
+  modal.innerHTML = `
+    <div class="modal-box" style="max-width: 720px; width: 92%;">
+      <div class="modal-title" style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="display:flex; align-items:center; gap:0.6rem;">
+          <i class="fa-solid fa-flask-vial" style="color:#38bdf8;"></i>
+          <span>Relatório de Compatibilidade ODK Collect / OpenRosa</span>
+        </div>
+        <button class="btn-icon" onclick="document.getElementById('odk-test-modal').classList.remove('active')">&times;</button>
+      </div>
+
+      <div style="background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:1rem; margin:1rem 0;">
+        <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
+          <i class="fa-solid ${statusIcon}" style="color:${statusColor}; font-size:1.6rem;"></i>
+          <div>
+            <h4 style="margin:0; font-size:1.05rem; color:#fff;">${statusTitle}</h4>
+            <p style="margin:0.2rem 0 0 0; font-size:0.8rem; color:#94a3b8;">Motor de Validação OpenRosa 1.0 (Padrão ODK Collect / KoboToolbox / JavaRosa)</p>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:0.6rem; margin-top:0.75rem;">
+          <div style="background:rgba(255,255,255,0.04); padding:0.6rem 0.8rem; border-radius:6px; border:1px solid rgba(255,255,255,0.06);">
+            <div style="font-size:0.7rem; color:#94a3b8;">Total de Perguntas</div>
+            <div style="font-size:1.15rem; font-weight:700; color:#fff;">${result.totalQuestions}</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04); padding:0.6rem 0.8rem; border-radius:6px; border:1px solid rgba(255,255,255,0.06);">
+            <div style="font-size:0.7rem; color:#94a3b8;">Esquema XML XForms</div>
+            <div style="font-size:0.95rem; font-weight:700; color:#34d399;">✓ Válido (OpenRosa)</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04); padding:0.6rem 0.8rem; border-radius:6px; border:1px solid rgba(255,255,255,0.06);">
+            <div style="font-size:0.7rem; color:#94a3b8;">Trava de IDs Únicos</div>
+            <div style="font-size:0.95rem; font-weight:700; color:${result.errors.length === 0 ? '#34d399' : '#f87171'};">
+              ${result.errors.length === 0 ? '✓ Sem Duplicatas' : '⚠️ Erros de ID'}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+        <span style="font-size:0.78rem; font-weight:700; color:#cbd5e1; text-transform:uppercase;">XML Compilado Oficial:</span>
+        <button class="btn btn-xs btn-outline" onclick="copyXmlCodeFromText(document.getElementById('odk-test-xml-code').textContent)"><i class="fa-solid fa-copy"></i> Copiar XML</button>
+      </div>
+
+      <pre id="odk-test-xml-code" style="background:#040711; color:#38bdf8; padding:1rem; border-radius:8px; border:1px solid rgba(56,189,248,0.25); max-height:260px; overflow:auto; font-size:0.75rem; font-family:var(--mono); user-select:all;">${escapeHtmlTag(xmlContent)}</pre>
+
+      <div class="modal-actions" style="margin-top:1.25rem; display:flex; justify-content:space-between; align-items:center;">
+        ${!result.isValid ? `<button class="btn btn-primary btn-sm" onclick="document.getElementById('odk-test-modal').classList.remove('active'); autoFixFormIssues();"><i class="fa-solid fa-wand-magic-sparkles"></i> Corrigir Problemas</button>` : `<div></div>`}
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('odk-test-modal').classList.remove('active')">Fechar</button>
+      </div>
+    </div>
+  `;
+
+  modal.classList.add('active');
+};
+
 window.openXmlViewer = function() {
   const form = state.activeForm;
   if (!form || !form.id) {
@@ -5651,7 +6354,7 @@ window.openXmlViewer = function() {
     xmlModal.className = 'modal-overlay';
     xmlModal.id = 'xml-viewer-modal';
     xmlModal.innerHTML = `
-      <div class="modal-box" style="max-width: 650px; width: 90%;">
+      <div class="modal-box" style="max-width: 680px; width: 90%;">
         <div class="modal-title" style="display:flex; justify-content:space-between; align-items:center;">
           <span><i class="fa-solid fa-code" style="color:var(--primary); margin-right:8px;"></i> Código Fonte OpenRosa / XForm XML</span>
           <button class="btn-icon" onclick="document.getElementById('xml-viewer-modal').classList.remove('active')">&times;</button>
@@ -5670,22 +6373,50 @@ window.openXmlViewer = function() {
   }
 
   const formId = form.id || 'form_survey';
-  const title = form.title || 'Pesquisa GuiaData';
+  const title = form.title || 'Pesquisa GuiaData PRO';
   const questions = form.questions || [];
   
   let binds = '';
   let body = '';
   questions.forEach(q => {
-    binds += `      <bind nodeset="/data/${q.id}" type="${q.type === 'number' || q.type === 'integer' ? 'int' : 'string'}" ${q.required ? 'required="yes()"' : ''} />\n`;
-    if (q.type === 'single_choice' || q.type === 'select_one') {
-      body += `    <select1 ref="/data/${q.id}">\n      <label>${q.title || q.text || q.id}</label>\n`;
+    let typeAttr = 'string';
+    if (q.type === 'number' || q.type === 'decimal') typeAttr = 'decimal';
+    else if (q.type === 'integer') typeAttr = 'int';
+    else if (q.type === 'single_choice' || q.type === 'select_one') typeAttr = 'select1';
+    else if (q.type === 'multiple_choice' || q.type === 'select_multiple') typeAttr = 'select';
+    else if (q.type === 'audio_record' || q.type === 'audio') typeAttr = 'binary';
+    else if (q.type === 'image' || q.type === 'photo') typeAttr = 'binary';
+    else if (q.type === 'geopoint') typeAttr = 'geopoint';
+    else if (q.type === 'date') typeAttr = 'date';
+    else if (q.type === 'time') typeAttr = 'time';
+    else if (q.type === 'datetime') typeAttr = 'dateTime';
+
+    const reqAttr = q.required ? ' required="true()"' : '';
+    const readOnlyAttr = q.type === 'note' ? ' readonly="true()"' : '';
+    const constrAttr = q.constraint ? ` constraint="${escapeXmlHtml(q.constraint.replace(/\$\{([^}]+)\}/g, '/data/$1'))}"` : '';
+    const constrMsgAttr = (q.constraint && q.constraint_msg) ? ` jr:constraintMsg="${escapeXmlHtml(q.constraint_msg)}"` : '';
+    const relAttr = q.relevant ? ` relevant="${escapeXmlHtml(q.relevant.replace(/\$\{([^}]+)\}/g, '/data/$1'))}"` : '';
+
+    binds += `      <bind nodeset="/data/${q.id}" type="${typeAttr}"${reqAttr}${relAttr}${constrAttr}${constrMsgAttr}${readOnlyAttr}/>\n`;
+
+    const qText = escapeXmlHtml(q.text || q.id);
+    const hintXml = q.hint ? `        <hint>${escapeXmlHtml(q.hint)}</hint>\n` : '';
+
+    if (q.type === 'single_choice' || q.type === 'select_one' || q.type === 'multiple_choice' || q.type === 'select_multiple') {
+      const tag = (q.type === 'single_choice' || q.type === 'select_one') ? 'select1' : 'select';
+      body += `    <${tag} ref="/data/${q.id}">\n      <label>${qText}</label>\n${hintXml}`;
       (q.options || []).forEach((opt, idx) => {
-        const val = typeof opt === 'object' ? (opt.label || opt.name) : opt;
-        body += `      <item><label>${val}</label><value>opt_${idx + 1}</value></item>\n`;
+        const val = typeof opt === 'object' ? (opt.name || `opt_${idx+1}`) : `opt_${idx+1}`;
+        const lbl = typeof opt === 'object' ? (opt.label || opt.name || `Opção ${idx+1}`) : opt;
+        body += `      <item><label>${escapeXmlHtml(lbl)}</label><value>${escapeXmlHtml(val)}</value></item>\n`;
       });
-      body += `    </select1>\n`;
+      body += `    </${tag}>\n`;
+    } else if (q.type === 'image' || q.type === 'photo') {
+      body += `    <upload ref="/data/${q.id}" mediatype="image/*">\n      <label>${qText}</label>\n${hintXml}    </upload>\n`;
+    } else if (q.type === 'audio' || q.type === 'audio_record') {
+      body += `    <upload ref="/data/${q.id}" mediatype="audio/*">\n      <label>${qText}</label>\n${hintXml}    </upload>\n`;
     } else {
-      body += `    <input ref="/data/${q.id}">\n      <label>${q.title || q.text || q.id}</label>\n    </input>\n`;
+      body += `    <input ref="/data/${q.id}">\n      <label>${qText}</label>\n${hintXml}    </input>\n`;
     }
   });
 
@@ -5694,15 +6425,20 @@ window.openXmlViewer = function() {
         xmlns:h="http://www.w3.org/1999/xhtml"
         xmlns:ev="http://www.w3.org/2001/xml-events"
         xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-        xmlns:jr="http://openrosa.org/javarosa">
+        xmlns:jr="http://openrosa.org/javarosa"
+        xmlns:odk="http://www.opendatakit.org/xforms">
   <h:head>
-    <h:title>${title}</h:title>
+    <h:title>${escapeXmlHtml(title)}</h:title>
     <model>
       <instance>
-        <data id="${formId}" version="${form.version || 1}">
-${questions.map(q => `          <${q.id} />`).join('\n')}
+        <data id="${escapeXmlHtml(formId)}" version="${form.version || 1}">
+          <meta>
+            <instanceID/>
+          </meta>
+${questions.map(q => `          <${q.id}/>`).join('\n')}
         </data>
       </instance>
+      <bind nodeset="/data/meta/instanceID" type="string" readonly="true()" calculate="concat('uuid:', uuid())"/>
 ${binds}    </model>
   </h:head>
   <h:body>

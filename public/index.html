@@ -41,13 +41,13 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
-  <link rel="stylesheet" href="css/styles.css?v=3.5.0">
+  <link rel="stylesheet" href="css/styles.css?v=6.0.0_guiadata_pro">
 
   <!-- PWA Service Worker Registration -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js?v=3.6.0_enterprise')
+        navigator.serviceWorker.register('/service-worker.js?v=6.0.0_guiadata_pro')
           .then(reg => {
             console.log('GuiaData Service Worker registrado com escopo:', reg.scope);
             try { reg.update(); } catch (e) {}
@@ -76,23 +76,23 @@
         <div class="logo-icon"><i class="fa-solid fa-chart-pie"></i></div>
         <div class="sidebar-logo">
           <div>GuiaData <span style="font-size:0.75rem; font-weight:700; color:#38bdf8;">PRO</span></div>
-          <div class="enterprise-license-pill"><i class="fa-solid fa-crown" style="color:#fbbf24;"></i> Enterprise VIP</div>
+          <div class="enterprise-license-pill"><i class="fa-solid fa-bolt" style="color:#38bdf8;"></i> GuiaData PRO</div>
         </div>
       </div>
       <nav class="sidebar-nav">
-        <!-- Business Suite (Corporate Client) -->
+        <!-- Main Navigation Suite (KoboToolbox / DataGoal Style) -->
         <a class="nav-item" onclick="switchTab('view-dashboard')" data-target="view-dashboard" id="nav-dashboard"><i class="fa-solid fa-layer-group"></i><span>Projetos & Pesquisas</span></a>
-        <a class="nav-item" onclick="switchTab('view-executive-suite')" data-target="view-executive-suite" id="nav-executive-suite" title="Central Executiva de Inteligência, Ficha Técnica e Relatórios C-Level"><i class="fa-solid fa-briefcase" style="color:#38bdf8;"></i><span>Central Executiva & BI</span></a>
+        <a class="nav-item" onclick="switchTab('view-cloud-storage')" data-target="view-cloud-storage" id="nav-cloud-storage" title="Armazenamento em Nuvem Google Drive & Status Cloudflare"><i class="fa-brands fa-google-drive" style="color:#38bdf8;"></i><span>Nuvem Google Drive</span></a>
         <a class="nav-item" onclick="switchTab('view-team')" data-target="view-team" id="nav-team"><i class="fa-solid fa-users-gear" style="color:#22d3ee;"></i><span>Gestão de Equipe</span></a>
-        <a class="nav-item" onclick="switchTab('view-roles')" data-target="view-roles" id="nav-roles"><i class="fa-solid fa-user-shield" style="color:#a855f7;"></i><span>Cargos e Permissões</span></a>
         <a class="nav-item" onclick="switchTab('view-library')" data-target="view-library" id="nav-library"><i class="fa-solid fa-book-bookmark" style="color:#f59e0b;"></i><span>Modelos de Pesquisa</span></a>
-        <a class="nav-item" onclick="switchTab('view-mobile-sim')" data-target="view-mobile-sim" id="nav-mobile-sim"><i class="fa-solid fa-mobile-screen" style="color:#10b981;"></i><span>Simulador Mobile ODK</span></a>
+        <a class="nav-item" onclick="switchTab('view-mobile-sim')" data-target="view-mobile-sim" id="nav-mobile-sim"><i class="fa-solid fa-mobile-screen" style="color:#10b981;"></i><span>Coleta Web / ODK</span></a>
+        <a class="nav-item" onclick="switchTab('view-executive-suite')" data-target="view-executive-suite" id="nav-executive-suite" title="Central de Inteligência Executiva, Estatística e SLA VIP"><i class="fa-solid fa-briefcase" style="color:#38bdf8;"></i><span>Central Executiva (SLA & BI)</span></a>
         
         <!-- Platform DEV Section (Visible STRICTLY to DEV/Platform Owner) -->
         <div class="dev-sidebar-section" id="nav-dev-section" style="display:none;">
           <div class="dev-sidebar-title"><i class="fa-solid fa-terminal"></i> Infra & Suporte DEV</div>
-          <a class="nav-item" onclick="switchTab('view-cloud-storage')" data-target="view-cloud-storage" id="nav-cloud-storage"><i class="fa-solid fa-cloud" style="color:#22d3ee;"></i><span>Nuvem & Infra Cloud</span></a>
-          <a class="nav-item" onclick="switchTab('view-logs')" data-target="view-logs" id="nav-logs"><i class="fa-solid fa-shield-halved" style="color:#f87171;"></i><span>Auditoria de Logs Globais</span></a>
+          <a class="nav-item" onclick="switchTab('view-roles')" data-target="view-roles" id="nav-roles"><i class="fa-solid fa-user-shield" style="color:#a855f7;"></i><span>Permissões Técnicas</span></a>
+          <a class="nav-item" onclick="switchTab('view-logs')" data-target="view-logs" id="nav-logs"><i class="fa-solid fa-shield-halved" style="color:#f87171;"></i><span>Logs de Borda</span></a>
         </div>
 
         <div class="nav-divider"></div>
@@ -121,20 +121,24 @@
         <div class="login-wrapper">
           <div class="login-glass-card">
             <div class="login-brand">
-              <div class="brand-avatar-glow"><i class="fa-solid fa-chart-pie"></i></div>
-              <h2>GuiaData <span class="version-tag" style="background:rgba(37,99,235,0.2); color:#38bdf8; border:1px solid rgba(56,189,248,0.4); padding:2px 8px; border-radius:12px; font-size:0.75rem;">Enterprise</span></h2>
-              <p class="brand-subtitle">Plataforma Corporativa de Pesquisas de Campo & Inteligência</p>
-              <div class="server-status-pill">
-                <span class="status-pulse-dot" style="background:#10b981;"></span> Ambiente Seguro • Cloudflare Edge Dedicado
+              <div class="brand-avatar-glow" style="background: linear-gradient(135deg, #2563eb, #10b981); width:58px; height:58px; border-radius:16px; margin:0 auto 1rem auto; display:flex; align-items:center; justify-content:center; font-size:1.6rem; color:#fff; box-shadow:0 8px 24px rgba(37,99,235,0.4);"><i class="fa-solid fa-satellite-dish"></i></div>
+              <h2 style="font-size: 1.7rem; font-weight: 800; letter-spacing: -0.5px;">GuiaData <span class="version-tag" style="background:rgba(16,185,129,0.18); color:#34d399; border:1px solid rgba(16,185,129,0.4); padding:3px 10px; border-radius:12px; font-size:0.72rem; font-weight:700;"><i class="fa-solid fa-code-fork"></i> KoboToolbox Core</span></h2>
+              <p class="brand-subtitle" style="font-size: 0.85rem; color: #94a3b8; max-width: 380px; margin: 0.3rem auto 0.8rem auto;">Plataforma GuiaData PRO • Gestão Avançada de Pesquisas de Campo • ODK Collect & Google Drive</p>
+              <div style="display:flex; justify-content:center; gap:0.5rem; flex-wrap:wrap; margin-bottom:1rem;">
+                <span class="badge" style="background:rgba(56,189,248,0.12); color:#38bdf8; font-size:0.72rem; border:1px solid rgba(56,189,248,0.25); padding:3px 8px; border-radius:6px;"><i class="fa-solid fa-shield-halved"></i> Cloudflare Edge (14ms)</span>
+                <span class="badge" style="background:rgba(16,185,129,0.12); color:#34d399; font-size:0.72rem; border:1px solid rgba(16,185,129,0.25); padding:3px 8px; border-radius:6px;"><i class="fa-brands fa-google-drive"></i> Cold Storage Ativo</span>
               </div>
             </div>
 
-            <!-- Quick Access 1-Click Login (Enterprise Director) -->
-            <div class="quick-access-box">
-              <span class="quick-access-title">Demonstração Corporativa (1-Clique):</span>
-              <button type="button" class="quick-login-btn" style="width: 100%; justify-content: center; gap: 0.75rem; padding: 0.75rem 1rem;" onclick="quickLogin('Admin')" title="Entrar como Administrador da Empresa Contratante">
-                <i class="fa-solid fa-building-user" style="color: #38bdf8; font-size: 1.1rem;"></i>
-                <span style="font-weight:700;">Acesso Diretoria: Clara Admin</span>
+            <!-- Quick Access 1-Click Login (Diretoria GuiaData PRO) -->
+            <div class="quick-access-box" style="display:flex; flex-direction:column; gap:0.5rem;">
+              <span class="quick-access-title" style="font-weight:700; font-size:0.75rem; text-transform:uppercase; color:#94a3b8;">Acesso Instantâneo (Demonstração 1-Clique):</span>
+              <button type="button" class="quick-login-btn" style="width: 100%; justify-content: center; gap: 0.75rem; padding: 0.75rem 1rem; border-color: rgba(56,189,248,0.4); background: rgba(15,23,42,0.7);" onclick="quickLogin('Admin')" title="Entrar como Administrador da Empresa Contratante">
+                <i class="fa-solid fa-building-user" style="color: #38bdf8; font-size: 1.15rem;"></i>
+                <div style="text-align:left;">
+                  <div style="font-weight:700; color:#fff;">Diretoria: Clara Admin</div>
+                  <div style="font-size:0.7rem; color:#94a3b8;">Cria e gerencia equipe, projetos e questionários</div>
+                </div>
               </button>
             </div>
 
@@ -236,8 +240,51 @@
                 <i class="fa-solid fa-floppy-disk"></i> Modo Pen Drive
               </a>
               <button class="btn btn-primary" onclick="switchTab('view-form-builder'); newForm();">
-                <i class="fa-solid fa-plus"></i> Novo Projeto
+                <i class="fa-solid fa-plus"></i> Novo Projeto (XLSForm)
               </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- High-End KoboToolbox & Telemetry KPI Bar -->
+        <div class="kobo-kpi-bar" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+          <div class="kobo-kpi-card" style="background: linear-gradient(135deg, rgba(37,99,235,0.18), rgba(15,23,42,0.8)); border: 1px solid rgba(56,189,248,0.25); border-radius: 12px; padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(56,189,248,0.15); color: #38bdf8; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+              <i class="fa-solid fa-folder-tree"></i>
+            </div>
+            <div>
+              <div style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Pesquisas Registradas</div>
+              <div style="font-size: 1.4rem; font-weight: 800; color: #fff;" id="dash-kpi-projects">3 Projetos</div>
+            </div>
+          </div>
+
+          <div class="kobo-kpi-card" style="background: linear-gradient(135deg, rgba(16,185,129,0.18), rgba(15,23,42,0.8)); border: 1px solid rgba(16,185,129,0.25); border-radius: 12px; padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(16,185,129,0.15); color: #34d399; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+              <i class="fa-solid fa-satellite-dish"></i>
+            </div>
+            <div>
+              <div style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Entrevistas Coletadas</div>
+              <div style="font-size: 1.4rem; font-weight: 800; color: #fff;" id="dash-kpi-subs">6 Coletas</div>
+            </div>
+          </div>
+
+          <div class="kobo-kpi-card" style="background: linear-gradient(135deg, rgba(168,85,247,0.18), rgba(15,23,42,0.8)); border: 1px solid rgba(168,85,247,0.25); border-radius: 12px; padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(168,85,247,0.15); color: #c084fc; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+              <i class="fa-solid fa-mobile-screen"></i>
+            </div>
+            <div>
+              <div style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">ODK Collect Mobile</div>
+              <div style="font-size: 1.4rem; font-weight: 800; color: #34d399;">100% Offline</div>
+            </div>
+          </div>
+
+          <div class="kobo-kpi-card" style="background: linear-gradient(135deg, rgba(14,165,233,0.18), rgba(15,23,42,0.8)); border: 1px solid rgba(14,165,233,0.25); border-radius: 12px; padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(14,165,233,0.15); color: #38bdf8; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+              <i class="fa-brands fa-google-drive"></i>
+            </div>
+            <div>
+              <div style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Google Drive Storage</div>
+              <div style="font-size: 1.05rem; font-weight: 800; color: #fff;">Conectado</div>
             </div>
           </div>
         </div>
@@ -294,31 +341,46 @@
         </div>
 
         <!-- ODK Collect Connection Guide -->
-        <div class="card" id="odk-guide-section" style="margin-top: 2rem;">
-          <div class="card-header">
-            <h3 class="card-title"><i class="fa-solid fa-mobile-screen-button" style="color:var(--primary);"></i> Como Conectar o Celular Android (ODK Collect)</h3>
+        <div class="card" id="odk-guide-section" style="margin-top: 2rem; border: 1px solid rgba(16,185,129,0.3); background: linear-gradient(145deg, rgba(15,23,42,0.9), rgba(16,185,129,0.06));">
+          <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+            <div style="display:flex; align-items:center; gap:0.75rem;">
+              <div style="width:38px; height:38px; border-radius:10px; background:rgba(16,185,129,0.15); color:#10b981; display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
+                <i class="fa-solid fa-mobile-screen-button"></i>
+              </div>
+              <div>
+                <h3 class="card-title" style="margin:0; font-size:1.05rem; font-weight:700;">Central de Coleta Mobile (ODK Collect & KoboCollect)</h3>
+                <span style="font-size:0.75rem; color:#94a3b8;">Protocolo OpenRosa 1.0 Oficial • Coleta 100% Offline com GPS de satélite e gravação de áudio</span>
+              </div>
+            </div>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <button class="btn btn-sm btn-primary" onclick="openOdkQrModal()">
+                <i class="fa-solid fa-qrcode"></i> Vincular Celular (QR Code)
+              </button>
+              <a href="https://drive.google.com/drive/folders/1IH2cWAAtNLuUfzeaVpDmv4pn6p3AQozQ" target="_blank" class="btn btn-sm btn-outline" style="border-color:rgba(56,189,248,0.4); color:#38bdf8;">
+                <i class="fa-brands fa-google-drive"></i> Abrir Google Drive
+              </a>
+            </div>
           </div>
-          <p class="text-muted" style="margin-bottom: 1.25rem;">Os pesquisadores em campo utilizam o aplicativo gratuito <b>ODK Collect</b> para responder questionários offline com GPS e áudio.</p>
-          <div class="steps-grid">
+          <div class="steps-grid" style="margin-top:1.25rem;">
             <div class="step-card">
               <div class="step-number">1</div>
               <h4>Instale o Aplicativo</h4>
-              <p>Baixe o <b>ODK Collect</b> gratuitamente na Google Play Store no smartphone do pesquisador.</p>
+              <p>Baixe o <b>ODK Collect</b> gratuitamente na Google Play Store no smartphone Android do pesquisador.</p>
             </div>
             <div class="step-card">
               <div class="step-number">2</div>
               <h4>Configure o Servidor</h4>
-              <p>No app, acesse <i>Configurações > Servidor</i> e cole o endereço:<br>
+              <p>No app, acesse <i>Configurações > Servidor</i> e cole o endereço oficial:<br>
                 <div style="margin-top:0.5rem; display:flex; gap:0.5rem; align-items:center;">
-                  <code id="odk-server-url" style="background: rgba(0,0,0,0.3); border:1px solid var(--glass-border); padding: 4px 8px; border-radius: 4px; color: var(--primary);">http://localhost:3000/api</code>
-                  <button class="btn btn-sm btn-outline" onclick="copyOdkUrl()" title="Copiar endereço"><i class="fa-solid fa-copy"></i></button>
+                  <code id="odk-server-url" style="background: rgba(0,0,0,0.4); border:1px solid var(--glass-border); padding: 5px 10px; border-radius: 6px; color: #38bdf8; font-family:var(--mono); font-size:0.82rem;">https://guiadata.sistemagithub.workers.dev</code>
+                  <button class="btn btn-sm btn-outline" onclick="navigator.clipboard.writeText('https://guiadata.sistemagithub.workers.dev'); showToast('success', 'URL copiada!');" title="Copiar endereço"><i class="fa-solid fa-copy"></i></button>
                 </div>
               </p>
             </div>
             <div class="step-card">
               <div class="step-number">3</div>
               <h4>Sincronize e Colete</h4>
-              <p>Clique em <b>Obter Formulário em Branco</b>. As entrevistas salvas aparecerão instantaneamente na sua plataforma web!</p>
+              <p>Clique em <b>Obter Formulário em Branco</b>. As entrevistas salvas aparecerão instantaneamente na sua plataforma web e mídias no Google Drive!</p>
             </div>
           </div>
         </div>
@@ -467,6 +529,10 @@
                 <option value="published">Publicado</option>
               </select>
 
+              <button type="button" class="btn btn-sm btn-outline" style="border-color: #38bdf8; color: #38bdf8;" onclick="testOdkFormCompliance()" title="Verificar se o questionário é 100% compatível com o ODK Collect Android">
+                <i class="fa-solid fa-flask-vial"></i> Testar no ODK
+              </button>
+
               <button type="button" class="btn btn-sm btn-primary" id="btn-save-form" onclick="saveActiveForm()" title="Salvar alterações no rascunho">
                 <i class="fa-solid fa-floppy-disk"></i> Salvar Rascunho
               </button>
@@ -478,25 +544,31 @@
           </div>
             <div class="sys-sub-bar">
               <div class="sys-sub-left">
-                <button onclick="previewActiveForm()" title="Visualizar (Simulador): Teste a lógica de pulos, restrições numéricas e obrigatoriedade como se estivesse usando o aplicativo móvel."><i class="fa-solid fa-eye"></i></button>
-                <button onclick="toggleCollapseQuestions()" title="Expandir/Recolher: Alterna entre a visualização completa ou resumida das perguntas para facilitar a navegação em formulários longos."><i class="fa-solid fa-list-ul"></i></button>
-                <button onclick="duplicateActiveForm()" title="Duplicar Formulário: Cria uma cópia inteira deste projeto de pesquisa."><i class="fa-solid fa-copy"></i></button>
-                <button onclick="openFormSettings()" title="Configurações Globais: Ative coleta de GPS/Áudio oculta no fundo ou troque o visual do simulador."><i class="fa-solid fa-gear"></i></button>
-                <button onclick="openXmlViewer()" title="Ver Código Fonte (XML): Visualiza o código OpenRosa/XForm bruto gerado nos bastidores por este construtor visual."><i class="fa-solid fa-code"></i></button>
+                <button onclick="previewActiveForm()" title="Visualizar (Simulador Enketo/ODK): Teste a experiência real de campo com validação instantânea."><i class="fa-solid fa-eye"></i> Simular Coleta</button>
+                <button onclick="toggleCollapseQuestions()" title="Expandir/Recolher perguntas"><i class="fa-solid fa-list-ul"></i> Recolher/Expandir</button>
+                <button onclick="duplicateActiveForm()" title="Duplicar Formulário"><i class="fa-solid fa-copy"></i> Duplicar</button>
+                <button onclick="openFormSettings()" title="Configurações Globais"><i class="fa-solid fa-gear"></i> Configurações</button>
+                <button onclick="openXmlViewer()" title="Ver Código Fonte (XML OpenRosa)"><i class="fa-solid fa-code"></i> Código XML XForms</button>
               </div>
               <div class="sys-sub-right">
-                <button onclick="document.getElementById('question-library-modal').classList.add('active')"><i class="fa-solid fa-book"></i> Adicionar da Biblioteca</button>
+                <button onclick="document.getElementById('question-library-modal').classList.add('active')"><i class="fa-solid fa-book"></i> Biblioteca Geral</button>
               </div>
             </div>
 
-            <!-- Quick Templates Bar -->
+            <!-- Quick Templates Bar (Manaus & Professional Research Modules) -->
             <div class="quick-templates-bar">
-              <span class="quick-templates-label"><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--cyan);"></i> Modelos Rápidos:</span>
-              <button type="button" class="quick-template-btn" onclick="insertQuickTemplate('demografico')" title="Inserir perguntas padronizadas de Gênero, Faixa Etária, Escolaridade e Renda Familiar"><i class="fa-solid fa-users"></i> Bloco Demográfico</button>
+              <span class="quick-templates-label"><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--cyan);"></i> Blocos Prontos:</span>
+              <button type="button" class="quick-template-btn manaus" onclick="insertQuickTemplate('manaus_territorio')" title="Inserir Zonas de Manaus (Norte, Leste, Sul, Oeste, Centro-Sul, Centro-Oeste) + Lista dos 63 Bairros"><i class="fa-solid fa-map-location-dot"></i> Território Manaus (Zonas & Bairros)</button>
+              <button type="button" class="quick-template-btn eleitoral" onclick="insertQuickTemplate('eleitoral_completo')" title="Inserir Voto Espontâneo, Voto Estimulado e Rejeição Eleitoral"><i class="fa-solid fa-check-to-slot"></i> Módulo Eleitoral</button>
+              <button type="button" class="quick-template-btn" onclick="insertQuickTemplate('avaliacao_gestao')" title="Inserir Avaliação da Prefeitura de Manaus e Governo Estadual"><i class="fa-solid fa-landmark"></i> Avaliação de Gestão</button>
+              <button type="button" class="quick-template-btn" onclick="insertQuickTemplate('demografico')" title="Inserir perguntas padronizadas IBGE: Gênero, Faixa Etária, Escolaridade e Renda Familiar"><i class="fa-solid fa-users"></i> Perfil Demográfico IBGE</button>
+              <button type="button" class="quick-template-btn" onclick="insertQuickTemplate('auditoria_campo')" title="Inserir Ponto GPS Obrigatório + Foto Fachada + Áudio de Verificação"><i class="fa-solid fa-camera"></i> Auditoria GPS + Foto + Áudio</button>
               <button type="button" class="quick-template-btn" onclick="insertQuickTemplate('nps')" title="Inserir pergunta padronizada de recomendação NPS 0 a 10"><i class="fa-solid fa-chart-line"></i> Escala NPS (0 a 10)</button>
-              <button type="button" class="quick-template-btn" onclick="insertQuickTemplate('auditoria_campo')" title="Inserir Foto da Fachada + Ponto GPS Obrigatório"><i class="fa-solid fa-camera"></i> Foto + GPS Auditoria</button>
               <button type="button" class="quick-template-btn" onclick="insertQuickTemplate('termo_lgpd')" title="Inserir Termo de Consentimento e Proteção de Dados LGPD"><i class="fa-solid fa-shield-halved"></i> Consentimento LGPD</button>
             </div>
+            
+            <!-- ODK Real-Time Intelligent Validation Assistant (Kobo Style) -->
+            <div id="kobo-validator-container"></div>
             
             <!-- ODK Status Panel -->
             <div id="odk-status-panel" style="display:none; background-color:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.3); margin:1rem 1rem 0 1rem; padding:1rem; border-radius:8px;">
@@ -1028,9 +1100,12 @@
               <h1 id="project-details-title-top" style="font-size: 1.15rem; font-weight: 700; margin: 0; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">CARREGANDO PROJETO...</h1>
               <div id="pd-status-badge-top" style="margin-left: 0.5rem;"></div>
             </div>
-            <div style="display: flex; align-items: center; gap: 0.8rem;">
-              <button class="btn btn-sm btn-outline" onclick="openOdkQrModal()" title="Gerar QR Code para conexão instantânea do ODK Collect"><i class="fa-solid fa-qrcode" style="color:var(--cyan);"></i> Conectar Celular (QR Code)</button>
-              <button class="btn btn-sm btn-outline" onclick="exportProjectDataXLSX()" title="Exportar XLSX direto"><i class="fa-solid fa-file-excel" style="color:#10b981;"></i> Exportar Excel</button>
+            <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+              <button class="btn btn-sm btn-outline" onclick="openOdkQrModal()" title="Gerar QR Code para conexão instantânea do ODK Collect"><i class="fa-solid fa-qrcode" style="color:var(--cyan);"></i> Conectar Celular</button>
+              <button class="btn btn-sm btn-outline" onclick="exportProjectDataXLSX()" title="Exportar XLSX direto"><i class="fa-solid fa-file-excel" style="color:#10b981;"></i> Excel</button>
+              <button class="btn btn-sm btn-outline" onclick="exportProjectSpss()" title="Exportar Sintaxe SPSS (.sps)"><i class="fa-solid fa-file-code" style="color:#38bdf8;"></i> SPSS</button>
+              <button class="btn btn-sm btn-outline" onclick="exportProjectR()" title="Exportar Script R (.R)"><i class="fa-solid fa-chart-column" style="color:#a855f7;"></i> Script R</button>
+              <button class="btn btn-sm btn-outline" onclick="exportProjectCodebook()" title="Dicionário de Variáveis (Codebook)"><i class="fa-solid fa-book" style="color:#f59e0b;"></i> Dicionário</button>
               <div class="sys-owner-circle" style="background: linear-gradient(135deg, var(--primary), var(--indigo)); border: 2px solid rgba(255,255,255,0.2); font-weight:700;" id="pd-owner-initial-top">C</div>
             </div>
           </div>
@@ -1085,6 +1160,50 @@
                     <div>
                       <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Última Modificação</div>
                       <div id="pd-last-mod" style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin-top: 0.25rem;">Hoje</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ODK Collect & Web Integration Card (KoboToolbox Style) -->
+                <div class="card" style="margin-bottom: 1.5rem; border: 1px solid rgba(16,185,129,0.35); background: linear-gradient(135deg, rgba(15,23,42,0.9), rgba(16,185,129,0.06));">
+                  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+                    <div style="display:flex; align-items:center; gap:0.75rem;">
+                      <div style="width:42px; height:42px; border-radius:10px; background:rgba(16,185,129,0.15); color:#10b981; display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
+                        <i class="fa-solid fa-mobile-screen-button"></i>
+                      </div>
+                      <div>
+                        <h3 style="font-size:1.05rem; font-weight:700; color:#fff; margin:0;">Conexão de Campo (ODK Collect Android)</h3>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">Protocolo OpenRosa Oficial • Coleta 100% Offline com GPS e Áudio</span>
+                      </div>
+                    </div>
+                    <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                      <button class="btn btn-primary btn-sm" onclick="openOdkQrModal()" style="gap:0.4rem;">
+                        <i class="fa-solid fa-qrcode"></i> Conectar Celular (QR Code)
+                      </button>
+                      <button class="btn btn-outline btn-sm" onclick="openWebFormForActiveProject()" style="border-color:#38bdf8; color:#38bdf8; gap:0.4rem;">
+                        <i class="fa-solid fa-globe"></i> Preencher no Navegador
+                      </button>
+                      <button class="btn btn-outline btn-sm" onclick="publishActiveProject()" style="border-color:#10b981; color:#10b981; gap:0.4rem;" title="Disponibilizar nova versão para download no ODK Collect">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Publicar / Atualizar no ODK
+                      </button>
+                    </div>
+                  </div>
+
+                  <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:1rem; padding-top:0.75rem; border-top:1px solid rgba(255,255,255,0.06);">
+                    <div style="background:rgba(0,0,0,0.25); border:1px solid var(--glass-border); border-radius:8px; padding:0.75rem 1rem;">
+                      <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:600;">URL do Servidor ODK Collect:</span>
+                      <div style="display:flex; align-items:center; justify-content:space-between; margin-top:4px;">
+                        <code id="resumo-odk-server-url" style="color:#38bdf8; font-size:0.85rem; font-family:var(--mono);">https://guiadata.sistemagithub.workers.dev</code>
+                        <button class="btn-icon" onclick="navigator.clipboard.writeText('https://guiadata.sistemagithub.workers.dev'); showToast('success', 'URL copiada com sucesso!');" title="Copiar URL"><i class="fa-solid fa-copy"></i></button>
+                      </div>
+                    </div>
+
+                    <div style="background:rgba(0,0,0,0.25); border:1px solid var(--glass-border); border-radius:8px; padding:0.75rem 1rem;">
+                      <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Nuvem de Mídias (Google Drive):</span>
+                      <div style="display:flex; align-items:center; justify-content:space-between; margin-top:4px;">
+                        <span style="color:#34d399; font-size:0.82rem;"><i class="fa-solid fa-circle-check"></i> Sincronização Ativa</span>
+                        <a href="https://drive.google.com/drive/folders/1IH2cWAAtNLuUfzeaVpDmv4pn6p3AQozQ" target="_blank" style="color:#38bdf8; font-size:0.75rem; text-decoration:underline;">Ver Pasta Google Drive &rarr;</a>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1804,7 +1923,7 @@
       <!-- ===== VIEW: CLOUD & INFRASTRUCTURE ===== -->
       <section id="view-cloud-storage" class="view-panel">
         <div class="page-header">
-          <h1 class="page-title"><i class="fa-solid fa-cloud" style="color:var(--cyan);"></i> Nuvem & Infraestrutura Enterprise</h1>
+          <h1 class="page-title"><i class="fa-solid fa-cloud" style="color:var(--cyan);"></i> Nuvem & Infraestrutura GuiaData PRO</h1>
           <p class="page-subtitle">Arquitetura de Borda (Cloudflare Edge Protection) e Armazenamento Perpétuo em Nuvem (Google Drive Cold Storage).</p>
         </div>
         <div class="view-pad">
@@ -1869,45 +1988,58 @@
             </div>
 
             <!-- Google Drive Card -->
-            <div class="card">
+            <div class="card" style="border: 1px solid rgba(56,189,248,0.3); background: linear-gradient(135deg, rgba(15,23,42,0.8), rgba(2,132,199,0.08));">
               <div class="card-header">
                 <div style="display:flex; align-items:center; gap:0.6rem;">
                   <div style="width:36px; height:36px; border-radius:var(--r-md); background:rgba(34,211,238,0.15); color:var(--cyan); display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
                     <i class="fa-brands fa-google-drive"></i>
                   </div>
                   <div>
-                    <h3 class="card-title" style="margin:0;">Google Drive Cold Storage</h3>
-                    <span style="font-size:0.68rem; color:var(--text-muted);">Armazenamento Perpétuo & Backup de Mídias</span>
+                    <h3 class="card-title" style="margin:0;">Google Drive Cloud Storage</h3>
+                    <span style="font-size:0.68rem; color:var(--text-muted);">Armazenamento Seguro de Áudios, Fotos & Backups</span>
                   </div>
                 </div>
-                <span class="sys-status-badge" id="gdrive-status-badge"><span class="status-pulse-dot"></span> Conectado</span>
+                <span class="sys-status-badge" id="gdrive-status-badge" style="background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3);"><span class="status-pulse-dot"></span> Conectado</span>
               </div>
               
               <div>
                 <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted);">
-                  <span>Capacidade em Nuvem Utilizada</span>
-                  <span id="gdrive-quota-text">14.2 GB / 2.0 TB</span>
+                  <span>Capacidade Utilizada em Nuvem</span>
+                  <span id="gdrive-quota-text">0.12 GB / 15.0 GB</span>
                 </div>
-                <div class="cloud-storage-bar">
-                  <div class="cloud-storage-fill" id="gdrive-quota-bar" style="width: 8%;"></div>
+                <div class="cloud-storage-bar" style="margin-top:0.3rem;">
+                  <div class="cloud-storage-fill" id="gdrive-quota-bar" style="width: 2%; background: linear-gradient(90deg, #38bdf8, #10b981);"></div>
                 </div>
               </div>
 
-              <div class="cloud-metric-row" style="margin-top:0.6rem;">
-                <span class="cloud-metric-label"><i class="fa-solid fa-user-check" style="color:var(--cyan);"></i> Conta Corporativa</span>
-                <span class="cloud-metric-val" id="gdrive-account" style="font-size:0.75rem;">nuvem.auditoria@guiadata.corp</span>
+              <div class="cloud-metric-row" style="margin-top:0.8rem;">
+                <span class="cloud-metric-label"><i class="fa-solid fa-user-check" style="color:var(--cyan);"></i> Conta Conectada</span>
+                <span class="cloud-metric-val" id="gdrive-account" style="font-size:0.8rem; font-weight:600; color:#fff;">sistemagithub@gmail.com</span>
+              </div>
+              <div class="cloud-metric-row">
+                <span class="cloud-metric-label"><i class="fa-solid fa-folder-closed" style="color:var(--amber);"></i> ID da Pasta Remota</span>
+                <span class="cloud-metric-val" id="gdrive-folder-id" style="font-family:monospace; font-size:0.75rem; color:#38bdf8;">1IH2cWAAtNLuUfzeaVpDmv4pn6p3AQozQ</span>
               </div>
               <div class="cloud-metric-row">
                 <span class="cloud-metric-label"><i class="fa-solid fa-microphone" style="color:var(--indigo);"></i> Áudios Sincronizados</span>
-                <span class="cloud-metric-val" id="gdrive-audios">Carregando...</span>
+                <span class="cloud-metric-val" id="gdrive-audios">3 arquivos (.m4a/.mp3)</span>
               </div>
               <div class="cloud-metric-row">
                 <span class="cloud-metric-label"><i class="fa-solid fa-file-invoice" style="color:var(--green);"></i> Entrevistas em Nuvem</span>
-                <span class="cloud-metric-val" id="gdrive-interviews">Carregando...</span>
+                <span class="cloud-metric-val" id="gdrive-interviews">Sincronização em tempo real</span>
               </div>
               <div class="cloud-metric-row">
                 <span class="cloud-metric-label"><i class="fa-solid fa-clock-rotate-left" style="color:var(--amber);"></i> Último Backup</span>
-                <span class="cloud-metric-val" id="gdrive-last-sync">Agora mesmo</span>
+                <span class="cloud-metric-val" id="gdrive-last-sync">Hoje</span>
+              </div>
+
+              <div style="margin-top: 1.25rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <a href="https://drive.google.com/drive/folders/1IH2cWAAtNLuUfzeaVpDmv4pn6p3AQozQ" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm" style="flex: 1; justify-content: center; gap: 0.5rem; background: #0284c7;">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir Pasta no Google Drive
+                </a>
+                <button class="btn btn-outline btn-sm" onclick="syncGoogleDriveNow()" style="border-color: var(--glass-border); color: #fff;">
+                  <i class="fa-solid fa-rotate"></i> Sincronizar
+                </button>
               </div>
             </div>
 
@@ -1955,7 +2087,7 @@
           </div>
           <div style="display:flex; align-items:center; gap:0.5rem;">
             <span class="badge" style="background:linear-gradient(135deg, #0284c7, #6366f1); color:#fff; font-size:0.75rem; padding:6px 14px; font-weight:700; border-radius:999px; box-shadow:0 0 12px rgba(56,189,248,0.35);">
-              <i class="fa-solid fa-crown" style="color:#fbbf24;"></i> PLANO ENTERPRISE: R$ 3.500 / MÊS
+              <i class="fa-solid fa-shield-halved" style="color:#38bdf8;"></i> LICENÇA GUIA DATA PRO: R$ 3.500 / MÊS
             </span>
           </div>
         </div>
@@ -2257,7 +2389,7 @@
       <div class="modal-overlay" id="vip-ticket-modal">
         <div class="modal-box" style="max-width: 520px;">
           <div class="modal-title"><i class="fa-solid fa-headset" style="color:var(--cyan);"></i> Abrir Chamado VIP de Engenharia</div>
-          <p class="modal-message" style="margin-bottom:1rem;">Suporte prioritário do Plano Enterprise (R$ 3.500/mês).</p>
+          <p class="modal-message" style="margin-bottom:1rem;">Suporte prioritário do Plano GuiaData PRO (R$ 3.500/mês).</p>
           
           <div class="form-group">
             <label class="form-label">Severidade / Nível de Urgência</label>
@@ -2372,6 +2504,6 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="js/app.js?v=3.6.0_enterprise"></script>
+  <script src="js/app.js?v=6.0.0_guiadata_pro"></script>
 </body>
 </html>

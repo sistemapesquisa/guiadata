@@ -3024,6 +3024,443 @@ textarea:focus-visible {
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
 }
 
+/* =====================================================================
+   GUIADATA PRO - HIGH-DENSITY OPERATIONAL PROJECT LIST (MANAUS FIELD OPS)
+   ===================================================================== */
+.proj-table-container {
+  background: #0d1527;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  overflow-x: auto;
+  box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.5);
+  margin-top: 0.5rem;
+}
+
+.proj-table-header {
+  display: grid;
+  grid-template-columns: minmax(260px, 2.5fr) minmax(180px, 1.6fr) 110px 140px 100px 100px 220px;
+  align-items: center;
+  background: #152238;
+  padding: 0.8rem 1.25rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #94a3b8;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.proj-row {
+  display: grid;
+  grid-template-columns: minmax(260px, 2.5fr) minmax(180px, 1.6fr) 110px 140px 100px 100px 220px;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.15s ease;
+  cursor: pointer;
+  background: transparent;
+  gap: 0.75rem;
+}
+
+.proj-row:hover {
+  background: rgba(30, 48, 80, 0.55);
+}
+
+.proj-row:last-child {
+  border-bottom: none;
+}
+
+.td-main {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+.proj-status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-dot-active {
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+}
+
+.status-dot-draft {
+  background: #f59e0b;
+  box-shadow: 0 0 8px #f59e0b;
+}
+
+.status-dot-archived {
+  background: #64748b;
+}
+
+.proj-info-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.proj-title-text {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.2px;
+}
+
+.proj-sub-meta {
+  font-size: 0.73rem;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.proj-territory-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(56, 189, 248, 0.1);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.22);
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  max-width: 175px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.status-badge-compact {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.73rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.status-badge-compact.active {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.status-badge-compact.draft {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.status-badge-compact.archived {
+  background: rgba(100, 116, 139, 0.2);
+  color: #94a3b8;
+  border: 1px solid rgba(100, 116, 139, 0.3);
+}
+
+.td-sample {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sample-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  color: #cbd5e1;
+}
+
+.sample-pct {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+.mini-progress-track {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.mini-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0284c7, #10b981);
+  border-radius: 2px;
+}
+
+.td-odk {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.odk-ver {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: #38bdf8;
+}
+
+.td-updated {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.td-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.btn-action-compact {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: rgba(255, 255, 255, 0.06);
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+}
+
+.btn-action-compact:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.btn-action-compact.primary {
+  background: linear-gradient(135deg, #0284c7, #2563eb);
+  color: #fff;
+  border-color: rgba(56, 189, 248, 0.4);
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+}
+
+.btn-action-compact.primary:hover {
+  background: linear-gradient(135deg, #0369a1, #1d4ed8);
+}
+
+.btn-action-compact.excel {
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.3);
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.btn-action-compact.excel:hover {
+  background: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+}
+
+/* Mobile responsive fallback for project table */
+@media (max-width: 960px) {
+  .proj-table-header {
+    display: none;
+  }
+  .proj-row {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+    padding: 1rem;
+  }
+}
+
+/* =====================================================================
+   KOBOTOOLBOX / GUIADATA PRO INTELLIGENT FORM BUILDER STYLES
+   ===================================================================== */
+.kobo-validator-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.9rem 1.25rem;
+  border-radius: 10px;
+  margin: 1rem 1rem 0 1rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+  transition: all 0.2s ease;
+}
+
+.kobo-validator-banner.valid {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.14), rgba(6, 78, 59, 0.25));
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.kobo-validator-banner.invalid {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.14), rgba(127, 29, 29, 0.25));
+  border: 1px solid rgba(239, 68, 68, 0.45);
+}
+
+.kobo-validator-banner.warning {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.14), rgba(120, 53, 15, 0.25));
+  border: 1px solid rgba(245, 158, 11, 0.45);
+}
+
+.kobo-valid-left, .kobo-invalid-left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  font-size: 0.85rem;
+}
+
+.kobo-valid-left i {
+  font-size: 1.4rem;
+  color: #34d399;
+}
+
+.kobo-invalid-left i {
+  font-size: 1.4rem;
+  color: #f87171;
+}
+
+.kobo-valid-left strong {
+  color: #34d399;
+  display: block;
+  font-size: 0.92rem;
+}
+
+.kobo-valid-left p, .kobo-invalid-left p {
+  margin: 2px 0 0 0;
+  font-size: 0.78rem;
+  color: #cbd5e1;
+}
+
+.kobo-invalid-left strong {
+  color: #f87171;
+  display: block;
+  font-size: 0.92rem;
+}
+
+.kobo-error-list {
+  margin: 0.35rem 0 0 0;
+  padding-left: 1.2rem;
+  font-size: 0.78rem;
+  color: #fca5a5;
+}
+
+.kobo-valid-right, .kobo-invalid-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Quick Templates Bar */
+.quick-templates-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem;
+  background: rgba(15, 23, 42, 0.75);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.quick-templates-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #94a3b8;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.quick-template-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  padding: 0.3rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.15s ease;
+}
+
+.quick-template-btn:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
+  transform: translateY(-1px);
+}
+
+.quick-template-btn.manaus {
+  border-color: rgba(34, 197, 94, 0.35);
+  color: #4ade80;
+  background: rgba(34, 197, 94, 0.08);
+}
+.quick-template-btn.manaus:hover {
+  background: rgba(34, 197, 94, 0.2);
+  color: #86efac;
+}
+
+.quick-template-btn.eleitoral {
+  border-color: rgba(168, 85, 247, 0.35);
+  color: #c084fc;
+  background: rgba(168, 85, 247, 0.08);
+}
+.quick-template-btn.eleitoral:hover {
+  background: rgba(168, 85, 247, 0.2);
+  color: #e9d5ff;
+}
+
+.kobo-stat-label {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.kobo-stat-val {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.kobo-progress-wrapper {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.kobo-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8, #10b981);
+  border-radius: 9999px;
+  transition: width 0.5s ease;
+}
+
 
 
 
