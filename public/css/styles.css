@@ -109,6 +109,11 @@
   --font:             var(--font-sans);
   --mono:             'JetBrains Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --font-mono:        var(--mono);
+  --font-body:        var(--font-sans);
+  --bg-deep:          var(--bg-root);
+  --ease:             cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out:         cubic-bezier(0, 0, 0.2, 1);
+  --spring:           cubic-bezier(0.34, 1.56, 0.64, 1);
 
   --sidebar-w:        240px;
 }
