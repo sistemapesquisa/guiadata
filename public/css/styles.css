@@ -320,6 +320,75 @@ button {
   font-family: var(--font-sans);
 }
 
+/* =====================================================================
+   MODO CAMPO & AUDITORIA: TIPOGRAFIA EM MAIUSCULAS (CAPS LOCK NO SISTEMA)
+   ===================================================================== */
+h1, h2, h3, h4, h5, h6,
+.page-title,
+.page-subtitle,
+.card-title,
+.card-header,
+.modal-title,
+.sidebar-logo,
+.system-sublabel,
+.sidebar-nav .nav-item,
+.sidebar-user-name,
+.sidebar-user-role,
+.theme-label,
+.theme-btn,
+.data-table th,
+.data-table td,
+.proj-table-header,
+.proj-title-text,
+.proj-territory-text,
+.proj-territory-pill,
+.td-sample,
+.sample-stat-row,
+.td-updated,
+.status-badge-compact,
+.sys-status-badge,
+.badge,
+.badge-role,
+.btn,
+button,
+.btn-table-primary,
+.btn-table-more,
+.exec-nav-btn,
+.team-filter-pill,
+.proj-filter-pill,
+.kpi-summary-strip,
+.kpi-item,
+.kpi-status-text,
+label,
+.form-label,
+.quick-templates-label,
+.exec-subnav-bar,
+.sys-top-bar,
+.sys-project-header,
+.table-dropdown-menu button,
+.table-dropdown-menu a,
+.row-action-dropdown .dropdown-item,
+.form-select,
+.login-brand h2,
+.brand-subtitle,
+.quick-access-title {
+  text-transform: uppercase;
+  letter-spacing: 0.25px;
+}
+
+/* Excecoes tecnicas obrigatorias para credenciais e codigo */
+input[type="password"],
+input[type="email"],
+code,
+pre,
+.code-block,
+#xml-viewer-code,
+#resumo-odk-server-url,
+#gdrive-folder-id {
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
 /* Scrollbar Sóbrio */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
