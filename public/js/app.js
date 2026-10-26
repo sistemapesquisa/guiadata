@@ -1,3 +1,84 @@
+
+// =====================================================================
+// TEMA CLARO (PADRÃO) / ESCURO / AUTO & MENU DE PROJETO
+// =====================================================================
+window.setAppTheme = function(theme) {
+  try {
+    localStorage.setItem('guiadata_theme', theme);
+  } catch(e) {}
+  applyAppTheme(theme);
+};
+
+function applyAppTheme(theme) {
+  const root = document.documentElement;
+  const btnLight = document.getElementById('theme-btn-light');
+  const btnDark = document.getElementById('theme-btn-dark');
+  const btnAuto = document.getElementById('theme-btn-auto');
+
+  if (btnLight) btnLight.classList.remove('active');
+  if (btnDark) btnDark.classList.remove('active');
+  if (btnAuto) btnAuto.classList.remove('active');
+
+  if (theme === 'dark') {
+    root.setAttribute('data-theme', 'dark');
+    if (btnDark) btnDark.classList.add('active');
+  } else if (theme === 'light') {
+    root.setAttribute('data-theme', 'light');
+    if (btnLight) btnLight.classList.add('active');
+  } else {
+    // Auto: segue navegador
+    root.removeAttribute('data-theme');
+    if (btnAuto) btnAuto.classList.add('active');
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      root.setAttribute('data-theme', 'dark');
+    } else {
+      root.setAttribute('data-theme', 'light');
+    }
+  }
+}
+
+// Inicializa tema no carregamento: Padrão Tema Claro conforme solicitado!
+(function initThemeOnLoad() {
+  let savedTheme = 'light';
+  try {
+    savedTheme = localStorage.getItem('guiadata_theme') || 'light';
+  } catch(e) {}
+  applyAppTheme(savedTheme);
+
+  if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      let cur = 'light';
+      try { cur = localStorage.getItem('guiadata_theme'); } catch(e) {}
+      if (!cur || cur === 'auto') {
+        applyAppTheme('auto');
+      }
+    });
+  }
+})();
+
+// Fechamento e abertura de menus suspensos de projetos
+window.toggleProjectMenu = function(formId, ev) {
+  if (ev) ev.stopPropagation();
+  const allMenus = document.querySelectorAll('.table-dropdown-menu');
+  const targetMenu = document.getElementById('proj-menu-' + formId);
+  const isCurrentlyOpen = targetMenu && targetMenu.style.display === 'flex';
+
+  allMenus.forEach(m => m.style.display = 'none');
+  if (targetMenu && !isCurrentlyOpen) {
+    targetMenu.style.display = 'flex';
+  }
+};
+
+window.closeProjectMenus = function() {
+  document.querySelectorAll('.table-dropdown-menu').forEach(m => m.style.display = 'none');
+};
+
+document.addEventListener('click', function(ev) {
+  if (!ev.target.closest('.td-actions')) {
+    window.closeProjectMenus();
+  }
+});
+
 /* =========================================================
    GuiaData — Plataforma de Pesquisa de Campo
    app.js — Core Application Logic
@@ -534,18 +615,20 @@ function renderDashboard() {
           <div class="proj-info-block">
             <span class="proj-title-text">${cleanTitle}</span>
             <span class="proj-sub-meta">
-              <code>${form.id}</code> • 
-              <span class="badge" style="padding:1px 6px; font-size:0.68rem; background:rgba(255,255,255,0.06); color:#cbd5e1;">${catLabel}</span> • 
-              <span>${year}</span>
+              <code>${form.id}</code>
             </span>
           </div>
         </div>
 
-        <div class="td-territory">
-          <span class="proj-territory-pill"><i class="fa-solid fa-map-location-dot"></i> ${territory}</span>
+        <div>
+          <span class="badge" style="padding:1px 6px; font-size:0.7rem; background:var(--bg-subtle); color:var(--text-secondary); border:1px solid var(--border);">${catLabel} · ${year}</span>
         </div>
 
-        <div class="td-status">
+        <div class="proj-territory-text" title="${territory}">
+          ${territory}
+        </div>
+
+        <div>
           <span class="status-badge-compact ${statusBadgeClass}">${statusBadgeText}</span>
         </div>
 
@@ -559,28 +642,21 @@ function renderDashboard() {
           </div>
         </div>
 
-        <div class="td-odk">
-          <span style="font-weight:600; color:#fff;">${qCount} qsts</span>
-          <span class="odk-ver">XForms v${form.version || 1}.0</span>
-        </div>
-
         <div class="td-updated">
-          <span>${modDateStr}</span>
+          ${modDateStr}
         </div>
 
         <div class="td-actions" onclick="event.stopPropagation()">
-          <button type="button" class="btn-action-compact primary" onclick="event.stopPropagation(); openProject('${form.id}')" title="Abrir Área de Trabalho">
-            <i class="fa-solid fa-folder-open"></i> Abrir
-          </button>
-          <button type="button" class="btn-action-compact" onclick="event.stopPropagation(); sysEditFormFromId('${form.id}')" title="Editar Questionário no Construtor">
-            <i class="fa-solid fa-sliders"></i> Form
-          </button>
-          <button type="button" class="btn-action-compact" onclick="event.stopPropagation(); openOdkQrModal()" title="Gerar QR Code ODK Collect">
-            <i class="fa-solid fa-qrcode"></i> ODK
-          </button>
-          <a href="/api/export/xlsx/${form.id}" class="btn-action-compact excel" onclick="event.stopPropagation()" title="Baixar Dados em Excel (.xlsx)">
-            <i class="fa-solid fa-file-excel"></i> XLSX
-          </a>
+          <button type="button" class="btn-table-primary" onclick="event.stopPropagation(); openProject('${form.id}')">Abrir</button>
+          <button type="button" class="btn-table-more" onclick="event.stopPropagation(); window.toggleProjectMenu('${form.id}', event)" title="Mais opções">⋯</button>
+          <div class="table-dropdown-menu" id="proj-menu-${form.id}" style="display: none;">
+            <button type="button" onclick="event.stopPropagation(); window.closeProjectMenus(); sysEditFormFromId('${form.id}')"><i class="fa-solid fa-sliders"></i> Questionário</button>
+            <button type="button" onclick="event.stopPropagation(); window.closeProjectMenus(); openOdkQrModal()"><i class="fa-solid fa-qrcode"></i> Conectar ODK</button>
+            <div class="table-dropdown-divider"></div>
+            <a href="/api/export/xlsx/${form.id}" onclick="event.stopPropagation(); window.closeProjectMenus();"><i class="fa-solid fa-file-excel"></i> Exportar Excel (.xlsx)</a>
+            <a href="/api/export/spss/${form.id}" onclick="event.stopPropagation(); window.closeProjectMenus();"><i class="fa-solid fa-file-code"></i> Exportar SPSS (.sps)</a>
+            <a href="/api/export/r/${form.id}" onclick="event.stopPropagation(); window.closeProjectMenus();"><i class="fa-solid fa-chart-line"></i> Exportar Script R (.R)</a>
+          </div>
         </div>
       </div>
     `;
@@ -589,13 +665,13 @@ function renderDashboard() {
   grid.innerHTML = `
     <div class="proj-table-container">
       <div class="proj-table-header">
-        <div>Projeto de Pesquisa</div>
-        <div>Território / Zonas</div>
+        <div>Projeto / Código</div>
+        <div>Categoria / Ano</div>
+        <div>Território</div>
         <div>Status</div>
         <div>Coletas / Meta</div>
-        <div>ODK / Itens</div>
         <div>Atualizado</div>
-        <div>Ações Rápidas</div>
+        <div>Ações</div>
       </div>
       <div class="proj-table-body">
         ${rowsHtml}
@@ -603,11 +679,12 @@ function renderDashboard() {
     </div>
   `;
 
-  // Update top KPI widgets
+  // Atualiza faixa de resumo no topo (KPI Strip)
   const kpiProj = document.getElementById('dash-kpi-projects');
-  if (kpiProj) kpiProj.textContent = `${formsList.length} Projetos`;
+  if (kpiProj) kpiProj.textContent = `${formsList.length} projetos`;
   const kpiSubs = document.getElementById('dash-kpi-subs');
-  if (kpiSubs) kpiSubs.textContent = `${state.interviews ? state.interviews.length : 0} Coletas`;
+  if (kpiSubs) kpiSubs.textContent = `${state.interviews ? state.interviews.length : 0} coletas`;
+
 }
 
 window.sysEditFormFromId = function(formId) {

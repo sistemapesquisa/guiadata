@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-  <title>GuiaData 3.5 — Plataforma de Pesquisas de Campo, Opinião Pública & Auditoria Antifraude</title>
-  <meta name="description" content="GuiaData 3.5: Plataforma inteligente para gestão de pesquisas eleitorais, opinião pública e auditoria de campo. Operação 100% offline via ODK Collect, geolocalização e gravação de áudio.">
+  <title>GuiaData — Pesquisas de Campo e Auditoria</title>
+  <meta name="description" content="GuiaData: Sistema de gestão de pesquisas de campo, opinião pública e auditoria. Operação offline via ODK Collect, geolocalização e gravação de áudio.">
   <meta name="robots" content="index, follow">
-  <meta name="theme-color" content="#0284c7">
+  <meta name="theme-color" content="#1e5643">
   
   <!-- Canonical & PWA -->
   <link rel="canonical" href="http://localhost:3000/">
@@ -20,8 +20,8 @@
 
   <!-- Open Graph / Social Sharing -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="GuiaData 3.5 — Pesquisas de Campo & Auditoria">
-  <meta property="og:description" content="Plataforma de pesquisa de campo com resiliência 100% offline, validações ODK XLSForm em 1-clique e auditoria antifraude.">
+  <meta property="og:title" content="GuiaData — Pesquisas de Campo & Auditoria">
+  <meta property="og:description" content="Plataforma de pesquisa de campo com suporte offline, validações ODK XLSForm e auditoria antifraude.">
   <meta property="og:image" content="/icons/icon-512.png">
   <meta property="og:url" content="http://localhost:3000/">
 
@@ -75,8 +75,8 @@
       <div class="sidebar-header">
         <div class="logo-icon"><i class="fa-solid fa-chart-pie"></i></div>
         <div class="sidebar-logo">
-          <div>GuiaData <span style="font-size:0.75rem; font-weight:700; color:#38bdf8;">PRO</span></div>
-          <div class="enterprise-license-pill"><i class="fa-solid fa-bolt" style="color:#38bdf8;"></i> GuiaData PRO</div>
+          <div>GuiaData</div>
+          <div class="system-sublabel">Campo & Auditoria</div>
         </div>
       </div>
       <nav class="sidebar-nav">
@@ -86,30 +86,38 @@
         <a class="nav-item" onclick="switchTab('view-team')" data-target="view-team" id="nav-team"><i class="fa-solid fa-users-gear" style="color:#22d3ee;"></i><span>Gestão de Equipe</span></a>
         <a class="nav-item" onclick="switchTab('view-library')" data-target="view-library" id="nav-library"><i class="fa-solid fa-book-bookmark" style="color:#f59e0b;"></i><span>Modelos de Pesquisa</span></a>
         <a class="nav-item" onclick="switchTab('view-mobile-sim')" data-target="view-mobile-sim" id="nav-mobile-sim"><i class="fa-solid fa-mobile-screen" style="color:#10b981;"></i><span>Coleta Web / ODK</span></a>
-        <a class="nav-item" onclick="switchTab('view-executive-suite')" data-target="view-executive-suite" id="nav-executive-suite" title="Central de Inteligência Executiva, Estatística e SLA VIP"><i class="fa-solid fa-briefcase" style="color:#38bdf8;"></i><span>Central Executiva (SLA & BI)</span></a>
+        <a class="nav-item" onclick="switchTab('view-executive-suite')" data-target="view-executive-suite" id="nav-executive-suite" title="Análise Estatística, Tabulação Cruzada e Auditoria Antifraude"><i class="fa-solid fa-chart-column"></i><span>Análise Estatística & Auditoria</span></a>
         
         <!-- Platform DEV Section (Visible STRICTLY to DEV/Platform Owner) -->
         <div class="dev-sidebar-section" id="nav-dev-section" style="display:none;">
-          <div class="dev-sidebar-title"><i class="fa-solid fa-terminal"></i> Infra & Suporte DEV</div>
-          <a class="nav-item" onclick="switchTab('view-roles')" data-target="view-roles" id="nav-roles"><i class="fa-solid fa-user-shield" style="color:#a855f7;"></i><span>Permissões Técnicas</span></a>
-          <a class="nav-item" onclick="switchTab('view-logs')" data-target="view-logs" id="nav-logs"><i class="fa-solid fa-shield-halved" style="color:#f87171;"></i><span>Logs de Borda</span></a>
+          <div class="dev-sidebar-title">Infra & Suporte DEV</div>
+          <a class="nav-item" onclick="switchTab('view-roles')" data-target="view-roles" id="nav-roles"><i class="fa-solid fa-user-shield"></i><span>Permissões Técnicas</span></a>
+          <a class="nav-item" onclick="switchTab('view-logs')" data-target="view-logs" id="nav-logs"><i class="fa-solid fa-shield-halved"></i><span>Logs de Borda</span></a>
         </div>
 
         <div class="nav-divider"></div>
-        <a class="nav-item" href="/api/backup/pendrive" id="nav-pendrive-backup" style="color: #38bdf8;" title="Baixar pacote consolidado offline"><i class="fa-solid fa-floppy-disk"></i><span>Modo Pen Drive</span></a>
+        <a class="nav-item" href="/api/backup/pendrive" id="nav-pendrive-backup" title="Baixar pacote consolidado offline"><i class="fa-solid fa-floppy-disk"></i><span>Modo Pen Drive</span></a>
         
         <!-- Hidden target for active state when inside a project -->
         <a class="nav-item" data-target="view-project-details" id="nav-project-details" style="display:none;"></a>
       </nav>
       <div class="sidebar-footer">
+        <div class="sidebar-theme-selector">
+          <span class="theme-label">Tema:</span>
+          <div class="theme-toggle-group">
+            <button type="button" class="theme-btn active" id="theme-btn-light" onclick="setAppTheme('light')" title="Tema Claro (Alto Contraste)">Claro</button>
+            <button type="button" class="theme-btn" id="theme-btn-dark" onclick="setAppTheme('dark')" title="Tema Escuro (Grafite)">Escuro</button>
+            <button type="button" class="theme-btn" id="theme-btn-auto" onclick="setAppTheme('auto')" title="Automático">Auto</button>
+          </div>
+        </div>
         <div class="sidebar-user-info">
           <div class="sidebar-user-avatar" id="user-avatar">C</div>
           <div>
             <div class="sidebar-user-name" id="current-user-name">Clara Admin</div>
-            <div class="sidebar-user-role" id="current-user-role-label">Diretoria Executiva</div>
+            <div class="sidebar-user-role" id="current-user-role-label">Coordenação de Pesquisa</div>
           </div>
         </div>
-        <button class="btn btn-sm" style="width: 100%; justify-content: center; background: rgba(255,255,255,0.1); color: #fff; border: none; margin-top: 0.5rem;" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sair</button>
+        <button class="btn btn-sm btn-outline" style="width: 100%; justify-content: center; margin-top: 0.5rem;" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sair</button>
       </div>
     </aside>
 
@@ -121,18 +129,16 @@
         <div class="login-wrapper">
           <div class="login-glass-card">
             <div class="login-brand">
-              <div class="brand-avatar-glow" style="background: linear-gradient(135deg, #2563eb, #10b981); width:58px; height:58px; border-radius:16px; margin:0 auto 1rem auto; display:flex; align-items:center; justify-content:center; font-size:1.6rem; color:#fff; box-shadow:0 8px 24px rgba(37,99,235,0.4);"><i class="fa-solid fa-satellite-dish"></i></div>
-              <h2 style="font-size: 1.7rem; font-weight: 800; letter-spacing: -0.5px;">GuiaData <span class="version-tag" style="background:rgba(16,185,129,0.18); color:#34d399; border:1px solid rgba(16,185,129,0.4); padding:3px 10px; border-radius:12px; font-size:0.72rem; font-weight:700;"><i class="fa-solid fa-code-fork"></i> KoboToolbox Core</span></h2>
-              <p class="brand-subtitle" style="font-size: 0.85rem; color: #94a3b8; max-width: 380px; margin: 0.3rem auto 0.8rem auto;">Plataforma GuiaData PRO • Gestão Avançada de Pesquisas de Campo • ODK Collect & Google Drive</p>
+              <div class="brand-avatar-glow" style="background:var(--accent); width:48px; height:48px; border-radius:var(--radius); margin:0 auto 1rem auto; display:flex; align-items:center; justify-content:center; font-size:1.4rem; color:#fff;"><i class="fa-solid fa-chart-pie"></i></div>
+              <h2 style="font-size: 1.6rem; font-weight: 600; text-align: center;">GuiaData</h2>
+              <p class="brand-subtitle" style="font-size: 0.85rem; color: var(--text-secondary); max-width: 380px; margin: 0.3rem auto 0.8rem auto; text-align: center;">Sistema de Coleta de Campo e Auditoria de Pesquisas</p>
               <div style="display:flex; justify-content:center; gap:0.5rem; flex-wrap:wrap; margin-bottom:1rem;">
-                <span class="badge" style="background:rgba(56,189,248,0.12); color:#38bdf8; font-size:0.72rem; border:1px solid rgba(56,189,248,0.25); padding:3px 8px; border-radius:6px;"><i class="fa-solid fa-shield-halved"></i> Cloudflare Edge (14ms)</span>
-                <span class="badge" style="background:rgba(16,185,129,0.12); color:#34d399; font-size:0.72rem; border:1px solid rgba(16,185,129,0.25); padding:3px 8px; border-radius:6px;"><i class="fa-brands fa-google-drive"></i> Cold Storage Ativo</span>
-              </div>
+                
             </div>
 
             <!-- Quick Access 1-Click Login (Diretoria GuiaData PRO) -->
             <div class="quick-access-box" style="display:flex; flex-direction:column; gap:0.5rem;">
-              <span class="quick-access-title" style="font-weight:700; font-size:0.75rem; text-transform:uppercase; color:#94a3b8;">Acesso Instantâneo (Demonstração 1-Clique):</span>
+              <span class="quick-access-title" style="font-weight:700; font-size:0.75rem; text-transform:uppercase; color:#94a3b8;">Acesso Rápido de Teste:</span>
               <button type="button" class="quick-login-btn" style="width: 100%; justify-content: center; gap: 0.75rem; padding: 0.75rem 1rem; border-color: rgba(56,189,248,0.4); background: rgba(15,23,42,0.7);" onclick="quickLogin('Admin')" title="Entrar como Administrador da Empresa Contratante">
                 <i class="fa-solid fa-building-user" style="color: #38bdf8; font-size: 1.15rem;"></i>
                 <div style="text-align:left;">
@@ -159,11 +165,11 @@
               </select>
             </div>
             <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem; font-weight:700; letter-spacing:0.5px; margin-top:0.5rem;" id="btn-login" onclick="fazerLogin()">
-              <i class="fa-solid fa-arrow-right-to-bracket"></i> ENTRAR NA PLATAFORMA CORPORATIVA
+              <i class="fa-solid fa-arrow-right-to-bracket"></i> Entrar
             </button>
             
             <p style="font-size:0.75rem; color:var(--text-muted); text-align:center; margin-top:1rem; margin-bottom:0;">
-              <i class="fa-solid fa-shield-halved" style="color:#10b981;"></i> Conexão Criptografada TLS 1.3 • SLA 99.9%
+              <i class="fa-solid fa-shield-halved" style="color:#10b981;"></i> Acesso restrito a pesquisadores e auditores credenciados
             </p>
 
             <!-- Segregated Technical DEV Portal Access (Discreet) -->
@@ -232,7 +238,7 @@
         <div class="page-header" style="margin-bottom: 1.5rem;">
           <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
             <div>
-              <h1 class="page-title"><i class="fa-solid fa-layer-group" style="color:var(--primary);"></i> Projetos de Pesquisa</h1>
+              <h1 class="page-title">Projetos de Pesquisa</h1>
               <p class="page-subtitle">Selecione um projeto para gerenciar coletas, visualizar no mapa ou exportar relatórios.</p>
             </div>
             <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
@@ -247,46 +253,15 @@
         </div>
 
         <!-- High-End KoboToolbox & Telemetry KPI Bar -->
-        <div class="kobo-kpi-bar" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
-          <div class="kobo-kpi-card" style="background: linear-gradient(135deg, rgba(37,99,235,0.18), rgba(15,23,42,0.8)); border: 1px solid rgba(56,189,248,0.25); border-radius: 12px; padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1rem;">
-            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(56,189,248,0.15); color: #38bdf8; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
-              <i class="fa-solid fa-folder-tree"></i>
-            </div>
-            <div>
-              <div style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Pesquisas Registradas</div>
-              <div style="font-size: 1.4rem; font-weight: 800; color: #fff;" id="dash-kpi-projects">3 Projetos</div>
-            </div>
-          </div>
-
-          <div class="kobo-kpi-card" style="background: linear-gradient(135deg, rgba(16,185,129,0.18), rgba(15,23,42,0.8)); border: 1px solid rgba(16,185,129,0.25); border-radius: 12px; padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1rem;">
-            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(16,185,129,0.15); color: #34d399; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
-              <i class="fa-solid fa-satellite-dish"></i>
-            </div>
-            <div>
-              <div style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Entrevistas Coletadas</div>
-              <div style="font-size: 1.4rem; font-weight: 800; color: #fff;" id="dash-kpi-subs">6 Coletas</div>
-            </div>
-          </div>
-
-          <div class="kobo-kpi-card" style="background: linear-gradient(135deg, rgba(168,85,247,0.18), rgba(15,23,42,0.8)); border: 1px solid rgba(168,85,247,0.25); border-radius: 12px; padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1rem;">
-            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(168,85,247,0.15); color: #c084fc; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
-              <i class="fa-solid fa-mobile-screen"></i>
-            </div>
-            <div>
-              <div style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">ODK Collect Mobile</div>
-              <div style="font-size: 1.4rem; font-weight: 800; color: #34d399;">100% Offline</div>
-            </div>
-          </div>
-
-          <div class="kobo-kpi-card" style="background: linear-gradient(135deg, rgba(14,165,233,0.18), rgba(15,23,42,0.8)); border: 1px solid rgba(14,165,233,0.25); border-radius: 12px; padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1rem;">
-            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(14,165,233,0.15); color: #38bdf8; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
-              <i class="fa-brands fa-google-drive"></i>
-            </div>
-            <div>
-              <div style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Google Drive Storage</div>
-              <div style="font-size: 1.05rem; font-weight: 800; color: #fff;">Conectado</div>
-            </div>
-          </div>
+        <!-- Top KPI Summary Strip: Resumo em Linha Única Sóbria -->
+        <div class="kpi-summary-strip" id="dash-kpi-strip">
+          <span class="kpi-item"><strong id="dash-kpi-projects">3 projetos</strong></span>
+          <span class="kpi-sep">·</span>
+          <span class="kpi-item"><strong id="dash-kpi-subs">6 coletas</strong></span>
+          <span class="kpi-sep">·</span>
+          <span class="kpi-item">Google Drive <strong class="kpi-status-text">conectado</strong></span>
+          <span class="kpi-sep">·</span>
+          <span class="kpi-item">Protocolo ODK Collect <strong class="kpi-status-text">ativo</strong></span>
         </div>
 
         <!-- Filter & Search Toolbar (Multiannual & Categorized) -->
@@ -341,23 +316,18 @@
         </div>
 
         <!-- ODK Collect Connection Guide -->
-        <div class="card" id="odk-guide-section" style="margin-top: 2rem; border: 1px solid rgba(16,185,129,0.3); background: linear-gradient(145deg, rgba(15,23,42,0.9), rgba(16,185,129,0.06));">
+        <div class="card" id="odk-guide-section" style="margin-top: 1.5rem;">
           <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
-            <div style="display:flex; align-items:center; gap:0.75rem;">
-              <div style="width:38px; height:38px; border-radius:10px; background:rgba(16,185,129,0.15); color:#10b981; display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
-                <i class="fa-solid fa-mobile-screen-button"></i>
-              </div>
-              <div>
-                <h3 class="card-title" style="margin:0; font-size:1.05rem; font-weight:700;">Central de Coleta Mobile (ODK Collect & KoboCollect)</h3>
-                <span style="font-size:0.75rem; color:#94a3b8;">Protocolo OpenRosa 1.0 Oficial • Coleta 100% Offline com GPS de satélite e gravação de áudio</span>
-              </div>
+            <div>
+              <h3 class="card-title" style="margin:0; font-size:1.05rem; font-weight:600;">Instruções de Coleta em Campo (ODK Collect / KoboCollect)</h3>
+              <span style="font-size:0.75rem; color:var(--text-secondary);">Protocolo OpenRosa 1.0 · Coleta com satélite GPS e gravação de áudio pericial</span>
             </div>
             <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
               <button class="btn btn-sm btn-primary" onclick="openOdkQrModal()">
-                <i class="fa-solid fa-qrcode"></i> Vincular Celular (QR Code)
+                <i class="fa-solid fa-qrcode"></i> Vincular Aparelho (QR Code)
               </button>
-              <a href="https://drive.google.com/drive/folders/1IH2cWAAtNLuUfzeaVpDmv4pn6p3AQozQ" target="_blank" class="btn btn-sm btn-outline" style="border-color:rgba(56,189,248,0.4); color:#38bdf8;">
-                <i class="fa-brands fa-google-drive"></i> Abrir Google Drive
+              <a href="https://drive.google.com/drive/folders/1IH2cWAAtNLuUfzeaVpDmv4pn6p3AQozQ" target="_blank" class="btn btn-sm btn-outline">
+                <i class="fa-brands fa-google-drive"></i> Acessar Google Drive
               </a>
             </div>
           </div>
@@ -365,14 +335,14 @@
             <div class="step-card">
               <div class="step-number">1</div>
               <h4>Instale o Aplicativo</h4>
-              <p>Baixe o <b>ODK Collect</b> gratuitamente na Google Play Store no smartphone Android do pesquisador.</p>
+              <p>Baixe o <b>ODK Collect</b> na Google Play Store no smartphone Android do pesquisador de campo.</p>
             </div>
             <div class="step-card">
               <div class="step-number">2</div>
               <h4>Configure o Servidor</h4>
-              <p>No app, acesse <i>Configurações > Servidor</i> e cole o endereço oficial:<br>
+              <p>No app, acesse <i>Configurações > Servidor</i> e insira a URL:<br>
                 <div style="margin-top:0.5rem; display:flex; gap:0.5rem; align-items:center;">
-                  <code id="odk-server-url" style="background: rgba(0,0,0,0.4); border:1px solid var(--glass-border); padding: 5px 10px; border-radius: 6px; color: #38bdf8; font-family:var(--mono); font-size:0.82rem;">https://guiadata.sistemagithub.workers.dev</code>
+                  <code id="odk-server-url" style="background:var(--bg-subtle); border:1px solid var(--border); padding: 4px 8px; border-radius: var(--radius); color: var(--text-primary); font-family:var(--mono); font-size:0.8rem;">https://guiadata.sistemagithub.workers.dev</code>
                   <button class="btn btn-sm btn-outline" onclick="navigator.clipboard.writeText('https://guiadata.sistemagithub.workers.dev'); showToast('success', 'URL copiada!');" title="Copiar endereço"><i class="fa-solid fa-copy"></i></button>
                 </div>
               </p>
@@ -380,7 +350,7 @@
             <div class="step-card">
               <div class="step-number">3</div>
               <h4>Sincronize e Colete</h4>
-              <p>Clique em <b>Obter Formulário em Branco</b>. As entrevistas salvas aparecerão instantaneamente na sua plataforma web e mídias no Google Drive!</p>
+              <p>Toque em <b>Obter Formulário em Branco</b>. As entrevistas gravadas serão auditadas e transmitidas à central com dados de telemetria.</p>
             </div>
           </div>
         </div>
@@ -389,7 +359,7 @@
       <!-- ===== VIEW: TEMPLATES & QUESTION LIBRARY ===== -->
       <section id="view-library" class="view-panel">
         <div class="page-header" style="margin-bottom: 1.5rem;">
-          <h1 class="page-title"><i class="fa-solid fa-book-bookmark" style="color:#a855f7;"></i> Biblioteca de Modelos & Banco de Perguntas</h1>
+          <h1 class="page-title">Biblioteca de Modelos & Banco de Perguntas</h1>
           <p class="page-subtitle">Modelos padronizados e validados pela indústria para criar projetos completos com 1 clique ou importar blocos prontos.</p>
         </div>
 
@@ -1106,7 +1076,7 @@
               <button class="btn btn-sm btn-outline" onclick="exportProjectSpss()" title="Exportar Sintaxe SPSS (.sps)"><i class="fa-solid fa-file-code" style="color:#38bdf8;"></i> SPSS</button>
               <button class="btn btn-sm btn-outline" onclick="exportProjectR()" title="Exportar Script R (.R)"><i class="fa-solid fa-chart-column" style="color:#a855f7;"></i> Script R</button>
               <button class="btn btn-sm btn-outline" onclick="exportProjectCodebook()" title="Dicionário de Variáveis (Codebook)"><i class="fa-solid fa-book" style="color:#f59e0b;"></i> Dicionário</button>
-              <div class="sys-owner-circle" style="background: linear-gradient(135deg, var(--primary), var(--indigo)); border: 2px solid rgba(255,255,255,0.2); font-weight:700;" id="pd-owner-initial-top">C</div>
+              <div class="sys-owner-circle" style=", var(--indigo)); border: 2px solid rgba(255,255,255,0.2); font-weight:700;" id="pd-owner-initial-top">C</div>
             </div>
           </div>
           
@@ -1164,23 +1134,18 @@
                   </div>
                 </div>
 
-                <!-- ODK Collect & Web Integration Card (KoboToolbox Style) -->
-                <div class="card" style="margin-bottom: 1.5rem; border: 1px solid rgba(16,185,129,0.35); background: linear-gradient(135deg, rgba(15,23,42,0.9), rgba(16,185,129,0.06));">
+                <!-- ODK Collect & Web Integration Card -->
+                <div class="card" style="margin-bottom: 1.5rem;">
                   <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
-                    <div style="display:flex; align-items:center; gap:0.75rem;">
-                      <div style="width:42px; height:42px; border-radius:10px; background:rgba(16,185,129,0.15); color:#10b981; display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
-                        <i class="fa-solid fa-mobile-screen-button"></i>
-                      </div>
-                      <div>
-                        <h3 style="font-size:1.05rem; font-weight:700; color:#fff; margin:0;">Conexão de Campo (ODK Collect Android)</h3>
-                        <span style="font-size:0.75rem; color:var(--text-muted);">Protocolo OpenRosa Oficial • Coleta 100% Offline com GPS e Áudio</span>
-                      </div>
+                    <div>
+                      <h3 class="card-title" style="margin:0;">Conexão de Campo (ODK Collect Android)</h3>
+                      <span style="font-size:0.75rem; color:var(--text-secondary);">Protocolo OpenRosa 1.0 · Coleta com satélite GPS e áudio pericial</span>
                     </div>
                     <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-                      <button class="btn btn-primary btn-sm" onclick="openOdkQrModal()" style="gap:0.4rem;">
-                        <i class="fa-solid fa-qrcode"></i> Conectar Celular (QR Code)
+                      <button class="btn btn-primary btn-sm" onclick="openOdkQrModal()">
+                        <i class="fa-solid fa-qrcode"></i> Vincular Celular (QR Code)
                       </button>
-                      <button class="btn btn-outline btn-sm" onclick="openWebFormForActiveProject()" style="border-color:#38bdf8; color:#38bdf8; gap:0.4rem;">
+                      <button class="btn btn-outline btn-sm" onclick="openWebFormForActiveProject()">
                         <i class="fa-solid fa-globe"></i> Preencher no Navegador
                       </button>
                       <button class="btn btn-outline btn-sm" onclick="publishActiveProject()" style="border-color:#10b981; color:#10b981; gap:0.4rem;" title="Disponibilizar nova versão para download no ODK Collect">
@@ -1369,7 +1334,7 @@
             <!-- CONFIGURAÇÕES TAB -->
             <div class="tab-content" id="proj-tab-config" style="display:none;">
               <div class="card">
-                <div class="card-header"><h3 class="card-title"><i class="fa-solid fa-share-nodes"></i> Compartilhamento e Acessos</h3><button class="btn btn-primary btn-sm" onclick="openRouteModal()"><i class="fa-solid fa-plus"></i> Atribuir Acesso</button></div>
+                <div class="card-header"><h3 class="card-title">Compartilhamento e Acessos</h3><button class="btn btn-primary btn-sm" onclick="openRouteModal()"><i class="fa-solid fa-plus"></i> Atribuir Acesso</button></div>
                 <p class="text-muted" style="margin-bottom:1rem;">Apenas os pesquisadores nesta lista poderão baixar e preencher este formulário no ODK Collect.</p>
                 <div class="table-wrapper" style="max-height: 400px; overflow-y: auto;">
                   <table class="data-table" id="routes-table">
@@ -1383,7 +1348,7 @@
             <!-- VERSÕES & CICLO DE VIDA TAB -->
             <div class="tab-content" id="proj-tab-versoes" style="display:none;">
               <!-- Header Card: Current Status & Version Summary -->
-              <div class="card" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, rgba(30,41,59,0.7), rgba(15,23,42,0.9)); border: 1px solid var(--glass-border);">
+              <div class="card" style="margin-bottom: 1.5rem; , rgba(15,23,42,0.9)); border: 1px solid var(--glass-border);">
                 <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
                   <div>
                     <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.5rem;">
@@ -1481,7 +1446,7 @@
               <div class="card">
                 <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
                   <div>
-                    <h3 class="card-title"><i class="fa-solid fa-timeline"></i> Histórico de Versões & Coletas de Campo</h3>
+                    <h3 class="card-title">Histórico de Versões & Coletas de Campo</h3>
                     <p class="text-muted" style="margin:0.25rem 0 0 0; font-size:0.85rem;">Rastreabilidade completa de cada edição publicada e o número de entrevistas coletadas em cada versão.</p>
                   </div>
                   <button type="button" class="btn btn-sm btn-outline" onclick="renderProjectVersionsTab(state.activeProjectFormId)"><i class="fa-solid fa-rotate"></i> Atualizar</button>
@@ -1596,7 +1561,7 @@
       <!-- ===== VIEW: CUSTOM ROLES ===== -->
       <section id="view-roles" class="view-panel">
         <div class="page-header">
-          <h1 class="page-title"><i class="fa-solid fa-user-shield"></i> Cargos e Permissões</h1>
+          <h1 class="page-title">Cargos e Permissões</h1>
           <p class="page-subtitle">Crie perfis personalizados e defina o que cada um pode fazer no sistema.</p>
         </div>
         <div style="display:grid; grid-template-columns: 1fr 350px; gap: 1.5rem; align-items: start;">
@@ -1636,7 +1601,7 @@
         <div class="page-header" style="margin-bottom:1.5rem;">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
             <div>
-              <h1 class="page-title"><i class="fa-solid fa-mobile-screen"></i> Preview (Simulador ODK)</h1>
+              <h1 class="page-title">Preview (Simulador ODK)</h1>
               <p class="page-subtitle">Teste e valide como o questionário se comportará no aplicativo móvel dos pesquisadores.</p>
             </div>
             <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
@@ -1671,11 +1636,11 @@
 
       <!-- ===== VIEW: AI ANALYSIS ===== -->
       <section id="view-ai-analysis" class="view-panel">
-        <div class="page-header"><h1 class="page-title"><i class="fa-solid fa-magnifying-glass-chart"></i> Análise Inteligente</h1><p class="page-subtitle">Verificação automática de qualidade e detecção de anomalias nas pesquisas.</p></div>
+        <div class="page-header"><h1 class="page-title">Análise Inteligente</h1><p class="page-subtitle">Verificação automática de qualidade e detecção de anomalias nas pesquisas.</p></div>
         <div class="card">
           <div class="card-header">
             <div>
-              <h3 class="card-title"><i class="fa-solid fa-robot"></i> Verificação de Qualidade</h3>
+              <h3 class="card-title">Verificação de Qualidade</h3>
               <p class="text-muted" style="margin-top:0.2rem;">Analisa padrões de deslocamento, tempo de resposta e qualidade do áudio.</p>
             </div>
             <div class="ai-controls">
@@ -1694,7 +1659,7 @@
         <div class="page-header" style="margin-bottom:1.25rem;">
           <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
             <div>
-              <h1 class="page-title"><i class="fa-solid fa-users-gear" style="color:var(--cyan);"></i> Gestão de Equipe & Recursos de Campo</h1>
+              <h1 class="page-title">Gestão de Equipe & Recursos de Campo</h1>
               <p class="page-subtitle">Administração corporativa de colaboradores, cargos, dispositivos móveis e rotas operacionais.</p>
             </div>
             <div>
@@ -1778,7 +1743,7 @@
         <div id="team-subtab-leaderboard" style="display:none;">
           <div class="card">
             <div class="card-header">
-              <h3 class="card-title"><i class="fa-solid fa-ranking-star" style="color:#f59e0b;"></i> Classificação de Produtividade dos Entrevistadores</h3>
+              <h3 class="card-title">Classificação de Produtividade dos Entrevistadores</h3>
               <button class="btn btn-outline btn-sm" onclick="loadTeamProductivityLeaderboard()"><i class="fa-solid fa-rotate"></i> Atualizar Dados</button>
             </div>
             <div class="table-wrapper" style="max-height: 500px; overflow-y: auto;">
@@ -1913,9 +1878,9 @@
 
       <!-- ===== VIEW: LOGS ===== -->
       <section id="view-logs" class="view-panel">
-        <div class="page-header"><h1 class="page-title"><i class="fa-solid fa-shield-halved"></i> Registros de Segurança</h1><p class="page-subtitle">Logs de auditoria e eventos do sistema.</p></div>
+        <div class="page-header"><h1 class="page-title">Registros de Segurança</h1><p class="page-subtitle">Logs de auditoria e eventos do sistema.</p></div>
         <div class="card">
-          <div class="card-header"><h3 class="card-title"><i class="fa-solid fa-list-check"></i> Histórico de Eventos</h3><button class="btn btn-sm" id="btn-refresh-logs"><i class="fa-solid fa-arrows-rotate"></i> Atualizar</button></div>
+          <div class="card-header"><h3 class="card-title">Histórico de Eventos</h3><button class="btn btn-sm" id="btn-refresh-logs"><i class="fa-solid fa-arrows-rotate"></i> Atualizar</button></div>
           <div id="log-console-container"></div>
         </div>
       </section>
@@ -1923,19 +1888,19 @@
       <!-- ===== VIEW: CLOUD & INFRASTRUCTURE ===== -->
       <section id="view-cloud-storage" class="view-panel">
         <div class="page-header">
-          <h1 class="page-title"><i class="fa-solid fa-cloud" style="color:var(--cyan);"></i> Nuvem & Infraestrutura GuiaData PRO</h1>
+          <h1 class="page-title">Nuvem & Infraestrutura GuiaData PRO</h1>
           <p class="page-subtitle">Arquitetura de Borda (Cloudflare Edge Protection) e Armazenamento Perpétuo em Nuvem (Google Drive Cold Storage).</p>
         </div>
         <div class="view-pad">
           
           <!-- Cloud Architecture Diagram Summary -->
-          <div class="card" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, rgba(15,26,48,0.9), rgba(6,11,24,0.95)); border-color: rgba(34,211,238,0.25);">
+          <div class="card" style="margin-bottom: 1.5rem; , rgba(6,11,24,0.95)); border-color: rgba(34,211,238,0.25);">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
               <div>
-                <span class="badge badge-info" style="margin-bottom:0.5rem;"><i class="fa-solid fa-shield-halved"></i> Topologia Híbrida 24/7</span>
-                <h3 style="font-size:1.15rem; font-weight:800; color:#fff;">Operação de Campo Híbrida: Borda + Nuvem + Offline</h3>
+                <span class="badge" style="margin-bottom:0.5rem;">Topologia de Coleta</span>
+                <h3 class="card-title" style="margin-top:0.35rem;">Operação de Campo: Borda, Nuvem e Coleta Offline</h3>
                 <p style="font-size:0.83rem; color:var(--text-secondary); max-width:650px; margin-top:4px;">
-                  Pesquisadores coletam 100% offline no <b>ODK Collect</b> com GPS de satélite e áudios criptografados. Ao conectar, a requisição passa pelo <b>Cloudflare Shield</b> (DDoS, SSL Estrito e WebSockets permanentes) e dados pesados de mídia são espelhados automaticamente no <b>Google Drive</b>.
+                  Pesquisadores coletam offline no <b>ODK Collect</b> com GPS de satélite e áudios criptografados. Ao sincronizar, os dados passam pela borda segura e as mídias pesadas são espelhadas automaticamente no <b>Google Drive</b>.
                 </p>
               </div>
               <button class="btn btn-primary" onclick="syncGoogleDriveNow()" id="btn-sync-drive-manual">
@@ -1988,7 +1953,7 @@
             </div>
 
             <!-- Google Drive Card -->
-            <div class="card" style="border: 1px solid rgba(56,189,248,0.3); background: linear-gradient(135deg, rgba(15,23,42,0.8), rgba(2,132,199,0.08));">
+            <div class="card" style="border: 1px solid rgba(56,189,248,0.3); , rgba(2,132,199,0.08));">
               <div class="card-header">
                 <div style="display:flex; align-items:center; gap:0.6rem;">
                   <div style="width:36px; height:36px; border-radius:var(--r-md); background:rgba(34,211,238,0.15); color:var(--cyan); display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
@@ -2008,7 +1973,7 @@
                   <span id="gdrive-quota-text">0.12 GB / 15.0 GB</span>
                 </div>
                 <div class="cloud-storage-bar" style="margin-top:0.3rem;">
-                  <div class="cloud-storage-fill" id="gdrive-quota-bar" style="width: 2%; background: linear-gradient(90deg, #38bdf8, #10b981);"></div>
+                  <div class="cloud-storage-fill" id="gdrive-quota-bar" style="width: 2%; "></div>
                 </div>
               </div>
 
@@ -2064,7 +2029,7 @@
                   <p style="font-size:0.78rem; color:var(--text-secondary); line-height:1.5;">O pesquisador sincroniza o questionário via Wi-Fi no escritório antes de partir para a rota.</p>
                 </div>
                 <div style="background:rgba(255,255,255,0.025); border:1px solid var(--border); padding:1rem; border-radius:var(--r-md);">
-                  <div style="color:var(--cyan); font-weight:700; font-size:0.85rem; margin-bottom:0.3rem;"><i class="fa-solid fa-location-dot"></i> 2. Coleta 100% Offline</div>
+                  <div style="color:var(--accent); font-weight:700; font-size:0.85rem; margin-bottom:0.3rem;"><i class="fa-solid fa-location-dot"></i> 2. Coleta Offline em Campo</div>
                   <p style="font-size:0.78rem; color:var(--text-secondary); line-height:1.5;">No campo, fotos, áudios e posições GPS por satélite são gravados no banco local seguro do smartphone.</p>
                 </div>
                 <div style="background:rgba(255,255,255,0.025); border:1px solid var(--border); padding:1rem; border-radius:var(--r-md);">
@@ -2078,16 +2043,16 @@
         </div>
       </section>
 
-      <!-- ===== VIEW: EXECUTIVE SUITE (R$ 10.000/MÊS) ===== -->
+      <!-- ===== VIEW: ESTATÍSTICA E AUDITORIA ===== -->
       <section id="view-executive-suite" class="view-panel">
         <div class="page-header" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
           <div>
-            <h1 class="page-title"><i class="fa-solid fa-briefcase" style="color:var(--cyan);"></i> Central Executiva de Inteligência & SLA VIP</h1>
+            <h1 class="page-title">Análise Estatística e Auditoria</h1>
             <p class="page-subtitle">Tabulação Cruzada Multivariada, Auditoria Forense Antifraude, Governança LGPD e Gestão de SLA 99.9%.</p>
           </div>
           <div style="display:flex; align-items:center; gap:0.5rem;">
-            <span class="badge" style="background:linear-gradient(135deg, #0284c7, #6366f1); color:#fff; font-size:0.75rem; padding:6px 14px; font-weight:700; border-radius:999px; box-shadow:0 0 12px rgba(56,189,248,0.35);">
-              <i class="fa-solid fa-shield-halved" style="color:#38bdf8;"></i> LICENÇA GUIA DATA PRO: R$ 3.500 / MÊS
+            <span class="badge" style=" color:#fff; font-size:0.75rem; padding:6px 14px; font-weight:700; border-radius:999px; ">
+              <i class="fa-solid fa-shield-halved" style="color:#38bdf8;"></i> Módulo de Estatística & Auditoria
             </span>
           </div>
         </div>
@@ -2108,7 +2073,7 @@
               <i class="fa-solid fa-user-lock"></i> Governança & LGPD
             </button>
             <button class="exec-nav-btn" data-exectab="exec-tab-sla" onclick="switchExecTab('exec-tab-sla')">
-              <i class="fa-solid fa-gauge-high"></i> SLA 99.9% & Suporte VIP
+              <i class="fa-solid fa-gauge-high"></i> Suporte Técnico
             </button>
             <button class="exec-nav-btn" data-exectab="exec-tab-whitelabel" onclick="switchExecTab('exec-tab-whitelabel')">
               <i class="fa-solid fa-palette"></i> Marca & White-Label
@@ -2120,7 +2085,7 @@
             <div class="card" style="margin-bottom: 1.5rem;">
               <div class="card-header">
                 <div>
-                  <h3 class="card-title"><i class="fa-solid fa-sliders"></i> Seleção de Variáveis para Cruzamento</h3>
+                  <h3 class="card-title">Seleção de Variáveis para Cruzamento</h3>
                   <span style="font-size:0.75rem; color:var(--text-muted);">Cruze intenção de voto ou satisfação com demografia com cálculo automático de qui-quadrado e margens de erro.</span>
                 </div>
               </div>
@@ -2185,7 +2150,7 @@
             <div class="card" style="margin-bottom: 1.5rem;">
               <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
                 <div>
-                  <h3 class="card-title"><i class="fa-solid fa-microscope"></i> Auditoria Forense Antifraude com IA & Heurísticas</h3>
+                  <h3 class="card-title">Auditoria Forense Antifraude com IA & Heurísticas</h3>
                   <span style="font-size:0.75rem; color:var(--text-muted);">Detecção de Speeders, Straight-liners (respostas viciadas) e spoofing geográfico.</span>
                 </div>
                 <div style="display:flex; gap:0.5rem; align-items:center;">
@@ -2217,7 +2182,7 @@
               </div>
 
               <!-- Official Formal Certificate Card -->
-              <div class="card" style="background: linear-gradient(135deg, rgba(15,23,42,0.9), rgba(6,11,24,0.98)); border: 1px solid rgba(56,189,248,0.3); margin-bottom: 1.5rem;">
+              <div class="card" style=", rgba(6,11,24,0.98)); border: 1px solid rgba(56,189,248,0.3); margin-bottom: 1.5rem;">
                 <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1rem;">
                   <div style="display:flex; align-items:center; gap:0.75rem;">
                     <div style="width:42px; height:42px; border-radius:50%; background:rgba(56,189,248,0.15); color:var(--cyan); display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
@@ -2241,7 +2206,7 @@
 
               <!-- Flagged Interviews Table -->
               <div class="card">
-                <div class="card-header"><h3 class="card-title"><i class="fa-solid fa-list-check"></i> Detalhamento por Entrevista Auditada</h3></div>
+                <div class="card-header"><h3 class="card-title">Detalhamento por Entrevista Auditada</h3></div>
                 <div class="table-wrapper" style="max-height:400px; overflow-y:auto;">
                   <table class="data-table" id="exec-forensic-table">
                     <thead><tr><th>ID Coleta</th><th>Pesquisador</th><th>Dispositivo</th><th>Trust Score</th><th>Status</th><th>Ocorrências Forenses</th></tr></thead>
@@ -2254,7 +2219,7 @@
 
           <!-- TAB 3: IMMUTABLE AUDIT TRAIL (SHA-256) -->
           <div class="exec-tab-content" id="exec-tab-audit" style="display:none;">
-            <div class="card" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, rgba(15,26,48,0.9), rgba(6,11,24,0.95)); border-color: rgba(56,189,248,0.25);">
+            <div class="card" style="margin-bottom: 1.5rem; , rgba(6,11,24,0.95)); border-color: rgba(56,189,248,0.25);">
               <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
                 <div>
                   <span class="badge badge-info" style="margin-bottom:0.4rem;"><i class="fa-solid fa-shield-halved"></i> Prova Criptográfica Encadeada</span>
@@ -2270,7 +2235,7 @@
 
             <div class="card">
               <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 class="card-title"><i class="fa-solid fa-timeline"></i> Registro de Eventos Criptográficos</h3>
+                <h3 class="card-title">Registro de Eventos Criptográficos</h3>
                 <button class="btn btn-sm btn-outline" onclick="loadAuditTrailEvents()"><i class="fa-solid fa-arrows-rotate"></i> Atualizar</button>
               </div>
               <div class="table-wrapper" style="max-height:450px; overflow-y:auto;">
@@ -2287,7 +2252,7 @@
             <div class="card" style="margin-bottom: 1.5rem;">
               <div class="card-header">
                 <div>
-                  <h3 class="card-title"><i class="fa-solid fa-user-shield"></i> Governança de Privacidade & Proteção de Dados (LGPD)</h3>
+                  <h3 class="card-title">Governança de Privacidade & Proteção de Dados (LGPD)</h3>
                   <span style="font-size:0.75rem; color:var(--text-muted);">Lei Geral de Proteção de Dados (Lei 13.709/2018) - Direitos do Titular & Desidentificação Segura.</span>
                 </div>
               </div>
@@ -2327,18 +2292,18 @@
               </div>
             </div>
 
-            <!-- VIP Support Desk Card -->
+            <!-- Support Desk Card -->
             <div class="card">
               <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
                 <div>
-                  <h3 class="card-title"><i class="fa-solid fa-headset"></i> Central de Chamados de Suporte VIP</h3>
-                  <span style="font-size:0.75rem; color:var(--text-muted);">Canal direto com engenharia com SLA contratual rígido (P1 Crítico em até 15 minutos).</span>
+                  <h3 class="card-title">Central de Chamados de Suporte Técnico</h3>
+                  <span style="font-size:0.75rem; color:var(--text-muted);">Canal direto de suporte técnico para acompanhamento operacional.</span>
                 </div>
-                <button class="btn btn-primary" onclick="openVipTicketModal()"><i class="fa-solid fa-ticket"></i> Abrir Chamado VIP</button>
+                <button class="btn btn-primary" onclick="openVipTicketModal()"><i class="fa-solid fa-ticket"></i> Abrir Chamado</button>
               </div>
               <div class="table-wrapper" style="max-height:400px; overflow-y:auto;">
                 <table class="data-table">
-                  <thead><tr><th>Ticket ID</th><th>Severidade</th><th>Título</th><th>Solicitante</th><th>Prazo Máximo SLA</th><th>Status</th><th>Abertura</th></tr></thead>
+                  <thead><tr><th>Ticket ID</th><th>Severidade</th><th>Título</th><th>Solicitante</th><th>Prazo Máximo</th><th>Status</th><th>Abertura</th></tr></thead>
                   <tbody id="exec-tickets-tbody"></tbody>
                 </table>
               </div>
@@ -2350,8 +2315,8 @@
             <div class="card" style="max-width:700px;">
               <div class="card-header">
                 <div>
-                  <h3 class="card-title"><i class="fa-solid fa-palette"></i> Identidade Visual & White-Label Corporativo</h3>
-                  <span style="font-size:0.75rem; color:var(--text-muted);">Personalize o portal e os relatórios oficiais com a marca da sua empresa.</span>
+                  <h3 class="card-title">Identidade Visual & Customização Institucional</h3>
+                  <span style="font-size:0.75rem; color:var(--text-muted);">Configure o portal e os relatórios com a identificação do órgão ou instituto de pesquisa.</span>
                 </div>
               </div>
               <div class="form-group">
@@ -2365,19 +2330,19 @@
               <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
                 <div class="form-group">
                   <label class="form-label">Cor Primária (Hexadecimal)</label>
-                  <input type="color" class="form-input" id="wl-primary-color" value="#38bdf8" style="height:40px; padding:2px;" />
+                  <input type="color" class="form-input" id="wl-primary-color" value="#1e5643" style="height:40px; padding:2px;" />
                 </div>
                 <div class="form-group">
                   <label class="form-label">Cor de Destaque / Sucesso</label>
-                  <input type="color" class="form-input" id="wl-accent-color" value="#10b981" style="height:40px; padding:2px;" />
+                  <input type="color" class="form-input" id="wl-accent-color" value="#166534" style="height:40px; padding:2px;" />
                 </div>
               </div>
               <div class="form-group">
                 <label class="form-label">Texto do Cabeçalho de Relatórios</label>
-                <input type="text" class="form-input" id="wl-report-header" placeholder="Relatório Executivo de Inteligência Amostral e Pesquisa de Campo" />
+                <input type="text" class="form-input" id="wl-report-header" placeholder="Relatório Técnico de Campo e Auditoria" />
               </div>
               <div style="display:flex; justify-content:flex-end; margin-top:1.5rem;">
-                <button class="btn btn-primary" onclick="saveWhiteLabelSettings()"><i class="fa-solid fa-check"></i> Salvar Identidade da Empresa</button>
+                <button class="btn btn-primary" onclick="saveWhiteLabelSettings()"><i class="fa-solid fa-check"></i> Salvar Configurações</button>
               </div>
             </div>
           </div>
@@ -2385,23 +2350,23 @@
         </div>
       </section>
 
-      <!-- VIP Support Ticket Creation Modal -->
+      <!-- Support Ticket Creation Modal -->
       <div class="modal-overlay" id="vip-ticket-modal">
         <div class="modal-box" style="max-width: 520px;">
-          <div class="modal-title"><i class="fa-solid fa-headset" style="color:var(--cyan);"></i> Abrir Chamado VIP de Engenharia</div>
-          <p class="modal-message" style="margin-bottom:1rem;">Suporte prioritário do Plano GuiaData PRO (R$ 3.500/mês).</p>
+          <h3 class="modal-title">Abrir Chamado de Suporte Técnico</h3>
+          <p class="modal-message" style="margin-bottom:1rem;">Canal para registro de ocorrências técnicas e operacionais.</p>
           
           <div class="form-group">
             <label class="form-label">Severidade / Nível de Urgência</label>
             <select class="form-select" id="ticket-form-severity">
-              <option value="P1">P1 - Crítico (Operação parada / SLA 15 minutos)</option>
-              <option value="P2" selected>P2 - Alto (Impacto em coletas ou relatórios / SLA 1 hora)</option>
-              <option value="P3">P3 - Normal (Dúvidas ou customizações / SLA 4 horas)</option>
+              <option value="P1">P1 - Crítico (Operação de campo interrompida)</option>
+              <option value="P2" selected>P2 - Alto (Impacto em coletas ou exportação)</option>
+              <option value="P3">P3 - Normal (Dúvidas ou ajustes)</option>
             </select>
           </div>
           <div class="form-group">
             <label class="form-label">Título do Chamado</label>
-            <input type="text" class="form-input" id="ticket-form-title" placeholder="Ex: Lentidão de sincronização em lote no interior" />
+            <input type="text" class="form-input" id="ticket-form-title" placeholder="Ex: Sincronização pendente em aparelhos de rota" />
           </div>
           <div class="form-group">
             <label class="form-label">Descrição Detalhada do Problema</label>
@@ -2409,7 +2374,7 @@
           </div>
           <div class="modal-actions" style="margin-top:1.5rem; justify-content:flex-end;">
             <button class="btn" onclick="document.getElementById('vip-ticket-modal').classList.remove('active')">Cancelar</button>
-            <button class="btn btn-primary" onclick="submitVipTicket()"><i class="fa-solid fa-paper-plane"></i> Enviar com SLA Imediato</button>
+            <button class="btn btn-primary" onclick="submitVipTicket()"><i class="fa-solid fa-paper-plane"></i> Enviar Chamado</button>
           </div>
         </div>
       </div>
@@ -2444,7 +2409,7 @@
           <div style="text-align: left; margin-bottom: 1.2rem;">
             <div class="odk-step-pill"><div class="odk-step-num">1</div><span>No Android, abra o <b>ODK Collect</b>.</span></div>
             <div class="odk-step-pill"><div class="odk-step-num">2</div><span>Toque no botão <b>Configurar por QR Code</b>.</span></div>
-            <div class="odk-step-pill"><div class="odk-step-num">3</div><span>Aponte para a imagem acima. Pronto! Coleta <b>100% offline</b> habilitada.</span></div>
+            <div class="odk-step-pill"><div class="odk-step-num">3</div><span>Aponte para a imagem acima. Pronto! Aparelho configurado para coleta de campo.</span></div>
           </div>
 
           <div style="background:rgba(0,0,0,0.3); border:1px solid var(--border); padding:0.6rem; border-radius:var(--r-md); font-size:0.75rem; display:flex; justify-content:space-between; align-items:center;">
