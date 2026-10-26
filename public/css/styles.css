@@ -1064,8 +1064,7 @@ button {
 
 .project-card-glass {
   background: var(--bg-card);
-  
-  -webkit-
+
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 1.35rem 1.6rem;
@@ -1744,8 +1743,7 @@ button {
    ===================================================================== */
 .sys-project-header {
   background: rgba(6, 10, 22, 0.95) !important;
-  
-  -webkit-
+
   border-bottom: 1px solid var(--border) !important;
   height: 60px !important;
 }
@@ -1983,8 +1981,7 @@ button {
 
 .toast {
   background: rgba(9, 16, 34, 0.97);
-  
-  -webkit-
+
   border: 1px solid var(--border-h);
   color: var(--t-high);
   padding: 0.85rem 1.25rem;
@@ -2034,10 +2031,8 @@ button {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  
-  -webkit-
-  display: none;
+  background: rgba(0, 0, 0, 0.5);
+  display: none !important;
   align-items: center;
   justify-content: center;
   z-index: 9000;
@@ -2045,20 +2040,19 @@ button {
 }
 
 .modal-overlay.active {
-  display: flex;
+  display: flex !important;
 }
 
 .modal-box {
-  background: rgba(9, 16, 34, 0.98);
-  
-  -webkit-
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius);
-  padding: 2rem;
+  padding: 1.5rem;
   width: 100%;
   max-width: 480px;
-  box-shadow: var(--shadow-lg), 0 0 35px rgba(0, 0, 0, 0.8);
-  animation: cardPop 0.26s var(--spring);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  animation: cardPop 0.2s ease-out;
   max-height: 90vh;
   overflow-y: auto;
 }
