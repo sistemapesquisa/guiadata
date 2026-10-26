@@ -41,7 +41,23 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
-  <link rel="stylesheet" href="css/styles.css?v=6.0.2_sobrio">
+  <link rel="stylesheet" href="css/styles.css?v=6.0.3_sobrio">
+  <style>
+    /* Blindagem Critica: Bloqueio absoluto de sobreposicao de modais inativos */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      display: none !important;
+      align-items: center;
+      justify-content: center;
+      z-index: 9000;
+      padding: 1rem;
+    }
+    .modal-overlay.active {
+      display: flex !important;
+    }
+  </style>
 
   <!-- PWA Service Worker Registration -->
   <script>
@@ -82,10 +98,10 @@
       <nav class="sidebar-nav">
         <!-- Main Navigation Suite (KoboToolbox / DataGoal Style) -->
         <a class="nav-item" onclick="switchTab('view-dashboard')" data-target="view-dashboard" id="nav-dashboard"><i class="fa-solid fa-layer-group"></i><span>Projetos & Pesquisas</span></a>
-        <a class="nav-item" onclick="switchTab('view-cloud-storage')" data-target="view-cloud-storage" id="nav-cloud-storage" title="Armazenamento em Nuvem Google Drive & Status Cloudflare"><i class="fa-brands fa-google-drive" style="color:#38bdf8;"></i><span>Nuvem Google Drive</span></a>
-        <a class="nav-item" onclick="switchTab('view-team')" data-target="view-team" id="nav-team"><i class="fa-solid fa-users-gear" style="color:#22d3ee;"></i><span>Gestão de Equipe</span></a>
-        <a class="nav-item" onclick="switchTab('view-library')" data-target="view-library" id="nav-library"><i class="fa-solid fa-book-bookmark" style="color:#f59e0b;"></i><span>Modelos de Pesquisa</span></a>
-        <a class="nav-item" onclick="switchTab('view-mobile-sim')" data-target="view-mobile-sim" id="nav-mobile-sim"><i class="fa-solid fa-mobile-screen" style="color:#10b981;"></i><span>Coleta Web / ODK</span></a>
+        <a class="nav-item" onclick="switchTab('view-cloud-storage')" data-target="view-cloud-storage" id="nav-cloud-storage" title="Armazenamento em Nuvem Google Drive"><i class="fa-brands fa-google-drive"></i><span>Nuvem Google Drive</span></a>
+        <a class="nav-item" onclick="switchTab('view-team')" data-target="view-team" id="nav-team"><i class="fa-solid fa-users-gear"></i><span>Gestão de Equipe</span></a>
+        <a class="nav-item" onclick="switchTab('view-library')" data-target="view-library" id="nav-library"><i class="fa-solid fa-book-bookmark"></i><span>Modelos de Pesquisa</span></a>
+        <a class="nav-item" onclick="switchTab('view-mobile-sim')" data-target="view-mobile-sim" id="nav-mobile-sim"><i class="fa-solid fa-mobile-screen"></i><span>Coleta Web / ODK</span></a>
         <a class="nav-item" onclick="switchTab('view-executive-suite')" data-target="view-executive-suite" id="nav-executive-suite" title="Análise Estatística, Tabulação Cruzada e Auditoria Antifraude"><i class="fa-solid fa-chart-column"></i><span>Análise Estatística & Auditoria</span></a>
         
         <!-- Platform DEV Section (Visible STRICTLY to DEV/Platform Owner) -->
@@ -136,14 +152,14 @@
                 
             </div>
 
-            <!-- Quick Access 1-Click Login (Diretoria GuiaData PRO) -->
+            <!-- Quick Access 1-Click Login (Diretoria GuiaData) -->
             <div class="quick-access-box" style="display:flex; flex-direction:column; gap:0.5rem;">
-              <span class="quick-access-title" style="font-weight:700; font-size:0.75rem; text-transform:uppercase; color:#94a3b8;">Acesso Rápido de Teste:</span>
-              <button type="button" class="quick-login-btn" style="width: 100%; justify-content: center; gap: 0.75rem; padding: 0.75rem 1rem; border-color: rgba(56,189,248,0.4); background: rgba(15,23,42,0.7);" onclick="quickLogin('Admin')" title="Entrar como Administrador da Empresa Contratante">
-                <i class="fa-solid fa-building-user" style="color: #38bdf8; font-size: 1.15rem;"></i>
+              <span class="quick-access-title" style="font-weight:600; font-size:0.75rem; text-transform:uppercase; color:var(--text-secondary);">Acesso Rápido de Demonstração:</span>
+              <button type="button" class="quick-login-btn" style="width: 100%; justify-content: center; gap: 0.75rem; padding: 0.75rem 1rem; border: 1px solid var(--border); background: var(--bg-surface);" onclick="quickLogin('Admin')" title="Entrar como Administrador da Empresa Contratante">
+                <i class="fa-solid fa-building-user" style="color: var(--accent); font-size: 1.15rem;"></i>
                 <div style="text-align:left;">
-                  <div style="font-weight:700; color:#fff;">Diretoria: Clara Admin</div>
-                  <div style="font-size:0.7rem; color:#94a3b8;">Cria e gerencia equipe, projetos e questionários</div>
+                  <div style="font-weight:600; color:var(--text-primary);">Diretoria: Clara Admin</div>
+                  <div style="font-size:0.72rem; color:var(--text-secondary);">Cria e gerencia equipe, projetos e questionários</div>
                 </div>
               </button>
             </div>
@@ -242,7 +258,7 @@
               <p class="page-subtitle">Selecione um projeto para gerenciar coletas, visualizar no mapa ou exportar relatórios.</p>
             </div>
             <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
-              <a href="/api/backup/pendrive" class="btn btn-outline" style="border-color: var(--primary); color: var(--primary);" title="Baixar pacote total consolidado offline (banco SQLite + XMLs + visualizador)">
+              <a href="/api/backup/pendrive" class="btn btn-outline"  title="Baixar pacote total consolidado offline (banco SQLite + XMLs + visualizador)">
                 <i class="fa-solid fa-floppy-disk"></i> Modo Pen Drive
               </a>
               <button class="btn btn-primary" onclick="switchTab('view-form-builder'); newForm();">
@@ -264,47 +280,38 @@
           <span class="kpi-item">Protocolo ODK Collect <strong class="kpi-status-text">ativo</strong></span>
         </div>
 
-        <!-- Filter & Search Toolbar (Multiannual & Categorized) -->
-        <div class="card" style="margin-bottom: 1.5rem; padding: 1.1rem 1.4rem;">
-          <div style="display: flex; flex-direction: column; gap: 0.9rem;">
-            <!-- Top Line: Status + Search -->
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.8rem;">
-              <div style="display: flex; gap: 0.45rem; align-items: center; flex-wrap: wrap;">
-                <button class="btn btn-sm btn-primary proj-filter-pill active" data-filter="all" onclick="filterProjectsByStatus('all')">Todos</button>
-                <button class="btn btn-sm btn-outline proj-filter-pill" data-filter="published" onclick="filterProjectsByStatus('published')"><span class="status-pulse-dot" style="display:inline-block; margin-right:4px;"></span> Em Coleta (Ativos)</button>
-                <button class="btn btn-sm btn-outline proj-filter-pill" data-filter="draft" onclick="filterProjectsByStatus('draft')">Rascunhos</button>
-                <button class="btn btn-sm btn-outline proj-filter-pill" data-filter="archived" onclick="filterProjectsByStatus('archived')">Arquivados</button>
-              </div>
-
-              <!-- Search Input -->
-              <div style="flex: 1; max-width: 320px; min-width: 220px; position: relative;">
-                <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.85rem;"></i>
-                <input type="text" id="dashboard-search-input" class="form-input" placeholder="Buscar por título ou ID..." style="padding-left: 2.5rem; height: 34px; font-size: 0.82rem;" oninput="filterDashboardProjects(this.value)" />
-              </div>
+        <!-- Filter & Search Toolbar (Single Dense Line) -->
+        <div class="card" style="margin-bottom: 1.25rem; padding: 0.75rem 1.15rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+            <!-- Status Filter Pills -->
+            <div style="display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap;">
+              <button class="btn btn-sm btn-primary proj-filter-pill active" data-filter="all" onclick="filterProjectsByStatus('all')">Todos</button>
+              <button class="btn btn-sm btn-outline proj-filter-pill" data-filter="published" onclick="filterProjectsByStatus('published')"><span class="status-pulse-dot" style="display:inline-block; margin-right:4px;"></span> Em Coleta</button>
+              <button class="btn btn-sm btn-outline proj-filter-pill" data-filter="draft" onclick="filterProjectsByStatus('draft')">Rascunhos</button>
+              <button class="btn btn-sm btn-outline proj-filter-pill" data-filter="archived" onclick="filterProjectsByStatus('archived')">Arquivados</button>
             </div>
 
-            <!-- Bottom Line: Multiannual Filters & Categories -->
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.8rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.75rem;">
-              <!-- Category Filter Dropdown -->
-              <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;"><i class="fa-solid fa-tags" style="color:var(--cyan); margin-right:3px;"></i> Categoria:</span>
-                <select id="dashboard-category-filter" class="form-select" style="width: auto; height: 32px; padding: 2px 24px 2px 10px; font-size: 0.8rem;" onchange="filterProjectsByCategory(this.value)">
-                  <option value="all">Todas as Categorias</option>
-                  <option value="Eleitoral & Opinião Pública">Eleitoral & Opinião Pública</option>
-                  <option value="Avaliação Governamental">Avaliação Governamental</option>
-                  <option value="Pesquisa de Mercado">Pesquisa de Mercado</option>
-                  <option value="Satisfação / NPS">Satisfação / NPS</option>
-                  <option value="Auditoria de Campo">Auditoria de Campo</option>
-                </select>
-              </div>
+            <!-- Category, Year & Search (Single Line) -->
+            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+              <select id="dashboard-category-filter" class="form-select" style="width: auto; height: 32px; padding: 2px 24px 2px 8px; font-size: 0.8rem;" onchange="filterProjectsByCategory(this.value)">
+                <option value="all">Todas as Categorias</option>
+                <option value="Eleitoral & Opinião Pública">Eleitoral & Opinião Pública</option>
+                <option value="Avaliação Governamental">Avaliação Governamental</option>
+                <option value="Pesquisa de Mercado">Pesquisa de Mercado</option>
+                <option value="Satisfação / NPS">Satisfação / NPS</option>
+                <option value="Auditoria de Campo">Auditoria de Campo</option>
+              </select>
 
-              <!-- Year Filter Pills -->
-              <div style="display: flex; align-items: center; gap: 0.4rem;">
-                <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;"><i class="fa-solid fa-calendar" style="color:var(--indigo); margin-right:3px;"></i> Ano:</span>
-                <button class="btn btn-sm btn-outline proj-year-pill active" data-year="all" onclick="filterProjectsByYear('all')" style="padding: 0.22rem 0.65rem; font-size: 0.75rem; border-radius: var(--r-full);">Todos</button>
-                <button class="btn btn-sm btn-outline proj-year-pill" data-year="2026" onclick="filterProjectsByYear(2026)" style="padding: 0.22rem 0.65rem; font-size: 0.75rem; border-radius: var(--r-full);">2026</button>
-                <button class="btn btn-sm btn-outline proj-year-pill" data-year="2025" onclick="filterProjectsByYear(2025)" style="padding: 0.22rem 0.65rem; font-size: 0.75rem; border-radius: var(--r-full);">2025</button>
-                <button class="btn btn-sm btn-outline proj-year-pill" data-year="2024" onclick="filterProjectsByYear(2024)" style="padding: 0.22rem 0.65rem; font-size: 0.75rem; border-radius: var(--r-full);">2024</button>
+              <select id="dashboard-year-filter" class="form-select" style="width: auto; height: 32px; padding: 2px 24px 2px 8px; font-size: 0.8rem;" onchange="filterProjectsByYear(this.value)">
+                <option value="all">Todos os Anos</option>
+                <option value="2026">2026</option>
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
+              </select>
+
+              <div style="position: relative; width: 220px;">
+                <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.8rem;"></i>
+                <input type="text" id="dashboard-search-input" class="form-input" placeholder="Buscar projeto..." style="padding-left: 2.1rem; height: 32px; font-size: 0.8rem; width: 100%;" oninput="filterDashboardProjects(this.value)" />
               </div>
             </div>
           </div>
@@ -320,7 +327,7 @@
           <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
             <div>
               <h3 class="card-title" style="margin:0; font-size:1.05rem; font-weight:600;">Instruções de Coleta em Campo (ODK Collect / KoboCollect)</h3>
-              <span style="font-size:0.75rem; color:var(--text-secondary);">Protocolo OpenRosa 1.0 · Coleta com satélite GPS e gravação de áudio pericial</span>
+              <span style="font-size:0.75rem; color:var(--text-secondary);">Protocolo OpenRosa 1.0 · Coleta com satélite GPS e gravação de áudio para auditoria</span>
             </div>
             <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
               <button class="btn btn-sm btn-primary" onclick="openOdkQrModal()">
@@ -358,111 +365,111 @@
 
       <!-- ===== VIEW: TEMPLATES & QUESTION LIBRARY ===== -->
       <section id="view-library" class="view-panel">
-        <div class="page-header" style="margin-bottom: 1.5rem;">
-          <h1 class="page-title">Biblioteca de Modelos & Banco de Perguntas</h1>
-          <p class="page-subtitle">Modelos padronizados e validados pela indústria para criar projetos completos com 1 clique ou importar blocos prontos.</p>
+        <div class="page-header" style="margin-bottom: 1.25rem;">
+          <h1 class="page-title">Modelos de Pesquisa & Banco de Formulários</h1>
+          <p class="page-subtitle">Modelos padronizados para criação rápida de projetos de pesquisa com 1 clique.</p>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
           
           <!-- Template 1: Demográfico IBGE -->
-          <div class="card" style="border-top: 4px solid var(--primary); display:flex; flex-direction:column; justify-content:space-between;">
+          <div class="card" style="display:flex; flex-direction:column; justify-content:space-between; padding:1.25rem;">
             <div>
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-                <span class="badge" style="background:rgba(56,189,248,0.15); color:var(--primary); font-weight:700;">Amostragem & Cotas</span>
-                <span style="font-size:0.8rem; color:var(--text-muted);"><i class="fa-solid fa-list-check"></i> 4 Perguntas</span>
+                <span class="badge" style="background:var(--bg-subtle); color:var(--text-secondary); border:1px solid var(--border); font-size:0.72rem;">Amostragem & Cotas</span>
+                <span style="font-size:0.78rem; color:var(--text-muted);"><i class="fa-solid fa-list-check"></i> 4 Perguntas</span>
               </div>
-              <h3 style="font-size:1.15rem; margin:0 0 0.5rem 0; color:var(--text-primary);"><i class="fa-solid fa-users" style="color:var(--primary); margin-right:6px;"></i> Bloco Demográfico IBGE</h3>
-              <p style="font-size:0.85rem; color:var(--text-muted); line-height:1.5;">Questionário censitário com Gênero, Faixa Etária (16 a 60+ anos), Grau de Instrução e Renda Familiar. Calibrado para cotas amostrais em pesquisas eleitorais e de opinião.</p>
+              <h3 style="font-size:1.05rem; margin:0 0 0.5rem 0; font-weight:600; color:var(--text-primary);">Bloco Demográfico IBGE</h3>
+              <p style="font-size:0.82rem; color:var(--text-secondary); line-height:1.5;">Questionário censitário com Gênero, Faixa Etária (16 a 60+ anos), Grau de Instrução e Renda Familiar. Calibrado para cotas amostrais.</p>
             </div>
-            <div style="margin-top:1.25rem; display:flex; gap:0.5rem;">
-              <button class="btn btn-primary btn-sm" style="flex:1; justify-content:center;" onclick="createProjectFromTemplate('demografico')"><i class="fa-solid fa-plus"></i> Criar Projeto com este Modelo</button>
+            <div style="margin-top:1.25rem;">
+              <button class="btn btn-outline btn-sm" style="width:100%; justify-content:center;" onclick="createProjectFromTemplate('demografico')"><i class="fa-solid fa-plus"></i> Usar Modelo</button>
             </div>
           </div>
 
           <!-- Template 2: Pesquisa Eleitoral TSE -->
-          <div class="card" style="border-top: 4px solid #10b981; display:flex; flex-direction:column; justify-content:space-between;">
+          <div class="card" style="display:flex; flex-direction:column; justify-content:space-between; padding:1.25rem;">
             <div>
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-                <span class="badge" style="background:rgba(16,185,129,0.15); color:#10b981; font-weight:700;">Padrão Resolução TSE</span>
-                <span style="font-size:0.8rem; color:var(--text-muted);"><i class="fa-solid fa-list-check"></i> 5 Perguntas</span>
+                <span class="badge" style="background:var(--bg-subtle); color:var(--text-secondary); border:1px solid var(--border); font-size:0.72rem;">Padrão Resolução TSE</span>
+                <span style="font-size:0.78rem; color:var(--text-muted);"><i class="fa-solid fa-list-check"></i> 5 Perguntas</span>
               </div>
-              <h3 style="font-size:1.15rem; margin:0 0 0.5rem 0; color:var(--text-primary);"><i class="fa-solid fa-check-to-slot" style="color:#10b981; margin-right:6px;"></i> Pesquisa Eleitoral Completa</h3>
-              <p style="font-size:0.85rem; color:var(--text-muted); line-height:1.5;">Voto Espontâneo, Estimulado em Cartela, Certeza de Voto, Rejeição de Candidatos e Avaliação da Gestão Atual. Pronto para tabulação cruzada e registro eleitoral.</p>
+              <h3 style="font-size:1.05rem; margin:0 0 0.5rem 0; font-weight:600; color:var(--text-primary);">Pesquisa Eleitoral Completa</h3>
+              <p style="font-size:0.82rem; color:var(--text-secondary); line-height:1.5;">Voto Espontâneo, Estimulado em Cartela, Certeza de Voto, Rejeição de Candidatos e Avaliação de Mandato.</p>
             </div>
-            <div style="margin-top:1.25rem; display:flex; gap:0.5rem;">
-              <button class="btn btn-primary btn-sm" style="flex:1; justify-content:center; background:#10b981; border-color:#10b981;" onclick="createProjectFromTemplate('eleitoral')"><i class="fa-solid fa-plus"></i> Criar Projeto com este Modelo</button>
+            <div style="margin-top:1.25rem;">
+              <button class="btn btn-outline btn-sm" style="width:100%; justify-content:center;" onclick="createProjectFromTemplate('eleitoral')"><i class="fa-solid fa-plus"></i> Usar Modelo</button>
             </div>
           </div>
 
           <!-- Template 3: Avaliação Governamental -->
-          <div class="card" style="border-top: 4px solid #f59e0b; display:flex; flex-direction:column; justify-content:space-between;">
+          <div class="card" style="display:flex; flex-direction:column; justify-content:space-between; padding:1.25rem;">
             <div>
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-                <span class="badge" style="background:rgba(245,158,11,0.15); color:#f59e0b; font-weight:700;">Gestão Pública</span>
-                <span style="font-size:0.8rem; color:var(--text-muted);"><i class="fa-solid fa-list-check"></i> 5 Perguntas</span>
+                <span class="badge" style="background:var(--bg-subtle); color:var(--text-secondary); border:1px solid var(--border); font-size:0.72rem;">Gestão Pública</span>
+                <span style="font-size:0.78rem; color:var(--text-muted);"><i class="fa-solid fa-list-check"></i> 5 Perguntas</span>
               </div>
-              <h3 style="font-size:1.15rem; margin:0 0 0.5rem 0; color:var(--text-primary);"><i class="fa-solid fa-landmark" style="color:#f59e0b; margin-right:6px;"></i> Avaliação de Gestão Pública</h3>
-              <p style="font-size:0.85rem; color:var(--text-muted); line-height:1.5;">Avaliação do Prefeito/Governador (Ótima, Boa, Regular, Ruim, Péssima) e diagnóstico setorial de Saúde, Educação, Segurança e Limpeza Urbana.</p>
+              <h3 style="font-size:1.05rem; margin:0 0 0.5rem 0; font-weight:600; color:var(--text-primary);">Avaliação de Gestão Pública</h3>
+              <p style="font-size:0.82rem; color:var(--text-secondary); line-height:1.5;">Avaliação da Administração e diagnóstico setorial de Saúde, Educação, Segurança e Limpeza Urbana.</p>
             </div>
-            <div style="margin-top:1.25rem; display:flex; gap:0.5rem;">
-              <button class="btn btn-primary btn-sm" style="flex:1; justify-content:center; background:#f59e0b; border-color:#f59e0b;" onclick="createProjectFromTemplate('governamental')"><i class="fa-solid fa-plus"></i> Criar Projeto com este Modelo</button>
+            <div style="margin-top:1.25rem;">
+              <button class="btn btn-outline btn-sm" style="width:100%; justify-content:center;" onclick="createProjectFromTemplate('governamental')"><i class="fa-solid fa-plus"></i> Usar Modelo</button>
             </div>
           </div>
 
           <!-- Template 4: NPS & Satisfação -->
-          <div class="card" style="border-top: 4px solid #a855f7; display:flex; flex-direction:column; justify-content:space-between;">
+          <div class="card" style="display:flex; flex-direction:column; justify-content:space-between; padding:1.25rem;">
             <div>
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-                <span class="badge" style="background:rgba(168,85,247,0.15); color:#a855f7; font-weight:700;">Métrica Global NPS</span>
-                <span style="font-size:0.8rem; color:var(--text-muted);"><i class="fa-solid fa-list-check"></i> 2 Perguntas</span>
+                <span class="badge" style="background:var(--bg-subtle); color:var(--text-secondary); border:1px solid var(--border); font-size:0.72rem;">Métrica Global NPS</span>
+                <span style="font-size:0.78rem; color:var(--text-muted);"><i class="fa-solid fa-list-check"></i> 2 Perguntas</span>
               </div>
-              <h3 style="font-size:1.15rem; margin:0 0 0.5rem 0; color:var(--text-primary);"><i class="fa-solid fa-star" style="color:#a855f7; margin-right:6px;"></i> Satisfação do Cliente (NPS)</h3>
-              <p style="font-size:0.85rem; color:var(--text-muted); line-height:1.5;">Pergunta métrica oficial de recomendação de 0 a 10 com régua visual interativa e pergunta aberta para justificativa de promotores e detratores.</p>
+              <h3 style="font-size:1.05rem; margin:0 0 0.5rem 0; font-weight:600; color:var(--text-primary);">Satisfação do Cliente (NPS)</h3>
+              <p style="font-size:0.82rem; color:var(--text-secondary); line-height:1.5;">Pergunta métrica oficial de recomendação de 0 a 10 com régua visual e justificativa aberta.</p>
             </div>
-            <div style="margin-top:1.25rem; display:flex; gap:0.5rem;">
-              <button class="btn btn-primary btn-sm" style="flex:1; justify-content:center; background:#a855f7; border-color:#a855f7;" onclick="createProjectFromTemplate('nps')"><i class="fa-solid fa-plus"></i> Criar Projeto com este Modelo</button>
+            <div style="margin-top:1.25rem;">
+              <button class="btn btn-outline btn-sm" style="width:100%; justify-content:center;" onclick="createProjectFromTemplate('nps')"><i class="fa-solid fa-plus"></i> Usar Modelo</button>
             </div>
           </div>
 
           <!-- Template 5: Auditoria de Campo -->
-          <div class="card" style="border-top: 4px solid #ef4444; display:flex; flex-direction:column; justify-content:space-between;">
+          <div class="card" style="display:flex; flex-direction:column; justify-content:space-between; padding:1.25rem;">
             <div>
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-                <span class="badge" style="background:rgba(239,68,68,0.15); color:#ef4444; font-weight:700;">Auditoria Antifraude</span>
-                <span style="font-size:0.8rem; color:var(--text-muted);"><i class="fa-solid fa-list-check"></i> 3 Perguntas</span>
+                <span class="badge" style="background:var(--bg-subtle); color:var(--text-secondary); border:1px solid var(--border); font-size:0.72rem;">Auditoria Antifraude</span>
+                <span style="font-size:0.78rem; color:var(--text-muted);"><i class="fa-solid fa-list-check"></i> 3 Perguntas</span>
               </div>
-              <h3 style="font-size:1.15rem; margin:0 0 0.5rem 0; color:var(--text-primary);"><i class="fa-solid fa-camera" style="color:#ef4444; margin-right:6px;"></i> Check-in & Auditoria de Campo</h3>
-              <p style="font-size:0.85rem; color:var(--text-muted); line-height:1.5;">Ponto GPS de alta precisão via satélite, foto obrigatória da fachada do local e gravação de áudio em segundo plano para certificar a entrevista em campo.</p>
+              <h3 style="font-size:1.05rem; margin:0 0 0.5rem 0; font-weight:600; color:var(--text-primary);">Check-in & Auditoria de Campo</h3>
+              <p style="font-size:0.82rem; color:var(--text-secondary); line-height:1.5;">Ponto GPS via satélite, foto obrigatória da fachada e gravação de áudio em segundo plano.</p>
             </div>
-            <div style="margin-top:1.25rem; display:flex; gap:0.5rem;">
-              <button class="btn btn-primary btn-sm" style="flex:1; justify-content:center; background:#ef4444; border-color:#ef4444;" onclick="createProjectFromTemplate('auditoria_campo')"><i class="fa-solid fa-plus"></i> Criar Projeto com este Modelo</button>
+            <div style="margin-top:1.25rem;">
+              <button class="btn btn-outline btn-sm" style="width:100%; justify-content:center;" onclick="createProjectFromTemplate('auditoria_campo')"><i class="fa-solid fa-plus"></i> Usar Modelo</button>
             </div>
           </div>
 
           <!-- Template 6: Termo de Consentimento LGPD -->
-          <div class="card" style="border-top: 4px solid #38bdf8; display:flex; flex-direction:column; justify-content:space-between;">
+          <div class="card" style="display:flex; flex-direction:column; justify-content:space-between; padding:1.25rem;">
             <div>
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-                <span class="badge" style="background:rgba(56,189,248,0.15); color:#38bdf8; font-weight:700;">Conformidade Legal</span>
-                <span style="font-size:0.8rem; color:var(--text-muted);"><i class="fa-solid fa-list-check"></i> 2 Perguntas</span>
+                <span class="badge" style="background:var(--bg-subtle); color:var(--text-secondary); border:1px solid var(--border); font-size:0.72rem;">Conformidade Legal</span>
+                <span style="font-size:0.78rem; color:var(--text-muted);"><i class="fa-solid fa-list-check"></i> 2 Perguntas</span>
               </div>
-              <h3 style="font-size:1.15rem; margin:0 0 0.5rem 0; color:var(--text-primary);"><i class="fa-solid fa-shield-halved" style="color:#38bdf8; margin-right:6px;"></i> Termo de Consentimento LGPD</h3>
-              <p style="font-size:0.85rem; color:var(--text-muted); line-height:1.5;">Texto formal em conformidade com a Lei 13.709/2018 informando a finalidade do estudo, anonimização dos dados e coleta do aceite voluntário do cidadão.</p>
+              <h3 style="font-size:1.05rem; margin:0 0 0.5rem 0; font-weight:600; color:var(--text-primary);">Termo de Consentimento LGPD</h3>
+              <p style="font-size:0.82rem; color:var(--text-secondary); line-height:1.5;">Texto formal em conformidade com a Lei 13.709/2018 informando a finalidade e coleta do aceite.</p>
             </div>
-            <div style="margin-top:1.25rem; display:flex; gap:0.5rem;">
-              <button class="btn btn-primary btn-sm" style="flex:1; justify-content:center;" onclick="createProjectFromTemplate('termo_lgpd')"><i class="fa-solid fa-plus"></i> Criar Projeto com este Modelo</button>
+            <div style="margin-top:1.25rem;">
+              <button class="btn btn-outline btn-sm" style="width:100%; justify-content:center;" onclick="createProjectFromTemplate('termo_lgpd')"><i class="fa-solid fa-plus"></i> Usar Modelo</button>
             </div>
           </div>
 
         </div>
       </section>
-      
+
       <!-- ===== VIEW: FORM BUILDER (QUESTIONÁRIO DO PROJETO) ===== -->
       <section id="view-form-builder" class="view-panel" style="padding: 0;">
         <div class="builder-workspace" style="padding:0; border:none; display:flex; flex-direction:column; background:var(--bg-surface); height: 100vh;">
           <!-- Unified Project Breadcrumbs & Status Top Bar -->
-          <div class="sys-top-bar" style="height: 60px; padding: 0 1.5rem; background: rgba(15, 23, 42, 0.95); border-bottom: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; gap: 1rem;">
+          <div class="sys-top-bar" style="height: 60px; padding: 0 1.5rem; background: var(--bg-surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; gap: 1rem;">
             
             <!-- Left: Back to Project & Breadcrumb -->
             <div style="display:flex; align-items:center; gap:0.75rem; min-width:0; flex:1;">
@@ -480,7 +487,7 @@
 
             <!-- Center: Inline Questionnaire Title -->
             <div style="flex:1; max-width:400px;">
-              <input type="text" class="sys-title-input" id="form-edit-title" placeholder="Nome do Questionário do Projeto..." style="width:100%; font-size:1rem; font-weight:600; padding:6px 12px; background:rgba(255,255,255,0.05); border:1px solid var(--glass-border); border-radius:6px; color:#fff;" />
+              <input type="text" class="sys-title-input" id="form-edit-title" placeholder="Nome do Questionário do Projeto..." style="width:100%; font-size:1rem; font-weight:600; padding:6px 12px; background:var(--bg-input); border:1px solid var(--border); border-radius:var(--radius); color:var(--text-primary);" />
             </div>
 
             <!-- Right: Lifecycle & Publication Actions -->
@@ -499,7 +506,7 @@
                 <option value="published">Publicado</option>
               </select>
 
-              <button type="button" class="btn btn-sm btn-outline" style="border-color: #38bdf8; color: #38bdf8;" onclick="testOdkFormCompliance()" title="Verificar se o questionário é 100% compatível com o ODK Collect Android">
+              <button type="button" class="btn btn-sm btn-outline" style="border-color: var(--accent); color: var(--accent);" onclick="testOdkFormCompliance()" title="Verificar se o questionário é 100% compatível com o ODK Collect Android">
                 <i class="fa-solid fa-flask-vial"></i> Testar no ODK
               </button>
 
@@ -1060,23 +1067,23 @@
       <section id="view-project-details" class="view-panel" style="padding: 0; background: var(--bg-base);">
         <div style="display: flex; flex-direction: column; height: 100vh; overflow: hidden;">
           <!-- Project Top Bar -->
-          <div class="sys-project-header" style="background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border); color: #fff; display: flex; align-items: center; padding: 0 1.5rem; height: 60px; flex-shrink: 0; gap: 1rem;">
+          <div class="sys-project-header" style="background: var(--bg-surface); border-bottom: 1px solid var(--border); color: var(--text-primary); display: flex; align-items: center; padding: 0 1.5rem; height: 60px; flex-shrink: 0; gap: 1rem;">
             <button class="btn btn-sm btn-outline" style="border-color: var(--glass-border); color: var(--text-primary);" onclick="switchTab('view-dashboard')" title="Voltar para todos os projetos">
               <i class="fa-solid fa-arrow-left"></i> <span style="margin-left: 4px;">Projetos</span>
             </button>
             <div style="height: 24px; width: 1px; background: var(--glass-border);"></div>
             <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1; min-width: 0;">
               <i class="fa-solid fa-clipboard-list" style="color: var(--primary); font-size: 1.2rem;"></i>
-              <h1 id="project-details-title-top" style="font-size: 1.15rem; font-weight: 700; margin: 0; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">CARREGANDO PROJETO...</h1>
+              <h1 id="project-details-title-top" style="font-size: 1.05rem; font-weight: 600; margin: 0; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">CARREGANDO PROJETO...</h1>
               <div id="pd-status-badge-top" style="margin-left: 0.5rem;"></div>
             </div>
             <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
               <button class="btn btn-sm btn-outline" onclick="openOdkQrModal()" title="Gerar QR Code para conexão instantânea do ODK Collect"><i class="fa-solid fa-qrcode" style="color:var(--cyan);"></i> Conectar Celular</button>
               <button class="btn btn-sm btn-outline" onclick="exportProjectDataXLSX()" title="Exportar XLSX direto"><i class="fa-solid fa-file-excel" style="color:#10b981;"></i> Excel</button>
-              <button class="btn btn-sm btn-outline" onclick="exportProjectSpss()" title="Exportar Sintaxe SPSS (.sps)"><i class="fa-solid fa-file-code" style="color:#38bdf8;"></i> SPSS</button>
+              <button class="btn btn-sm btn-outline" onclick="exportProjectSpss()" title="Exportar Sintaxe SPSS (.sps)"><i class="fa-solid fa-file-code" style="color: var(--accent);"></i> SPSS</button>
               <button class="btn btn-sm btn-outline" onclick="exportProjectR()" title="Exportar Script R (.R)"><i class="fa-solid fa-chart-column" style="color:#a855f7;"></i> Script R</button>
               <button class="btn btn-sm btn-outline" onclick="exportProjectCodebook()" title="Dicionário de Variáveis (Codebook)"><i class="fa-solid fa-book" style="color:#f59e0b;"></i> Dicionário</button>
-              <div class="sys-owner-circle" style=", var(--indigo)); border: 2px solid rgba(255,255,255,0.2); font-weight:700;" id="pd-owner-initial-top">C</div>
+              <div class="sys-owner-circle" style="background: var(--bg-subtle); color: var(--accent); border: 1px solid var(--border); font-weight:600; width:30px; height:30px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:0.8rem;" id="pd-owner-initial-top">C</div>
             </div>
           </div>
           
@@ -1085,7 +1092,7 @@
             <div style="width: 240px; background: var(--bg-sidebar); border-right: 1px solid var(--glass-border); display: flex; flex-direction: column; padding: 1.25rem 0.75rem; gap: 0.4rem; flex-shrink: 0;">
               <button class="sys-list-btn sys-proj-tab active" data-tab="proj-tab-resumo" onclick="sysSwitchTab('proj-tab-resumo')" style="justify-content: flex-start; gap: 0.85rem; padding: 0.75rem 1rem;"><i class="fa-solid fa-chart-line" style="color:var(--primary);"></i> Resumo</button>
               <button class="sys-list-btn sys-proj-tab" data-tab="proj-tab-form" onclick="sysEditForm()" style="justify-content: flex-start; gap: 0.85rem; padding: 0.75rem 1rem;"><i class="fa-solid fa-clipboard-list" style="color:#a855f7;"></i> Questionário</button>
-              <button class="sys-list-btn sys-proj-tab" data-tab="proj-tab-versoes" onclick="sysSwitchTab('proj-tab-versoes')" style="justify-content: flex-start; gap: 0.85rem; padding: 0.75rem 1rem;"><i class="fa-solid fa-code-branch" style="color:#38bdf8;"></i> Versões & Ciclo</button>
+              <button class="sys-list-btn sys-proj-tab" data-tab="proj-tab-versoes" onclick="sysSwitchTab('proj-tab-versoes')" style="justify-content: flex-start; gap: 0.85rem; padding: 0.75rem 1rem;"><i class="fa-solid fa-code-branch" style="color: var(--accent);"></i> Versões & Ciclo</button>
               <button class="sys-list-btn sys-proj-tab" data-tab="proj-tab-dados" onclick="sysSwitchTab('proj-tab-dados')" style="justify-content: flex-start; gap: 0.85rem; padding: 0.75rem 1rem;"><i class="fa-solid fa-table" style="color:#10b981;"></i> Dados & Auditoria</button>
               <button class="sys-list-btn sys-proj-tab" data-tab="proj-tab-mapa" onclick="sysSwitchTab('proj-tab-mapa')" style="justify-content: flex-start; gap: 0.85rem; padding: 0.75rem 1rem;"><i class="fa-solid fa-map-location-dot" style="color:#f59e0b;"></i> Mapa de Campo</button>
               <button class="sys-list-btn sys-proj-tab" data-tab="proj-tab-config" onclick="sysSwitchTab('proj-tab-config')" style="justify-content: flex-start; gap: 0.85rem; padding: 0.75rem 1rem;"><i class="fa-solid fa-user-shield" style="color:#ec4899;"></i> Equipe & Acessos</button>
@@ -1158,7 +1165,7 @@
                     <div style="background:rgba(0,0,0,0.25); border:1px solid var(--glass-border); border-radius:8px; padding:0.75rem 1rem;">
                       <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:600;">URL do Servidor ODK Collect:</span>
                       <div style="display:flex; align-items:center; justify-content:space-between; margin-top:4px;">
-                        <code id="resumo-odk-server-url" style="color:#38bdf8; font-size:0.85rem; font-family:var(--mono);">https://guiadata.sistemagithub.workers.dev</code>
+                        <code id="resumo-odk-server-url" style="color: var(--accent); font-size:0.85rem; font-family:var(--mono);">https://guiadata.sistemagithub.workers.dev</code>
                         <button class="btn-icon" onclick="navigator.clipboard.writeText('https://guiadata.sistemagithub.workers.dev'); showToast('success', 'URL copiada com sucesso!');" title="Copiar URL"><i class="fa-solid fa-copy"></i></button>
                       </div>
                     </div>
@@ -1167,7 +1174,7 @@
                       <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Nuvem de Mídias (Google Drive):</span>
                       <div style="display:flex; align-items:center; justify-content:space-between; margin-top:4px;">
                         <span style="color:#34d399; font-size:0.82rem;"><i class="fa-solid fa-circle-check"></i> Sincronização Ativa</span>
-                        <a href="https://drive.google.com/drive/folders/1IH2cWAAtNLuUfzeaVpDmv4pn6p3AQozQ" target="_blank" style="color:#38bdf8; font-size:0.75rem; text-decoration:underline;">Ver Pasta Google Drive &rarr;</a>
+                        <a href="https://drive.google.com/drive/folders/1IH2cWAAtNLuUfzeaVpDmv4pn6p3AQozQ" target="_blank" style="color: var(--accent); font-size:0.75rem; text-decoration:underline;">Ver Pasta Google Drive &rarr;</a>
                       </div>
                     </div>
                   </div>
@@ -1348,14 +1355,14 @@
             <!-- VERSÕES & CICLO DE VIDA TAB -->
             <div class="tab-content" id="proj-tab-versoes" style="display:none;">
               <!-- Header Card: Current Status & Version Summary -->
-              <div class="card" style="margin-bottom: 1.5rem; , rgba(15,23,42,0.9)); border: 1px solid var(--glass-border);">
+              <div class="card" style="margin-bottom: 1.5rem;">
                 <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
                   <div>
                     <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.5rem;">
                       <span id="proj-ver-status-badge" class="badge badge-success" style="font-size:0.85rem; padding:6px 12px; font-weight:700;">PUBLICADO</span>
-                      <span id="proj-ver-number-badge" class="badge" style="background:rgba(56,189,248,0.2); color:#38bdf8; font-size:0.85rem; padding:6px 12px; font-weight:700;">VERSÃO 1 (V1)</span>
+                      <span id="proj-ver-number-badge" class="badge" style="background:rgba(56,189,248,0.2); color: var(--accent); font-size:0.85rem; padding:6px 12px; font-weight:700;">VERSÃO 1 (V1)</span>
                     </div>
-                    <h2 id="proj-ver-title" style="font-size:1.35rem; font-weight:800; color:#fff; margin:0 0 0.5rem 0;">Questionário Oficial do Projeto</h2>
+                    <h2 id="proj-ver-title" style="font-size:1.35rem; font-weight:800; color:var(--text-primary); margin:0 0 0.5rem 0;">Questionário Oficial do Projeto</h2>
                     <p id="proj-ver-desc" style="color:var(--text-muted); font-size:0.9rem; margin:0; max-width:650px;">
                       Esta versão está ativa para coleta de campo. Todas as entrevistas submetidas pelo ODK Collect estão vinculadas a esta versão.
                     </p>
@@ -1386,22 +1393,22 @@
                   </div>
                   <div>
                     <div style="font-size:0.75rem; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Perguntas no Formulário</div>
-                    <div id="metric-questions-count" style="font-size:1.1rem; font-weight:700; color:#fff; margin-top:2px;">0 perguntas</div>
+                    <div id="metric-questions-count" style="font-size:1.1rem; font-weight:700; color:var(--text-primary); margin-top:2px;">0 perguntas</div>
                   </div>
                   <div>
                     <div style="font-size:0.75rem; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Entrevistas nesta Versão</div>
-                    <div id="metric-interviews-this-ver" style="font-size:1.1rem; font-weight:700; color:#38bdf8; margin-top:2px;">0 coletas</div>
+                    <div id="metric-interviews-this-ver" style="font-size:1.1rem; font-weight:700; color:var(--text-primary); margin-top:2px;">0 coletas</div>
                   </div>
                   <div>
                     <div style="font-size:0.75rem; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Garantia de Integridade</div>
-                    <div style="font-size:1.1rem; font-weight:700; color:#a855f7; margin-top:2px;"><i class="fa-solid fa-shield-halved"></i> 100% Protegido</div>
+                    <div style="font-size:1.1rem; font-weight:700; color:var(--text-primary); margin-top:2px;"><i class="fa-solid fa-shield-halved"></i> 100% Protegido</div>
                   </div>
                 </div>
               </div>
 
               <!-- Lifecycle Educational / Architecture Visual Cards -->
               <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
-                <div class="card" style="border-left:4px solid #f59e0b; padding:1.25rem;">
+                <div class="card" style="border:1px solid var(--border); padding:1.25rem;">
                   <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
                     <i class="fa-solid fa-pen-ruler" style="color:#f59e0b; font-size:1.1rem;"></i>
                     <h4 style="margin:0; font-size:0.95rem; font-weight:700;">1. Rascunho (Draft)</h4>
@@ -1411,7 +1418,7 @@
                   </p>
                 </div>
 
-                <div class="card" style="border-left:4px solid #10b981; padding:1.25rem;">
+                <div class="card" style="border:1px solid var(--border); padding:1.25rem;">
                   <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
                     <i class="fa-solid fa-circle-check" style="color:#10b981; font-size:1.1rem;"></i>
                     <h4 style="margin:0; font-size:0.95rem; font-weight:700;">2. Publicado (Published)</h4>
@@ -1421,7 +1428,7 @@
                   </p>
                 </div>
 
-                <div class="card" style="border-left:4px solid #64748b; padding:1.25rem;">
+                <div class="card" style="border:1px solid var(--border); padding:1.25rem;">
                   <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
                     <i class="fa-solid fa-box-archive" style="color:#64748b; font-size:1.1rem;"></i>
                     <h4 style="margin:0; font-size:0.95rem; font-weight:700;">3. Arquivado (Archived)</h4>
@@ -1431,7 +1438,7 @@
                   </p>
                 </div>
 
-                <div class="card" style="border-left:4px solid #a855f7; padding:1.25rem;">
+                <div class="card" style="border:1px solid var(--border); padding:1.25rem;">
                   <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
                     <i class="fa-solid fa-book-bookmark" style="color:#a855f7; font-size:1.1rem;"></i>
                     <h4 style="margin:0; font-size:0.95rem; font-weight:700;">4. Biblioteca de Modelos</h4>
@@ -1668,24 +1675,15 @@
           </div>
         </div>
 
-        <!-- Team Executive KPI Cards -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
-          <div class="card" style="border-left: 4px solid #38bdf8; padding: 1rem 1.25rem;">
-            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing:0.5px;">Total de Colaboradores</div>
-            <div id="kpi-team-total" style="font-size: 1.8rem; font-weight: 800; color: #fff; margin-top: 0.2rem;">0</div>
-          </div>
-          <div class="card" style="border-left: 4px solid #22d3ee; padding: 1rem 1.25rem;">
-            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing:0.5px;">Pesquisadores em Campo</div>
-            <div id="kpi-team-field" style="font-size: 1.8rem; font-weight: 800; color: #22d3ee; margin-top: 0.2rem;">0</div>
-          </div>
-          <div class="card" style="border-left: 4px solid #f59e0b; padding: 1rem 1.25rem;">
-            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing:0.5px;">Coordenadores & Supervisores</div>
-            <div id="kpi-team-lead" style="font-size: 1.8rem; font-weight: 800; color: #fbbf24; margin-top: 0.2rem;">0</div>
-          </div>
-          <div class="card" style="border-left: 4px solid #10b981; padding: 1rem 1.25rem;">
-            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing:0.5px;">Analistas Estatísticos</div>
-            <div id="kpi-team-analysts" style="font-size: 1.8rem; font-weight: 800; color: #34d399; margin-top: 0.2rem;">0</div>
-          </div>
+        <!-- Team Summary Strip: Linha Unica de Texto Sobria -->
+        <div class="kpi-summary-strip" id="team-kpi-strip" style="margin-bottom: 1.25rem;">
+          <span class="kpi-item"><strong id="kpi-team-total">0</strong> colaboradores</span>
+          <span class="kpi-sep">·</span>
+          <span class="kpi-item"><strong id="kpi-team-field">0</strong> pesquisadores</span>
+          <span class="kpi-sep">·</span>
+          <span class="kpi-item"><strong id="kpi-team-lead">0</strong> coordenadores</span>
+          <span class="kpi-sep">·</span>
+          <span class="kpi-item"><strong id="kpi-team-analysts">0</strong> analistas</span>
         </div>
 
         <!-- Subnav bar for Team -->
@@ -1694,7 +1692,7 @@
             <i class="fa-solid fa-address-book"></i> Colaboradores da Empresa
           </button>
           <button class="exec-nav-btn" id="btn-subnav-team-leaderboard" onclick="switchTeamSubTab('leaderboard')">
-            <i class="fa-solid fa-trophy" style="color:#f59e0b;"></i> Produtividade de Campo (Leaderboard)
+            <i class="fa-solid fa-chart-line"></i> Produtividade de Campo (Leaderboard)
           </button>
         </div>
 
@@ -1702,14 +1700,14 @@
         <div id="team-subtab-users">
           <div class="card">
             <!-- Filter & Search Toolbar -->
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; padding-bottom:1rem; border-bottom:1px solid var(--glass-border); margin-bottom:1rem;">
-              <div style="display:flex; gap:0.5rem; flex-wrap:wrap;" id="team-role-filter-container">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; padding-bottom:1rem; border-bottom:1px solid var(--border); margin-bottom:1rem;">
+              <div style="display:flex; gap:0.4rem; flex-wrap:wrap;" id="team-role-filter-container">
                 <button class="team-filter-pill active" data-filter="all" onclick="filterTeamRole('all')">Todos (<span id="team-count-all">0</span>)</button>
-                <button class="team-filter-pill" data-filter="Coordinator" onclick="filterTeamRole('Coordinator')"><i class="fa-solid fa-bullseye" style="color:#60a5fa;"></i> Coordenadores</button>
-                <button class="team-filter-pill" data-filter="Supervisor" onclick="filterTeamRole('Supervisor')"><i class="fa-solid fa-tower-broadcast" style="color:#fbbf24;"></i> Supervisores</button>
-                <button class="team-filter-pill" data-filter="Analyst" onclick="filterTeamRole('Analyst')"><i class="fa-solid fa-chart-column" style="color:#34d399;"></i> Analistas</button>
-                <button class="team-filter-pill" data-filter="Researcher" onclick="filterTeamRole('Researcher')"><i class="fa-solid fa-mobile-screen" style="color:#22d3ee;"></i> Pesquisadores</button>
-                <button class="team-filter-pill" data-filter="Admin" onclick="filterTeamRole('Admin')"><i class="fa-solid fa-crown" style="color:#c084fc;"></i> Diretoria</button>
+                <button class="team-filter-pill" data-filter="Coordinator" onclick="filterTeamRole('Coordinator')">Coordenadores</button>
+                <button class="team-filter-pill" data-filter="Supervisor" onclick="filterTeamRole('Supervisor')">Supervisores</button>
+                <button class="team-filter-pill" data-filter="Analyst" onclick="filterTeamRole('Analyst')">Analistas</button>
+                <button class="team-filter-pill" data-filter="Researcher" onclick="filterTeamRole('Researcher')">Pesquisadores</button>
+                <button class="team-filter-pill" data-filter="Admin" onclick="filterTeamRole('Admin')">Diretoria</button>
               </div>
               <div style="display:flex; align-items:center; gap:0.5rem;">
                 <div style="position:relative;">
@@ -1894,7 +1892,7 @@
         <div class="view-pad">
           
           <!-- Cloud Architecture Diagram Summary -->
-          <div class="card" style="margin-bottom: 1.5rem; , rgba(6,11,24,0.95)); border-color: rgba(34,211,238,0.25);">
+          <div class="card" style="margin-bottom: 1.5rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
               <div>
                 <span class="badge" style="margin-bottom:0.5rem;">Topologia de Coleta</span>
@@ -1983,7 +1981,7 @@
               </div>
               <div class="cloud-metric-row">
                 <span class="cloud-metric-label"><i class="fa-solid fa-folder-closed" style="color:var(--amber);"></i> ID da Pasta Remota</span>
-                <span class="cloud-metric-val" id="gdrive-folder-id" style="font-family:monospace; font-size:0.75rem; color:#38bdf8;">1IH2cWAAtNLuUfzeaVpDmv4pn6p3AQozQ</span>
+                <span class="cloud-metric-val" id="gdrive-folder-id" style="font-family:monospace; font-size:0.75rem; color: var(--accent);">1IH2cWAAtNLuUfzeaVpDmv4pn6p3AQozQ</span>
               </div>
               <div class="cloud-metric-row">
                 <span class="cloud-metric-label"><i class="fa-solid fa-microphone" style="color:var(--indigo);"></i> Áudios Sincronizados</span>
@@ -2052,7 +2050,7 @@
           </div>
           <div style="display:flex; align-items:center; gap:0.5rem;">
             <span class="badge" style=" color:#fff; font-size:0.75rem; padding:6px 14px; font-weight:700; border-radius:999px; ">
-              <i class="fa-solid fa-shield-halved" style="color:#38bdf8;"></i> Módulo de Estatística & Auditoria
+              <i class="fa-solid fa-shield-halved" style="color: var(--accent);"></i> Módulo de Estatística & Auditoria
             </span>
           </div>
         </div>
@@ -2173,7 +2171,7 @@
                 </div>
                 <div class="stat-card">
                   <div class="stat-label">Idôneas / Certificadas</div>
-                  <div class="stat-num" id="exec-forensic-certified" style="color:#38bdf8;">0</div>
+                  <div class="stat-num" id="exec-forensic-certified" style="color: var(--accent);">0</div>
                 </div>
                 <div class="stat-card">
                   <div class="stat-label">Sinalizadas para Expurgo</div>
@@ -2182,14 +2180,14 @@
               </div>
 
               <!-- Official Formal Certificate Card -->
-              <div class="card" style=", rgba(6,11,24,0.98)); border: 1px solid rgba(56,189,248,0.3); margin-bottom: 1.5rem;">
+              <div class="card" style="margin-bottom: 1.5rem;">
                 <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1rem;">
                   <div style="display:flex; align-items:center; gap:0.75rem;">
                     <div style="width:42px; height:42px; border-radius:50%; background:rgba(56,189,248,0.15); color:var(--cyan); display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
                       <i class="fa-solid fa-stamp"></i>
                     </div>
                     <div>
-                      <h4 style="margin:0; font-size:1.05rem; font-weight:800; color:#fff;">LAUDO PERICIAL DE AUDITORIA FORENSE AMOSTRAL</h4>
+                      <h4 style="margin:0; font-size:1.05rem; font-weight:800; color:var(--text-primary); font-weight:700;">LAUDO DE AUDITORIA FORENSE AMOSTRAL</h4>
                       <span style="font-size:0.72rem; color:var(--text-muted);">Em conformidade com a Norma ISO 20252 e Resolução TSE 23.600</span>
                     </div>
                   </div>
@@ -2219,11 +2217,11 @@
 
           <!-- TAB 3: IMMUTABLE AUDIT TRAIL (SHA-256) -->
           <div class="exec-tab-content" id="exec-tab-audit" style="display:none;">
-            <div class="card" style="margin-bottom: 1.5rem; , rgba(6,11,24,0.95)); border-color: rgba(56,189,248,0.25);">
+            <div class="card" style="margin-bottom: 1.5rem;">
               <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
                 <div>
                   <span class="badge badge-info" style="margin-bottom:0.4rem;"><i class="fa-solid fa-shield-halved"></i> Prova Criptográfica Encadeada</span>
-                  <h3 style="font-size:1.15rem; font-weight:800; color:#fff;">Cadeia de Custódia Imutável (SHA-256)</h3>
+                  <h3 style="font-size:1.15rem; font-weight:800; color:var(--text-primary); font-weight:700;">Cadeia de Custódia Imutável (SHA-256)</h3>
                   <p style="font-size:0.82rem; color:var(--text-secondary); max-width:700px; margin-top:4px;">
                     Cada evento do sistema é criptografado e amarrado matematicamente ao hash do bloco anterior. Qualquer adulteração interna direta no banco SQLite invalida imediatamente a cadeia forense.
                   </p>
@@ -2455,7 +2453,7 @@
           <p style="font-size:0.8rem; color:var(--text-muted); margin:0.5rem 0 1rem 0;">
             Estrutura XML em padrão OpenRosa 1.0 para compatibilidade nativa com ODK Collect, KoboCollect e Enketo.
           </p>
-          <pre id="xml-viewer-code" style="background:#040711; color:#38bdf8; padding:1rem; border-radius:8px; border:1px solid var(--glass-border); max-height:360px; overflow:auto; font-size:0.78rem; font-family:monospace; user-select:all; white-space:pre-wrap;"></pre>
+          <pre id="xml-viewer-code" style="background:var(--bg-card); color:var(--text-primary); padding:1rem; border-radius:var(--radius); border:1px solid var(--border); max-height:360px; overflow:auto; font-size:0.78rem; font-family:var(--font-mono); user-select:all; white-space:pre-wrap;"></pre>
           <div class="modal-actions" style="margin-top:1rem; display:flex; justify-content:space-between; align-items:center;">
             <button class="btn btn-outline btn-sm" onclick="copyXmlCode()"><i class="fa-solid fa-copy"></i> Copiar XML</button>
             <button class="btn btn-primary btn-sm" onclick="document.getElementById('xml-viewer-modal').classList.remove('active')">Fechar</button>

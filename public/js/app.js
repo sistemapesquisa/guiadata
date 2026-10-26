@@ -491,15 +491,9 @@ window.filterProjectsByStatus = function(status) {
 };
 
 window.filterProjectsByYear = function(year) {
-  state.filterYear = year || 'all';
-  document.querySelectorAll('.year-pill').forEach(btn => {
-    btn.classList.remove('active', 'btn-primary');
-    btn.classList.add('btn-outline');
-    if (btn.dataset.year === year) {
-      btn.classList.add('active', 'btn-primary');
-      btn.classList.remove('btn-outline');
-    }
-  });
+  state.filterYear = year;
+  const sel = document.getElementById('dashboard-year-filter');
+  if (sel && sel.value !== String(year)) sel.value = String(year);
   renderDashboard();
 };
 
@@ -621,7 +615,7 @@ function renderDashboard() {
         </div>
 
         <div>
-          <span class="badge" style="padding:1px 6px; font-size:0.7rem; background:var(--bg-subtle); color:var(--text-secondary); border:1px solid var(--border);">${catLabel} · ${year}</span>
+          <span style="font-size:0.75rem; color:var(--text-secondary);">${catLabel} · ${year}</span>
         </div>
 
         <div class="proj-territory-text" title="${territory}">
@@ -3689,8 +3683,20 @@ window.filterTeamSearch = function(query) {
 
 async function loadTeam() {
   try {
-    const users = await apiFetch('/api/users');
-    state.teamUsers = Array.isArray(users) ? users : [];
+    const rawUsers = await apiFetch('/api/users');
+    const users = Array.isArray(rawUsers) ? rawUsers : [];
+    // Deduplica usuarios para evitar entradas repetidas (ex: Clara Admin)
+    const seenEmails = new Set();
+    const seenIds = new Set();
+    state.teamUsers = users.filter(u => {
+      const email = (u.email || '').toLowerCase().trim();
+      const id = String(u.id || '').trim();
+      if (email && seenEmails.has(email)) return false;
+      if (id && seenIds.has(id)) return false;
+      if (email) seenEmails.add(email);
+      if (id) seenIds.add(id);
+      return true;
+    });
     updateTeamKpis();
     renderTeamTable();
 
@@ -3776,12 +3782,12 @@ function renderTeamTable() {
     tr.innerHTML = `
       <td>
         <div style="display:flex; align-items:center; gap:0.75rem;">
-          <div class="team-avatar" style="background:linear-gradient(135deg, rgba(34,211,238,0.2), rgba(99,102,241,0.2)); color:var(--text-primary); border-color:var(--border);">
+          <div class="team-avatar">
             ${initial}
           </div>
           <div>
-            <div style="font-weight:700; color:#fff; font-size:0.9rem;">${u.name}</div>
-            <div style="font-size:0.75rem; color:var(--text-muted);">${u.email}</div>
+            <div style="font-weight:600; color:var(--text-primary); font-size:0.88rem;">${u.name}</div>
+            <div style="font-size:0.75rem; color:var(--text-secondary);">${u.email}</div>
           </div>
         </div>
       </td>
@@ -3809,18 +3815,33 @@ function renderTeamTable() {
       </td>
       <td style="text-align:center;">
         ${u.role === 'Researcher' ? `
-          <button class="btn btn-xs btn-outline" style="border-color:var(--cyan); color:var(--cyan); font-size:0.75rem; padding:0.25rem 0.55rem;" onclick="openOdkPairingModal('${u.id}')" title="Gerar QR Code para parear o celular ODK do pesquisador">
-            <i class="fa-solid fa-qrcode"></i> Parear ODK
+          <button class="btn btn-xs btn-outline" style="border-color:var(--border-strong); color:var(--text-primary); font-size:0.75rem; padding:0.25rem 0.55rem;" onclick="openOdkPairingModal('${u.id}')" title="Gerar QR Code para parear o celular ODK do pesquisador">
+            <i class="fa-solid fa-qrcode" style="color:var(--accent); margin-right:3px;"></i> Parear ODK
           </button>
         ` : `<span style="font-size:0.75rem; color:var(--text-muted);">-</span>`}
       </td>
-      <td style="text-align:right;">
-        <div style="display:inline-flex; gap:0.35rem;">
-          <button class="btn-icon" style="color:var(--primary);" onclick="editUser('${u.id}')" title="Editar Colaborador"><i class="fa-solid fa-pen-to-square"></i></button>
-          <button class="btn-icon" style="color:#fbbf24;" onclick="toggleUserStatus('${u.id}')" title="${isSuspended ? 'Ativar Colaborador' : 'Suspender Acesso'}">
-            <i class="fa-solid ${isSuspended ? 'fa-play' : 'fa-pause'}"></i>
+      <td style="text-align:right;" onclick="event.stopPropagation()">
+        <div class="row-action-group">
+          <button type="button" class="btn btn-xs btn-outline" onclick="editUser('${u.id}')" style="font-size:0.75rem; padding:0.25rem 0.55rem;">
+            Editar
           </button>
-          <button class="btn-icon" style="color:var(--danger);" onclick="deleteUser('${u.id}')" title="Desativar e Remover"><i class="fa-solid fa-trash"></i></button>
+          <button type="button" class="btn-more-trigger" onclick="event.stopPropagation(); window.toggleUserMenu('${u.id}', event)" title="Mais opções" style="width:26px; height:26px; display:inline-flex; align-items:center; justify-content:center; background:var(--bg-surface); border:1px solid var(--border); border-radius:var(--radius); color:var(--text-secondary); cursor:pointer; font-weight:bold; font-size:0.9rem;">
+            ⋯
+          </button>
+          <div class="row-action-dropdown" id="user-menu-${u.id}">
+            ${u.role === 'Researcher' ? `
+              <button type="button" class="dropdown-item" onclick="event.stopPropagation(); window.closeAllRowMenus(); openOdkPairingModal('${u.id}')">
+                <i class="fa-solid fa-qrcode"></i> Parear ODK Collect
+              </button>
+            ` : ''}
+            <button type="button" class="dropdown-item" onclick="event.stopPropagation(); window.closeAllRowMenus(); toggleUserStatus('${u.id}')">
+              <i class="fa-solid ${isSuspended ? 'fa-play' : 'fa-pause'}"></i> ${isSuspended ? 'Reativar Colaborador' : 'Suspender Acesso'}
+            </button>
+            <div style="height:1px; background:var(--border); margin:0.25rem 0;"></div>
+            <button type="button" class="dropdown-item" onclick="event.stopPropagation(); window.closeAllRowMenus(); deleteUser('${u.id}')" style="color:var(--status-rejected-text);">
+              <i class="fa-solid fa-trash" style="color:var(--status-rejected-text);"></i> Excluir Colaborador
+            </button>
+          </div>
         </div>
       </td>
     `;
@@ -6594,3 +6615,22 @@ window.showConfirmModal = showConfirm;
 
 
 
+
+window.toggleUserMenu = function(id, ev) {
+  if (ev) {
+    ev.stopPropagation();
+    ev.preventDefault();
+  }
+  const menu = document.getElementById('user-menu-' + id);
+  const isOpen = menu && menu.style.display === 'block';
+  window.closeAllRowMenus();
+  if (menu && !isOpen) {
+    menu.style.display = 'block';
+  }
+};
+window.closeAllRowMenus = function() {
+  document.querySelectorAll('.row-action-dropdown').forEach(m => m.style.display = 'none');
+};
+document.addEventListener('click', () => {
+  window.closeAllRowMenus();
+});
