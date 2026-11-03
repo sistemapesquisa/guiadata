@@ -83,6 +83,7 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 
 <body>
@@ -1284,9 +1285,15 @@
                             <button class="btn btn-outline" style="flex-direction:column; padding:1rem; gap:0.5rem;"
                               onclick="addNewQuestion('range')"><i class="fa-solid fa-sliders fa-2x"></i>
                               Intervalo</button>
+                            <button class="btn btn-outline" style="flex-direction:column; padding:1rem; gap:0.5rem;"
+                              onclick="addNewQuestion('matrix')"><i class="fa-solid fa-table-cells fa-2x"></i>
+                              Matriz de Avaliação</button>
+                            <button class="btn btn-outline" style="flex-direction:column; padding:1rem; gap:0.5rem;"
+                              onclick="addNewQuestion('repeat')"><i class="fa-solid fa-repeat fa-2x"></i>
+                              Grupo de Repetição</button>
 
                             <button class="btn btn-outline"
-                              style="flex-direction:column; padding:1rem; gap:0.5rem; border-color:var(--primary); color:var(--primary); grid-column: span 2;"
+                              style="flex-direction:column; padding:1rem; gap:0.5rem; border-color:var(--primary); color:var(--primary); grid-column: span 4;"
                               onclick="openGroupModal()"><i class="fa-solid fa-layer-group fa-2x"></i> Criar Seção /
                               Grupo</button>
                           </div>

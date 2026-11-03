@@ -326,7 +326,8 @@ button {
 }
 
 /* =====================================================================
-   MODO CAMPO & AUDITORIA: TIPOGRAFIA EM MAIUSCULAS (CAPS LOCK NO SISTEMA)
+   PADRÃO CAMPO & AUDITORIA: CAPS LOCK TOTAL NA INTERFACE DO SISTEMA
+   (ALTA VISIBILIDADE E LEGIBILIDADE SOB QUALQUER CONDIÇÃO DE LUZ)
    ===================================================================== */
 h1, h2, h3, h4, h5, h6,
 .page-title,
@@ -334,13 +335,26 @@ h1, h2, h3, h4, h5, h6,
 .card-title,
 .card-header,
 .modal-title,
+.modal-message,
+.modal-box p,
+.modal-box label,
+.modal-box span,
+.modal-box button,
+.modal-box a,
 .sidebar-logo,
+.sidebar-logo div,
 .system-sublabel,
+.sidebar-nav,
 .sidebar-nav .nav-item,
+.sidebar-nav .nav-item span,
+.nav-item,
+.nav-item span,
 .sidebar-user-name,
 .sidebar-user-role,
 .theme-label,
 .theme-btn,
+table th,
+table td,
 .data-table th,
 .data-table td,
 .proj-table-header,
@@ -354,11 +368,16 @@ h1, h2, h3, h4, h5, h6,
 .sys-status-badge,
 .badge,
 .badge-role,
+.status-tag,
+.status-pill,
+.tag,
+.pill,
 .btn,
 button,
 .btn-table-primary,
 .btn-table-more,
 .exec-nav-btn,
+.exec-subnav-btn,
 .team-filter-pill,
 .proj-filter-pill,
 .kpi-summary-strip,
@@ -373,23 +392,58 @@ label,
 .table-dropdown-menu button,
 .table-dropdown-menu a,
 .row-action-dropdown .dropdown-item,
+select,
+option,
 .form-select,
 .login-brand h2,
 .brand-subtitle,
-.quick-access-title {
-  text-transform: uppercase;
-  letter-spacing: 0.25px;
+.quick-access-title,
+.empty-state h4,
+.empty-state p,
+.builder-question-card,
+.builder-question-card span,
+.builder-question-card label,
+.builder-question-card button,
+.sys-choice-row,
+.sys-choice-input,
+.sys-choice-trash,
+.sys-add-choice,
+.sys-cond-badge,
+.form-list-title,
+.form-list-meta,
+.survey-title,
+.question-label,
+.choice-text,
+.matrix-row-label,
+.matrix-col-label,
+.stat-label,
+.crosstab-matrix th,
+.crosstab-matrix td,
+.audit-status,
+.tab-btn,
+.toast,
+.toast-title,
+.toast-msg {
+  text-transform: uppercase !important;
+  letter-spacing: 0.03em;
 }
 
-/* Excecoes tecnicas obrigatorias para credenciais e codigo */
+/* Exceções técnicas obrigatórias: credenciais, senhas, emails, código e identificadores internos */
 input[type="password"],
 input[type="email"],
 code,
 pre,
+pre *,
+code *,
 .code-block,
 #xml-viewer-code,
 #resumo-odk-server-url,
-#gdrive-folder-id {
+#gdrive-folder-id,
+.sys-choice-pill,
+.technical-id,
+.font-mono,
+textarea.code-area,
+.raw-data-text {
   text-transform: none !important;
   letter-spacing: normal !important;
 }

@@ -1653,6 +1653,52 @@ window.moveQuestionDown = (idx) => {
 };
 
 window.addNewQuestion = function(type) {
+  if (type === 'repeat' || type === 'repeat_group') {
+    const rId = 'REP_' + (state.activeForm.questions.length + 1);
+    state.activeForm.questions.push({
+      id: rId + '_INICIO',
+      text: 'GRUPO DE REPETIÇÃO (Ex: Moradores / Equipamentos)',
+      type: 'begin_repeat',
+      required: false
+    });
+    state.activeForm.questions.push({
+      id: 'Q' + (state.activeForm.questions.length + 1),
+      text: 'Nome do Integrante / Item',
+      type: 'text',
+      required: true
+    });
+    state.activeForm.questions.push({
+      id: 'Q' + (state.activeForm.questions.length + 1),
+      text: 'Idade ou Quantidade',
+      type: 'number',
+      required: true
+    });
+    state.activeForm.questions.push({
+      id: rId + '_FIM',
+      text: 'Fim do Grupo de Repetição',
+      type: 'end_repeat',
+      required: false
+    });
+    renderBuilderQuestions();
+    document.getElementById('question-type-modal').classList.remove('active');
+    return;
+  }
+
+  if (type === 'matrix') {
+    const qId = 'MAT_' + (state.activeForm.questions.length + 1);
+    state.activeForm.questions.push({
+      id: qId,
+      text: 'AVALIAÇÃO GERAL DOS SERVIÇOS',
+      type: 'matrix',
+      required: true,
+      matrixRows: ['SAÚDE PÚBLICA', 'EDUCAÇÃO', 'SEGURANÇA', 'TRANSPORTE'],
+      matrixCols: ['ÓTIMO', 'BOM', 'REGULAR', 'RUIM', 'PÉSSIMO']
+    });
+    renderBuilderQuestions();
+    document.getElementById('question-type-modal').classList.remove('active');
+    return;
+  }
+
   const qId = 'Q' + (state.activeForm.questions.length + 1);
   const q = { id:qId, text:'', type: type, options:[], required: false };
   if (type === 'select_one' || type === 'select_multiple' || type === 'rank') {
@@ -1815,6 +1861,40 @@ function renderBuilderQuestions() {
       </div>`;
     }
 
+    
+    if (q.type === 'matrix') {
+      if (!q.matrixRows) q.matrixRows = ['Saúde Pública', 'Educação', 'Segurança', 'Transporte'];
+      if (!q.matrixCols) q.matrixCols = ['Ótimo', 'Bom', 'Regular', 'Ruim', 'Péssimo'];
+      optionsHtml = `
+        <div style="margin-top:0.75rem; background:var(--bg-subtle); padding:0.75rem; border:1px solid var(--border); border-radius:var(--radius);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+            <span style="font-weight:700; font-size:0.75rem;">LINHAS DA MATRIZ (ITENS A AVALIAR):</span>
+            <button type="button" class="btn btn-sm btn-outline" onclick="addMatrixRow(${idx})" style="padding:2px 8px; font-size:0.7rem;">+ Adicionar Linha</button>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px; margin-bottom:0.8rem;">
+            ${q.matrixRows.map((r, ri) => `
+              <div style="display:flex; gap:6px; align-items:center;">
+                <button class="sys-choice-trash" onclick="removeMatrixRow(${idx}, ${ri})" title="Remover"><i class="fa-solid fa-trash"></i></button>
+                <input type="text" class="sys-choice-input" value="${r}" onchange="updateMatrixRow(${idx}, ${ri}, this.value)" placeholder="Item a ser avaliado..." style="flex:1;" />
+              </div>
+            `).join('')}
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+            <span style="font-weight:700; font-size:0.75rem;">COLUNAS DA MATRIZ (ESCALA DE RESPOSTAS):</span>
+            <button type="button" class="btn btn-sm btn-outline" onclick="addMatrixCol(${idx})" style="padding:2px 8px; font-size:0.7rem;">+ Adicionar Coluna</button>
+          </div>
+          <div style="display:flex; flex-wrap:wrap; gap:6px;">
+            ${q.matrixCols.map((c, ci) => `
+              <div style="display:flex; gap:4px; align-items:center; background:var(--bg-surface); padding:2px 6px; border:1px solid var(--border); border-radius:var(--radius-sm);">
+                <input type="text" class="sys-choice-input" value="${c}" onchange="updateMatrixCol(${idx}, ${ci}, this.value)" style="width:90px; border:none; outline:none;" />
+                <button class="sys-choice-trash" onclick="removeMatrixCol(${idx}, ${ci})" style="color:var(--text-muted);"><i class="fa-solid fa-xmark"></i></button>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
     const hasLogic = (q._logic && q._logic.length > 0) || (q.relevant && q.relevant.trim() !== '');
     let logicBadge = '';
     if (hasLogic) {
@@ -1859,6 +1939,7 @@ function renderBuilderQuestions() {
             <option value="hidden" ${q.type==='hidden'?'selected':''}>Oculto</option>
             <option value="file" ${q.type==='file'?'selected':''}>Arquivo</option>
             <option value="range" ${q.type==='range'?'selected':''}>Intervalo</option>
+            <option value="matrix" ${q.type==='matrix'?'selected':''}>Matriz de Avaliação</option>
     `;
 
     return `
@@ -3229,8 +3310,8 @@ function renderMobileScreen() {
           <div class="progress-bar" style="height:5px;background:rgba(255,255,255,0.08);margin-bottom:1rem;">
             <div class="progress-fill blue" style="width:${((ci+1)/qList.length*100).toFixed(0)}%;background:linear-gradient(90deg,var(--primary),#10b981);"></div>
           </div>
-          <div style="background:rgba(15,23,42,0.6);border:1px solid var(--glass-border);border-radius:14px;padding:1.25rem;margin-bottom:1rem;">
-            <h4 style="font-size:1.05rem;line-height:1.4;color:#fff;margin-bottom:0.25rem;font-weight:600;">${q.text}</h4>
+          <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem;">
+            <h4 style="font-size:1.05rem;line-height:1.4;color:var(--text-primary);margin-bottom:0.25rem;font-weight:600;">${q.text}</h4>
             ${q.hint ? `<p style="font-size:0.75rem; color:var(--text-muted); margin:0 0 0.5rem 0;">${q.hint}</p>` : ''}
             ${inputHtml}
             ${errorBanner}
@@ -3504,6 +3585,18 @@ window.simNext = function() {
     val = r ? r.value : ''; 
   } else if (q.type === 'multiple_choice' || q.type === 'select_multiple') { 
     val = Array.from(document.querySelectorAll(`input[name="sim-chk-${q.id}"]:checked`)).map(c => c.value); 
+    } else if (q.type === 'matrix') {
+    val = state.simAnswers[q.id] || {};
+    if (q.required) {
+      const rows = q.matrixRows || [];
+      const missing = rows.some(r => !val[r]);
+      if (missing) {
+        state.simValidationError = 'Por favor, avalie todos os itens da tabela antes de prosseguir.';
+        renderMobileScreen();
+        return;
+      }
+    }
+  }
   } else if (q.type === 'audio_record' || q.type === 'audio') { 
     val = state.simAudioFile || document.getElementById(`sim-ans-${q.id}`)?.value || ''; 
   }
@@ -6634,3 +6727,55 @@ window.closeAllRowMenus = function() {
 document.addEventListener('click', () => {
   window.closeAllRowMenus();
 });
+
+
+// =====================================================================
+// FUNÇÕES DE CONTROLE DE MATRIZ DE AVALIAÇÃO (PADRÃO KOBOTOOLBOX / ODK)
+// =====================================================================
+window.addMatrixRow = function(qIdx) {
+  const q = state.activeForm.questions[qIdx];
+  if (!q) return;
+  if (!q.matrixRows) q.matrixRows = [];
+  q.matrixRows.push(`Novo Item ${q.matrixRows.length + 1}`);
+  renderBuilderQuestions();
+};
+
+window.removeMatrixRow = function(qIdx, rIdx) {
+  const q = state.activeForm.questions[qIdx];
+  if (!q || !q.matrixRows) return;
+  q.matrixRows.splice(rIdx, 1);
+  renderBuilderQuestions();
+};
+
+window.updateMatrixRow = function(qIdx, rIdx, val) {
+  const q = state.activeForm.questions[qIdx];
+  if (!q || !q.matrixRows) return;
+  q.matrixRows[rIdx] = val;
+};
+
+window.addMatrixCol = function(qIdx) {
+  const q = state.activeForm.questions[qIdx];
+  if (!q) return;
+  if (!q.matrixCols) q.matrixCols = [];
+  q.matrixCols.push(`Opção ${q.matrixCols.length + 1}`);
+  renderBuilderQuestions();
+};
+
+window.removeMatrixCol = function(qIdx, cIdx) {
+  const q = state.activeForm.questions[qIdx];
+  if (!q || !q.matrixCols) return;
+  q.matrixCols.splice(cIdx, 1);
+  renderBuilderQuestions();
+};
+
+window.updateMatrixCol = function(qIdx, cIdx, val) {
+  const q = state.activeForm.questions[qIdx];
+  if (!q || !q.matrixCols) return;
+  q.matrixCols[cIdx] = val;
+};
+
+window.simSetMatrixAns = function(qId, row, col) {
+  if (!state.simAnswers[qId]) state.simAnswers[qId] = {};
+  state.simAnswers[qId][row] = col;
+  delete state.simValidationError;
+};
