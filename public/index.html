@@ -11,7 +11,7 @@
   <meta name="theme-color" content="#1e5643">
 
   <!-- Canonical & PWA -->
-  <link rel="canonical" href="http://localhost:3000/">
+  <link rel="canonical" href="./">
   <link rel="manifest" href="manifest.json?v=6.0.5">
   <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -26,7 +26,7 @@
   <meta property="og:description"
     content="Plataforma de pesquisa de campo com suporte offline, validações ODK XLSForm e auditoria antifraude.">
   <meta property="og:image" content="icons/icon-512.png">
-  <meta property="og:url" content="http://localhost:3000/">
+  <meta property="og:url" content="./">
 
   <!-- High-Speed Resource Hints (PageSpeed 100/100) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -717,7 +717,7 @@
                   aplicativo ODK Collect com o endereço abaixo.</p>
                 <code
                   style="background:rgba(16,185,129,0.15); padding:4px 8px; border-radius:4px; color:#34d399; font-weight:bold; user-select:all;"
-                  id="odk-server-url">http://.../api</code>
+                  id="odk-server-url-field">http://.../api</code>
                 <p style="margin:0.5rem 0 0 0; font-size:0.8rem; color:#6ee7b7;"><strong>Instrução no ODK
                     Collect:</strong> Menu > Configurações > Servidor > URL</p>
               </div>
@@ -1192,7 +1192,8 @@
 
                           <div class="form-group">
                             <label class="form-label">Nome da Instância (ODK) - `instance_name`</label>
-                            <input type="text" class="form-input" id="form-settings-instance-name"
+                            <textarea id="form-settings-quotas" style="display:none;"></textarea>
+                              <input type="text" class="form-input" id="form-settings-instance-name"
                               placeholder="Ex: concat(${nome}, ' - ', format-date(today(), '%d/%m/%Y'))" />
                             <div class="form-hint">Expressão opcional para dar nome legível a cada entrevista preenchida
                               no aplicativo.</div>

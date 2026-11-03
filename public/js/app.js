@@ -172,6 +172,10 @@ async function apiFetch(endpoint, options = {}) {
     if (token) headers['Authorization'] = `Bearer ${token}`;
     const res = await fetch(endpoint, { ...options, headers });
     if (!res.ok) {
+      if (res.status === 401) {
+        if (typeof window.logout === 'function') window.logout();
+        throw new Error('Sessão expirada. Faça login novamente.');
+      }
       if (res.status === 403) throw new Error('Você não tem permissão para esta ação.');
       if (res.status >= 500) throw new Error('Ocorreu um erro interno. Tente novamente.');
       const data = await res.json().catch(() => ({}));
@@ -525,9 +529,13 @@ function renderDashboard() {
     formsList = formsList.filter(f => String(f.year || '') === String(state.filterYear));
   }
 
-  // Filter by category
+  // Filter by category (normalized match for keys and full labels)
   if (state.filterCategory && state.filterCategory !== 'all') {
-    formsList = formsList.filter(f => (f.category || 'geral') === state.filterCategory);
+    const targetNorm = state.filterCategory.toLowerCase().replace(/[^a-z0-9]/g, '');
+    formsList = formsList.filter(f => {
+      const catNorm = (f.category || (f.settings && f.settings.category) || 'geral').toLowerCase().replace(/[^a-z0-9]/g, '');
+      return catNorm.includes(targetNorm) || targetNorm.includes(catNorm);
+    });
   }
 
   // Filter by search query
@@ -1537,6 +1545,8 @@ window.newForm = function() {
 };
 
 function initFormBuilder() {
+  if (window._builderInit) return;
+  window._builderInit = true;
   const btnNew = document.getElementById('btn-new-form');
   if (btnNew) {
     btnNew.addEventListener('click', () => {
@@ -1554,7 +1564,7 @@ function initFormBuilder() {
 
   const btnSave = document.getElementById('btn-save-form');
   if (btnSave) {
-    btnSave.addEventListener('click', saveActiveForm);
+    // btnSave already has onclick in HTML
   }
   
   const importInput = document.getElementById('import-xlsform-input') || document.getElementById('import-xls-input');
@@ -1653,40 +1663,58 @@ window.moveQuestionDown = (idx) => {
 };
 
 window.addNewQuestion = function(type) {
+  function generateId(prefix = 'q') {
+    const existing = new Set((state.activeForm?.questions || []).map(item => item.id));
+    let num = (state.activeForm?.questions || []).length + 1;
+    let cand = `${prefix}_${num}`;
+    while (existing.has(cand)) { num++; cand = `${prefix}_${num}`; }
+    return cand;
+  }
+
+  function insertQ(item) {
+    if (typeof window.insertQuestionIndex === 'number' && window.insertQuestionIndex >= 0 && window.insertQuestionIndex <= state.activeForm.questions.length) {
+      state.activeForm.questions.splice(window.insertQuestionIndex, 0, item);
+      window.insertQuestionIndex++;
+    } else {
+      state.activeForm.questions.push(item);
+    }
+  }
+
   if (type === 'repeat' || type === 'repeat_group') {
-    const rId = 'REP_' + (state.activeForm.questions.length + 1);
-    state.activeForm.questions.push({
-      id: rId + '_INICIO',
+    const rId = generateId('rep');
+    insertQ({
+      id: rId + '_inicio',
       text: 'GRUPO DE REPETIÇÃO (Ex: Moradores / Equipamentos)',
       type: 'begin_repeat',
       required: false
     });
-    state.activeForm.questions.push({
-      id: 'Q' + (state.activeForm.questions.length + 1),
+    insertQ({
+      id: generateId('q'),
       text: 'Nome do Integrante / Item',
       type: 'text',
       required: true
     });
-    state.activeForm.questions.push({
-      id: 'Q' + (state.activeForm.questions.length + 1),
+    insertQ({
+      id: generateId('q'),
       text: 'Idade ou Quantidade',
       type: 'number',
       required: true
     });
-    state.activeForm.questions.push({
-      id: rId + '_FIM',
+    insertQ({
+      id: rId + '_fim',
       text: 'Fim do Grupo de Repetição',
       type: 'end_repeat',
       required: false
     });
+    window.insertQuestionIndex = null;
     renderBuilderQuestions();
-    document.getElementById('question-type-modal').classList.remove('active');
+    document.getElementById('question-type-modal')?.classList.remove('active');
     return;
   }
 
   if (type === 'matrix') {
-    const qId = 'MAT_' + (state.activeForm.questions.length + 1);
-    state.activeForm.questions.push({
+    const qId = generateId('mat');
+    insertQ({
       id: qId,
       text: 'AVALIAÇÃO GERAL DOS SERVIÇOS',
       type: 'matrix',
@@ -1694,21 +1722,22 @@ window.addNewQuestion = function(type) {
       matrixRows: ['SAÚDE PÚBLICA', 'EDUCAÇÃO', 'SEGURANÇA', 'TRANSPORTE'],
       matrixCols: ['ÓTIMO', 'BOM', 'REGULAR', 'RUIM', 'PÉSSIMO']
     });
+    window.insertQuestionIndex = null;
     renderBuilderQuestions();
-    document.getElementById('question-type-modal').classList.remove('active');
+    document.getElementById('question-type-modal')?.classList.remove('active');
     return;
   }
 
-  const qId = 'Q' + (state.activeForm.questions.length + 1);
-  const q = { id:qId, text:'', type: type, options:[], required: false };
+  const qId = generateId('q');
+  const q = { id: qId, text: '', type: type, options: [], required: false };
   if (type === 'select_one' || type === 'select_multiple' || type === 'rank') {
     q.options = [{ name: 'opt_1', label: 'Opção 1' }, { name: 'opt_2', label: 'Opção 2' }];
   }
-  state.activeForm.questions.push(q);
+  insertQ(q);
+  window.insertQuestionIndex = null;
   renderBuilderQuestions();
-  document.getElementById('question-type-modal').classList.remove('active');
-  
-  // Scroll to bottom
+  document.getElementById('question-type-modal')?.classList.remove('active');
+
   const container = document.querySelector('.sys-workspace-body');
   if (container) container.scrollTop = container.scrollHeight;
 };
@@ -1855,8 +1884,6 @@ function renderBuilderQuestions() {
         <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.4rem;">
           <div class="sys-add-choice" onclick="addOption(${idx})" title="Adicionar Opção" style="flex:1;">+ Adicionar nova opção...</div>
           <button type="button" class="btn btn-sm btn-outline" onclick="openBatchOptionsModal(${idx})" title="Colar Lista em Lote"><i class="fa-solid fa-list-check"></i> Opções em Lote</button>
-            <i class="fa-solid fa-list-check"></i> + Colar Lista
-          </button>
         </div>
       </div>`;
     }
@@ -2095,15 +2122,9 @@ window.updateQName = function(idx, val) {
 };
 
 window.updateQText = function(idx, val) { 
-  state.activeForm.questions[idx].text = val; 
-  const q = state.activeForm.questions[idx];
-  if(q.id && (q.id.startsWith('q_') || q.id.length > 20)) {
-    const autoName = val.toLowerCase().replace(/[áàãâä]/g,'a').replace(/[éèêë]/g,'e').replace(/[íìîï]/g,'i').replace(/[óòõôö]/g,'o').replace(/[úùûü]/g,'u').replace(/ç/g,'c').replace(/[^a-z0-9_]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '').substring(0,30);
-    if(autoName && !state.activeForm.questions.some((oq, i) => i !== idx && oq.id === autoName)) {
-      q.id = autoName;
-    }
+  if (state.activeForm?.questions && state.activeForm.questions[idx]) {
+    state.activeForm.questions[idx].text = val; 
   }
-  renderBuilderQuestions();
 };
 
 // Question handlers
@@ -2643,9 +2664,10 @@ async function saveActiveForm() {
   const title = document.getElementById('form-edit-title').value.trim();
   const status = document.getElementById('form-edit-status').value;
   if (!title) { showToast('warning', 'O nome do formulário não pode ficar vazio.'); return; }
-  // Validate questions have text
+  // Validate questions have text (ignoring technical markers, end_group, end_repeat, calculate, hidden)
   for (const q of state.activeForm.questions) {
-    if (!q.text.trim()) { showToast('warning', 'Todas as perguntas precisam ter um texto.'); return; }
+    if (q.type && (q.type.startsWith('end_') || q.type === 'calculate' || q.type === 'hidden')) continue;
+    if (!(q.text || '').trim()) { showToast('warning', 'Todas as perguntas precisam ter um texto.'); return; }
   }
   state.activeForm.title = title;
   state.activeForm.status = status;
@@ -3078,14 +3100,21 @@ window.openFormSettings = () => {
   const yearEl = document.getElementById('form-settings-year');
   if (yearEl) yearEl.value = state.activeForm.year || (state.activeForm.settings && state.activeForm.settings.year) || new Date().getFullYear();
 
+  const metaEl = document.getElementById('form-settings-metadata');
+  if (metaEl) metaEl.checked = state.activeForm.settings ? !!state.activeForm.settings.collect_metadata : true;
+  
+  const instEl = document.getElementById('form-settings-instance-name');
+  if (instEl) instEl.value = (state.activeForm.settings && state.activeForm.settings.instance_name) || '';
+
+  const quotasEl = document.getElementById('form-settings-quotas');
   if (state.activeForm.settings) {
     document.getElementById('form-settings-audit-audio').checked = !!state.activeForm.settings.audit_audio;
     document.getElementById('form-settings-audit-location').checked = !!state.activeForm.settings.audit_location;
-    document.getElementById('form-settings-quotas').value = state.activeForm.settings.quotas ? JSON.stringify(state.activeForm.settings.quotas, null, 2) : '';
+    if (quotasEl) quotasEl.value = state.activeForm.settings.quotas ? JSON.stringify(state.activeForm.settings.quotas, null, 2) : '';
   } else {
     document.getElementById('form-settings-audit-audio').checked = false;
     document.getElementById('form-settings-audit-location').checked = false;
-    document.getElementById('form-settings-quotas').value = '';
+    if (quotasEl) quotasEl.value = '';
   }
   
   document.getElementById('form-settings-modal').classList.add('active');
@@ -3225,8 +3254,27 @@ function renderMobileScreen() {
       const q = qList[ci];
       const isLast = ci === qList.length - 1;
       let inputHtml = '';
-      if (q.type === 'text') inputHtml = `<input type="text" id="sim-ans-${q.id}" class="form-input" style="margin-top:0.75rem; background:var(--bg-input); color:var(--text-primary); border:1px solid var(--border);" value="${state.simAnswers[q.id]||''}" placeholder="Digite a resposta..." />`;
-      else if (q.type === 'number' || q.type === 'integer' || q.type === 'decimal') inputHtml = `<input type="number" id="sim-ans-${q.id}" class="form-input" style="margin-top:0.75rem; background:var(--bg-input); color:var(--text-primary); border:1px solid var(--border);" value="${state.simAnswers[q.id]||''}" ${q.type==='integer'?'step="1"':''} placeholder="Digite um valor numérico..." />`;
+      if (q.type === 'text' || q.type === 'barcode' || q.type === 'rank') {
+        inputHtml = `<input type="text" id="sim-ans-${q.id}" class="form-input" style="margin-top:0.75rem; background:var(--bg-input); color:var(--text-primary); border:1px solid var(--border);" value="${state.simAnswers[q.id]||''}" placeholder="${q.type === 'barcode' ? 'Escaneie ou digite o código de barras...' : (q.type === 'rank' ? 'Informe a ordem/classificação...' : 'Digite a resposta...')}" />`;
+      } else if (q.type === 'number' || q.type === 'integer' || q.type === 'decimal') {
+        inputHtml = `<input type="number" id="sim-ans-${q.id}" class="form-input" style="margin-top:0.75rem; background:var(--bg-input); color:var(--text-primary); border:1px solid var(--border);" value="${state.simAnswers[q.id]||''}" ${q.type==='integer'?'step="1"':'step="any"'} placeholder="Digite um valor numérico..." />`;
+      } else if (q.type === 'date') {
+        inputHtml = `<input type="date" id="sim-ans-${q.id}" class="form-input" style="margin-top:0.75rem; background:var(--bg-input); color:var(--text-primary); border:1px solid var(--border);" value="${state.simAnswers[q.id]||''}" />`;
+      } else if (q.type === 'time') {
+        inputHtml = `<input type="time" id="sim-ans-${q.id}" class="form-input" style="margin-top:0.75rem; background:var(--bg-input); color:var(--text-primary); border:1px solid var(--border);" value="${state.simAnswers[q.id]||''}" />`;
+      } else if (q.type === 'datetime') {
+        inputHtml = `<input type="datetime-local" id="sim-ans-${q.id}" class="form-input" style="margin-top:0.75rem; background:var(--bg-input); color:var(--text-primary); border:1px solid var(--border);" value="${state.simAnswers[q.id]||''}" />`;
+      } else if (q.type === 'file') {
+        inputHtml = `<div style="margin-top:0.75rem;"><input type="file" onchange="document.getElementById('sim-ans-${q.id}').value = this.files[0] ? this.files[0].name : '';" style="font-size:0.8rem;" /><input type="hidden" id="sim-ans-${q.id}" value="${state.simAnswers[q.id]||''}" /></div>`;
+      } else if (q.type === 'range') {
+        const val = state.simAnswers[q.id] || 50;
+        inputHtml = `<div style="margin-top:0.75rem; text-align:center;"><input type="range" id="sim-ans-${q.id}" min="0" max="100" value="${val}" oninput="document.getElementById('sim-range-val-${q.id}').textContent = this.value;" style="width:100%;" /><div style="font-weight:700; margin-top:0.5rem;">Valor: <span id="sim-range-val-${q.id}">${val}</span></div></div>`;
+      } else if (q.type === 'acknowledge') {
+        const chk = state.simAnswers[q.id] === 'confirmado' ? 'checked' : '';
+        inputHtml = `<div style="margin-top:0.75rem;"><label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;"><input type="checkbox" id="sim-ans-${q.id}" value="confirmado" ${chk} style="transform:scale(1.2); accent-color:var(--primary);" /> Confirmo o reconhecimento dos termos acima.</label></div>`;
+      } else if (q.type === 'note') {
+        inputHtml = `<div style="margin-top:0.75rem; padding:0.75rem; background:var(--bg-subtle); border-radius:var(--radius); border-left:3px solid var(--accent); font-size:0.85rem;"><i class="fa-solid fa-circle-info" style="color:var(--accent);"></i> Nota informativa (leitura em campo).</div>`;
+      }
       else if (q.type === 'single_choice' || q.type === 'select_one') {
         inputHtml = '<div style="margin-top:0.75rem; display:flex; flex-direction:column; gap:0.5rem;">';
         if(q.options) q.options.forEach(opt => { 
@@ -3471,19 +3519,31 @@ function simReset() {
 function evaluateSimLogic(logicArray) {
   if (!logicArray || logicArray.length === 0) return true;
   for (let l of logicArray) {
-    if (!l.targetId) continue;
-    const ans = state.simAnswers[l.targetId];
-    if (ans === undefined) return false;
+    const tid = l.targetId || l.target;
+    if (!tid) continue;
+    const ans = state.simAnswers[tid];
+    if (ans === undefined || ans === '') return false;
     let numAns = parseFloat(ans);
     let numVal = parseFloat(l.val);
     let isNum = !isNaN(numAns) && !isNaN(numVal);
     
-    if (l.op === '=') { if (ans != l.val) return false; }
-    else if (l.op === '!=') { if (ans == l.val) return false; }
-    else if (l.op === '>') { if (!isNum || numAns <= numVal) return false; }
-    else if (l.op === '<') { if (!isNum || numAns >= numVal) return false; }
-    else if (l.op === '>=') { if (!isNum || numAns < numVal) return false; }
-    else if (l.op === '<=') { if (!isNum || numAns > numVal) return false; }
+    const op = l.op || '=';
+    if (op === '=' || op === '==' || op === 'eq') {
+      if (Array.isArray(ans)) {
+        if (!ans.includes(l.val)) return false;
+      } else if (ans != l.val) {
+        return false;
+      }
+    } else if (op === '!=' || op === 'neq') {
+      if (Array.isArray(ans)) {
+        if (ans.includes(l.val)) return false;
+      } else if (ans == l.val) {
+        return false;
+      }
+    } else if (op === '>') { if (!isNum || numAns <= numVal) return false; }
+    else if (op === '<') { if (!isNum || numAns >= numVal) return false; }
+    else if (op === '>=') { if (!isNum || numAns < numVal) return false; }
+    else if (op === '<=') { if (!isNum || numAns > numVal) return false; }
   }
   return true;
 }
@@ -3585,7 +3645,7 @@ window.simNext = function() {
     val = r ? r.value : ''; 
   } else if (q.type === 'multiple_choice' || q.type === 'select_multiple') { 
     val = Array.from(document.querySelectorAll(`input[name="sim-chk-${q.id}"]:checked`)).map(c => c.value); 
-    } else if (q.type === 'matrix') {
+  } else if (q.type === 'matrix') {
     val = state.simAnswers[q.id] || {};
     if (q.required) {
       const rows = q.matrixRows || [];
@@ -3596,7 +3656,6 @@ window.simNext = function() {
         return;
       }
     }
-  }
   } else if (q.type === 'audio_record' || q.type === 'audio') { 
     val = state.simAudioFile || document.getElementById(`sim-ans-${q.id}`)?.value || ''; 
   }
@@ -3746,13 +3805,8 @@ async function fetchLogs() {
 
 // ===================== DATA EXPORTER =====================
 function initDataExporter() {
-  const btn = document.getElementById('btn-export-data');
-  if (!btn) return;
-  btn.addEventListener('click', () => {
-    const formId = state.activeProjectFormId || 'todos';
-    showToast('info', 'Gerando planilha Excel (.xlsx) com abas limpas e repeats...');
-    window.location.href = `/api/export/xlsx/${formId}`;
-  });
+  // btn-export-data is dedicated to CSV and already calls exportProjectData()
+  // btn-export-xlsx is dedicated to XLSX and calls exportProjectDataXLSX()
 }
 
 // ===================== ENTERPRISE TEAM MANAGEMENT =====================
@@ -3962,8 +4016,10 @@ window.closeUserModal = function() {
 
 window.generateRandomPassword = function() {
   const chars = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#';
+  const buf = new Uint32Array(10);
+  crypto.getRandomValues(buf);
   let pwd = '';
-  for (let i = 0; i < 8; i++) pwd += chars.charAt(Math.floor(Math.random() * chars.length));
+  for (let i = 0; i < buf.length; i++) pwd += chars.charAt(buf[i] % chars.length);
   const el = document.getElementById('user-form-password');
   if (el) {
     el.value = pwd;
@@ -5704,9 +5760,13 @@ window.openQuotaStudioModal = async function() {
 
   let questions = [];
   if (form) {
-    try {
-      questions = typeof form.questions_json === 'string' ? JSON.parse(form.questions_json) : (form.questions_json || []);
-    } catch { questions = []; }
+    if (Array.isArray(form.questions) && form.questions.length > 0) {
+      questions = form.questions;
+    } else {
+      try {
+        questions = typeof form.questions_json === 'string' ? JSON.parse(form.questions_json) : (form.questions_json || []);
+      } catch { questions = []; }
+    }
   }
 
   questions.forEach(q => {
@@ -5745,9 +5805,11 @@ window.onQuotaQuestionSelected = function() {
   try {
     const options = JSON.parse(selectedOption.dataset.options);
     options.forEach(o => {
+      const val = typeof o === 'object' && o !== null ? (o.name || o.label || '') : o;
+      const lbl = typeof o === 'object' && o !== null ? (o.label || o.name || '') : o;
       const opt = document.createElement('option');
-      opt.value = o;
-      opt.textContent = o;
+      opt.value = val;
+      opt.textContent = lbl;
       optSelect.appendChild(opt);
     });
   } catch {}
@@ -6371,7 +6433,9 @@ window.autoFixFormIssues = function() {
     // 4. Fix broken skip logic
     if (q._logic && q._logic.length > 0) {
       const validRules = q._logic.filter(rule => {
-        return rule.target && questions.some(targetQ => targetQ.id === rule.target);
+        const tid = rule.targetId || rule.target;
+        if (!tid) return true; // Keep raw or expression rules
+        return questions.some(targetQ => targetQ.id === tid);
       });
       if (validRules.length !== q._logic.length) {
         q._logic = validRules;
@@ -6682,19 +6746,30 @@ window.openGroupModal = function() {
 
 window.confirmCreateGroup = function() {
   const name = document.getElementById('group-modal-name')?.value.trim();
-  const type = document.getElementById('group-modal-type')?.value || 'group';
+  const groupKind = document.getElementById('group-modal-type')?.value || 'group';
   if (!name) return showToast('warning', 'Informe o nome da seção.');
   
-  const qId = 'sec_' + (state.activeForm.questions.length + 1);
-  const newQ = {
-    id: qId,
+  const isRepeat = groupKind === 'repeat' || groupKind === 'begin_repeat';
+  const prefix = isRepeat ? 'rep_' : 'grp_';
+  const qId = prefix + (state.activeForm.questions.length + 1);
+  
+  const beginQ = {
+    id: qId + '_inicio',
     title: name,
     text: name,
-    type: type,
+    type: isRepeat ? 'begin_repeat' : 'begin_group',
     options: [],
     required: false
   };
-  state.activeForm.questions.push(newQ);
+  const endQ = {
+    id: qId + '_fim',
+    title: `Fim de ${name}`,
+    text: `Fim de ${name}`,
+    type: isRepeat ? 'end_repeat' : 'end_group',
+    options: [],
+    required: false
+  };
+  state.activeForm.questions.push(beginQ, endQ);
   renderBuilderQuestions();
   document.getElementById('group-modal')?.classList.remove('active');
   showToast('success', `Seção "${name}" criada com sucesso!`);
@@ -6704,7 +6779,15 @@ window.loadInterviews = async function() {
   await loadServerData();
 };
 
-window.showConfirmModal = showConfirm;
+window.showConfirmModal = function(t, m, a, b) {
+  if (typeof a === 'function') {
+    return showConfirm(t, m, a, b);
+  } else if (typeof b === 'function') {
+    return showConfirm(t, m, b, a);
+  } else {
+    return showConfirm(t, m, () => {}, a || {});
+  }
+};
 
 
 

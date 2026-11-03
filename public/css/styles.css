@@ -4,7 +4,7 @@
    Tema Claro Principal com Alto Contraste para Operação Sob Sol
    ===================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap');
+/* Google Fonts imported via <link> in HTML */
 
 :root {
   /* Cor Única de Destaque: Verde-Floresta Institucional Sóbrio */
@@ -711,7 +711,7 @@ textarea.code-area,
 
 .btn-success {
   background: var(--status-approved-text); color: #fff;
-  color: #01180d !important;
+  color: #ffffff !important;
   font-weight: 700;
   box-shadow: 0 4px 14px var(--green-dim);
 }
@@ -848,7 +848,7 @@ textarea.code-area,
 }
 
 .data-table th {
-  background: rgba(6, 10, 22, 0.95);
+  background: var(--bg-subtle);
   color: var(--t-low);
   font-size: 0.68rem;
   font-weight: 700;
@@ -1543,7 +1543,7 @@ textarea.code-area,
 
 .sys-sub-bar {
   height: 42px;
-  background: rgba(6, 10, 22, 0.7);
+  background: var(--bg-subtle);
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
@@ -1870,7 +1870,7 @@ textarea.code-area,
    PROJECT DETAILS WORKSPACE
    ===================================================================== */
 .sys-project-header {
-  background: rgba(6, 10, 22, 0.95) !important;
+  background: var(--bg-surface) !important;
 
   border-bottom: 1px solid var(--border) !important;
   height: 60px !important;
@@ -2296,7 +2296,7 @@ textarea.code-area,
 .mobile-header {
   display: none;
   height: 54px;
-  background: rgba(6, 10, 22, 0.96);
+  background: var(--bg-surface);
   
   border-bottom: 1px solid var(--border);
   align-items: center;
@@ -2937,7 +2937,7 @@ textarea:focus-visible {
 .crosstab-count {
   font-weight: 800;
   font-size: 0.95rem;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .crosstab-subtext {
@@ -3358,6 +3358,8 @@ textarea:focus-visible {
    GUIADATA PRO - HIGH-DENSITY OPERATIONAL PROJECT LIST (MANAUS FIELD OPS)
    ===================================================================== */
 .proj-table-container {
+  position: relative;
+  min-height: 280px;
   background: #0d1527;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius);
@@ -3891,6 +3893,8 @@ textarea:focus-visible {
    DENSE OPERATIONAL PROJECT TABLE (IBGE / DATAFOLHA REPORT STYLE)
    ===================================================================== */
 .proj-table-container {
+  position: relative;
+  min-height: 280px;
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
